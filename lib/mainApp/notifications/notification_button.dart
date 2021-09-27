@@ -29,9 +29,14 @@ class MainNotificationPage extends StatelessWidget {
 
 bool isSwitched = false;
 
-class NotificationSwitch extends StatelessWidget {
+class NotificationSwitch extends StatefulWidget {
   const NotificationSwitch({Key? key}) : super(key: key);
 
+  @override
+  State<NotificationSwitch> createState() => _NotificationSwitchState();
+}
+
+class _NotificationSwitchState extends State<NotificationSwitch> {
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -47,7 +52,7 @@ class NotificationSwitch extends StatelessWidget {
             children: [
               const SizedBox(height: 5),
               Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-                Row(children: [
+                Row(children: const [
                   Text(
                     'Notification',
                     style: TextStyle(fontWeight: FontWeight.bold),
@@ -59,7 +64,6 @@ class NotificationSwitch extends StatelessWidget {
                   onChanged: (value) {
                     setState(() {
                       isSwitched = value;
-                      print(isSwitched);
                     });
                   },
                   activeTrackColor: Colors.lightGreenAccent,
@@ -73,10 +77,4 @@ class NotificationSwitch extends StatelessWidget {
       ),
     );
   }
-}
-
-void setState(Null Function() param0) {
-  // setState(() {
-  //   isSwitched = true;
-  // });
 }

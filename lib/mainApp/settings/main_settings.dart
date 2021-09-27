@@ -84,9 +84,14 @@ class ProfilePicSetting extends StatelessWidget {
 
 bool isSwitched = false;
 
-class DarkModeSwitch extends StatelessWidget {
+class DarkModeSwitch extends StatefulWidget {
   const DarkModeSwitch({Key? key}) : super(key: key);
 
+  @override
+  State<DarkModeSwitch> createState() => _DarkModeSwitchState();
+}
+
+class _DarkModeSwitchState extends State<DarkModeSwitch> {
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -114,11 +119,22 @@ class DarkModeSwitch extends StatelessWidget {
                 ]),
                 //=================================//
                 Switch(
-                  onChanged: (bool newValue) {
-                    setState(() {
-                      isSwitched = newValue;
-                    });
-                  },
+                  onChanged: (bool value){
+                    if(isSwitched == false)  
+                    {  
+                      setState(() {  
+                        isSwitched = true;  print('Switch Button is ON');  
+                      });  
+                      
+                    }  
+                    else  
+                    {  
+                      setState(() {  
+                        isSwitched = false;   print('Switch Button is OFF');  
+                      });  
+                     
+                    }  
+                  },//toggleSwitch(isSwitched),
                   value: isSwitched,
                   activeColor: Colors.blue,
                   activeTrackColor: Colors.lightBlueAccent,
@@ -278,10 +294,4 @@ class SCardAbout extends StatelessWidget {
       ),
     );
   }
-}
-
-void setState(Null Function() param0) {
-  // setState(() {
-  //   isSwitched = true;
-  // });
 }

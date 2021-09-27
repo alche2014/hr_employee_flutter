@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
+import '../../colors.dart';
 import 'Utility/cards/teamCard.dart';
 import 'Utility/content/list_of_data.dart';
 
-final darkRed = Color(0xffbf2634);
 
 class MainHomeProfile extends StatefulWidget {
   @override
@@ -104,12 +104,12 @@ class _MainHomeProfileState extends State<MainHomeProfile> {
                           height: 140,
                           // margin: EdgeInsets.symmetric(horizontal: 25),
                           decoration: BoxDecoration(
-                            border: Border(
+                            border: const Border(
                                 bottom: BorderSide(color: darkRed, width: 3)),
                             color: MediaQuery.of(context).platformBrightness ==
                                     Brightness.light
                                 ? Colors.white
-                                : Color(0xff34354A),
+                                : const Color(0xff34354A),
                           ),
                           child: Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -120,14 +120,14 @@ class _MainHomeProfileState extends State<MainHomeProfile> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    Text('Check In',
+                                    const Text('Check In',
                                         style: TextStyle(
                                             fontWeight: FontWeight.bold)),
                                     SizedBox(height: 5),
-                                    Text('You Haven,t chock in yet',
+                                    const Text('You Haven,t chock in yet',
                                         style: TextStyle(color: Colors.grey)),
                                     SizedBox(height: 5),
-                                    Text('00 : 00 : 00 HRS',
+                                    const Text('00 : 00 : 00 HRS',
                                         style: TextStyle(
                                             fontWeight: FontWeight.bold,
                                             fontSize: 18)),
