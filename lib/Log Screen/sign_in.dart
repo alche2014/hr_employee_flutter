@@ -2,8 +2,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:hr_app/background/background.dart';
 import 'package:hr_app/mainApp/Personal_Info/personal_info.dart';
-import 'package:hr_app/mainApp/bottom_navigation/bottom_nav_bar.dart';
-import 'package:hr_app/mainApp/mainProfile/my_profile_edit.dart';
 import '../colors.dart';
 
 //-------Main Login Screen------//
