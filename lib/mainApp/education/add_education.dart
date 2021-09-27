@@ -42,6 +42,8 @@ class AddEducationBody extends StatefulWidget {
 class _AddEducationBodyState extends State<AddEducationBody> {
   var dropGenderValue;
   var checkedValue = false;
+  var startDate;
+  var endDate;
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -134,16 +136,24 @@ class _AddEducationBodyState extends State<AddEducationBody> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text('Start Birth',
-                      style: TextStyle(color: Colors.grey)),
+                  Text(startDate == null
+                        ? 'Start Birth'
+                        : '${startDate!.day}/${startDate!.month}/${startDate!.year}'
+                            .toString(),
+                            style: TextStyle(color: Colors.grey),),
                   IconButton(
-                      icon: const Icon(Icons.today, color: Colors.grey),
+                      icon: Icon(Icons.today, color: Colors.grey),
                       onPressed: () {
                         showDatePicker(
-                            context: context,
-                            initialDate: DateTime(2005),
-                            firstDate: DateTime(2000),
-                            lastDate: DateTime.now());
+                                context: context,
+                                initialDate: DateTime.now(),
+                                firstDate: DateTime(2000),
+                                lastDate: DateTime(2022))
+                            .then((value) {
+                          setState(() {
+                            startDate = value;
+                          });
+                        });
                       })
                 ],
               ),
@@ -161,16 +171,25 @@ class _AddEducationBodyState extends State<AddEducationBody> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text('End Birth', style: TextStyle(color: Colors.grey)),
+                  Text(endDate == null
+                        ? 'End Birth'
+                        : '${endDate!.day}/${endDate!.month}/${endDate!.year}'
+                            .toString(),
+                            style: TextStyle(color: Colors.grey),),
                   IconButton(
                       icon: Icon(Icons.today, color: Colors.grey),
                       onPressed: () {
                         showDatePicker(
-                            context: context,
-                            initialDate: DateTime(2005),
-                            firstDate: DateTime(2000),
-                            lastDate: DateTime.now());
-                      }),
+                                context: context,
+                                initialDate: DateTime.now(),
+                                firstDate: DateTime(2000),
+                                lastDate: DateTime(2022))
+                            .then((value) {
+                          setState(() {
+                            endDate = value;
+                          });
+                        });
+                      })
                 ],
               ),
             )),

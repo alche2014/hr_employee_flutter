@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:hr_app/mainApp/settings/main_settings.dart';
 import 'package:hr_app/mainUtility/text_input_design.dart';
+import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 
 import '../../colors.dart';
 
@@ -14,6 +15,25 @@ class FormTwo extends StatefulWidget {
   @override
   _FormTwoState createState() => _FormTwoState();
 }
+final TextEditingController textController = TextEditingController();
+
+// class _ExampleMask {
+//   final TextEditingController textController = TextEditingController();
+//   final MaskTextInputFormatter formatter;
+//   FormFieldValidator<String> validator;
+//   String hint;
+//   _ExampleMask(
+//       {required this.formatter, required this.validator, required this.hint});
+// }
+
+// final List<_ExampleMask> examples = [
+//   _ExampleMask(
+//       formatter: MaskTextInputFormatter(mask: "#####-#######-#"),
+//       hint: "35202-1234567-8",
+//       validator: (String? value) {}),
+// ];
+
+
 
 class _FormTwoState extends State<FormTwo> {
   // bool value = false;
@@ -21,6 +41,8 @@ class _FormTwoState extends State<FormTwo> {
   var gender;
   var dropGenderValue;
   var dropCityValue;
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -257,6 +279,8 @@ class _FormTwoState extends State<FormTwo> {
               const SizedBox(height: 15),
               //--------------CNIC-------------------//
               TextFormField(
+                controller: textController,
+                inputFormatters: [MaskTextInputFormatter(mask: "#####-#######-#")],
                 decoration: MyInputStyle('CNIC No.'),
                 keyboardType: TextInputType.number,
                 validator: (value) {

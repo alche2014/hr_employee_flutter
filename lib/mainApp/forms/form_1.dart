@@ -16,7 +16,7 @@ class FormOne extends StatefulWidget {
 class _FormOneState extends State<FormOne> {
   // ignore: prefer_typing_uninitialized_variables
   var gender;
-  // ignore: prefer_typing_uninitialized_variables
+  var dateOfBirth;
   var dropdownValue;
   @override
   Widget build(BuildContext context) {
@@ -141,31 +141,41 @@ class _FormOneState extends State<FormOne> {
               const SizedBox(height: 10),
               //-------------------------------------------------//
               Container(
-                height: 60,
-                margin: const EdgeInsets.symmetric(vertical: 10),
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  border:
-                      Border.all(color: Colors.grey.withOpacity(0.4), width: 1),
+              height: 60,
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(10),
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text('Date of Birth',
-                        style: TextStyle(color: Colors.grey)),
-                    IconButton(
-                        icon: const Icon(Icons.today, color: Colors.grey),
-                        onPressed: () {
-                          showDatePicker(
-                              context: context,
-                              initialDate: DateTime(2005),
-                              firstDate: DateTime(2000),
-                              lastDate: DateTime.now());
-                        })
-                  ],
-                ),
+                  border: Border.all(
+                    color: Colors.grey.shade300.withOpacity(0.8),
+                    width: 2,
+                  )),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    dateOfBirth == null
+                        ? 'Date of Birth'
+                        : '${dateOfBirth!.day}/${dateOfBirth!.month}/${dateOfBirth!.year}'
+                            .toString(),
+                            style: const TextStyle(color: Colors.grey),
+                  ),
+                  IconButton(
+                      icon: Icon(Icons.today, color: Colors.grey),
+                      onPressed: () {
+                        showDatePicker(
+                                context: context,
+                                initialDate: DateTime.now(),
+                                firstDate: DateTime(2000),
+                                lastDate: DateTime(2022))
+                            .then((value) {
+                          setState(() {
+                            dateOfBirth = value;
+                          });
+                        });
+                      })
+                ],
               ),
+            ),
               //-------------------------------------------------//
               Row(
                 children: [

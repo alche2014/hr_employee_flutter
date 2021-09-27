@@ -17,6 +17,7 @@ import 'package:flutter/material.dart';
                   hintStyle: const TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w400,
+                    color: Colors.grey
                   ));
   }
 //=================================================================//
