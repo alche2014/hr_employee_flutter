@@ -5,6 +5,7 @@ import 'package:hr_app/mainApp/settings/main_settings.dart';
 import 'package:hr_app/mainUtility/text_input_design.dart';
 
 import '../../colors.dart';
+
 enum Gender { male, female }
 
 class FormTwo extends StatefulWidget {
@@ -20,6 +21,7 @@ class _FormTwoState extends State<FormTwo> {
   var gender;
   var dropGenderValue;
   var dropCityValue;
+
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
@@ -221,15 +223,15 @@ class _FormTwoState extends State<FormTwo> {
               const SizedBox(height: 15),
               //--------------CheckBox-------------------//
               ListTile(
-              leading: Checkbox(
-                value: checkedValue,
-                activeColor: const Color(0xff6036D8),
-                onChanged: (newValue) {
-                  setState(() {
-                    checkedValue = newValue!;
-                  });
-                },
-              ),
+                leading: Checkbox(
+                  value: checkedValue,
+                  activeColor: const Color(0xff6036D8),
+                  onChanged: (newValue) {
+                    setState(() {
+                      checkedValue = newValue!;
+                    });
+                  },
+                ),
                 title: const Text('Vaccinated against COVID'),
               ),
               const SizedBox(height: 15),
