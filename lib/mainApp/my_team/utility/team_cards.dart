@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hr_app/mainApp/my_team/main_myteam.dart';
 
 import '../../../colors.dart';
 
@@ -14,7 +15,10 @@ class TeamCard extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
       child: InkWell(
         borderRadius: BorderRadius.circular(10),
-        onTap: () {},
+        onTap: () {
+          Navigator.push(context,
+          MaterialPageRoute(builder: (context) => const MyTeamProfile()));
+        },
         child: Container(
           width: MediaQuery.of(context).size.width,
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),

@@ -1,36 +1,24 @@
 // ignore_for_file: prefer_const_constructors, avoid_unnecessary_containers
 import 'package:flutter/material.dart';
 import 'package:hr_app/AppBar/appbar.dart';
-import 'package:hr_app/mainApp/mainProfile/Card/AboutCard.dart';
-import 'package:hr_app/mainApp/mainProfile/Card/AccountInfoCard.dart';
-import 'package:hr_app/mainApp/mainProfile/Card/EducationCard.dart';
-import 'package:hr_app/mainApp/mainProfile/Card/ExperienceCard.dart';
-import 'package:hr_app/mainApp/mainProfile/Card/Personal_Info_Card.dart';
-import 'package:hr_app/mainApp/mainProfile/Card/work_info_card.dart';
 
-import 'Card/skillsCard.dart';
-
-class MyProfileEdit extends StatelessWidget {
-  const MyProfileEdit({Key? key}) : super(key: key);
+class MyTeamProfile extends StatelessWidget {
+  const MyTeamProfile({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       extendBodyBehindAppBar: true,
-      appBar: buildMyAppBar(context, 'Profile', true),
+      appBar: buildMyAppBar(context, 'My Team', true),
       body: SingleChildScrollView(
         child: Column(
-          children: const [
+          children: [
             // ignore: sized_box_for_whitespace
             UpperPortion(),
             //================================//
-            AboutCard(),
-            WorkInfoCard(),
-            SkillsCard(),
-            ExperienceCard(),
-            EducationCard(),
-            PersonalInfoCard(),
-            AccountInfoCard(),
+            ProfileCard(headTitle: 'Personal Information', press: () {}),
+            ProfileCard(headTitle: 'Attendence', press: () {}),
+            ProfileCard(headTitle: 'Requests', press: () {}),
             SizedBox(height: 30),
           ],
         ),
@@ -138,6 +126,70 @@ class ProfilePic extends StatelessWidget {
             Text('Front-End UI', style: TextStyle(color: Colors.white)),
           ]),
         ]),
+      ),
+    );
+  }
+}
+
+//=========================================================================//
+
+// ignore: must_be_immutable
+class ProfileCard extends StatelessWidget {
+  //reused card
+  String? headTitle;
+  final VoidCallback? press;
+
+  ProfileCard({
+    this.headTitle,
+    this.press,
+  });
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+      child: InkWell(
+        onTap: press,
+        borderRadius: BorderRadius.circular(10),
+        child: Container(
+          height: 100,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(color: Colors.grey.withOpacity(0.1), width: 2),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 15),
+            //============================================//
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                //=========================================//
+                Row(mainAxisAlignment: MainAxisAlignment.start, children: [
+                  CircleAvatar(
+                    radius: 30,
+                    backgroundColor: Color(0xffF8E7E9),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(100),
+                      child: Image.asset('assets/custom/person.png'),
+                    ),
+                  ),
+                  SizedBox(width: 10),
+                  Text('$headTitle',
+                      style: TextStyle(fontWeight: FontWeight.bold)),
+                ]),
+                //===============================================//
+                CircleAvatar(
+                  radius: 15,
+                  backgroundColor: Color(0xffF8E7E9),
+                  child: IconButton(
+                    onPressed: () {},
+                    icon: Icon(Icons.arrow_forward_ios,
+                        size: 15, color: Colors.black),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }
