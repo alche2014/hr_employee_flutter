@@ -25,33 +25,37 @@ class MainNotification extends StatelessWidget {
         children: [
           const BackgroundCircle(),
           Container(
-            padding: EdgeInsets.symmetric(vertical: 50, horizontal: 10),
-            child: Column(
-              children: [
-                Container(
-                  padding: EdgeInsets.symmetric(horizontal: 20,vertical: 5),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      Text('New Notification'),
-                    ],
+            padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 10),
+            child: SingleChildScrollView(
+              child: Column(
+                children: [
+                  const SizedBox(height: 50),
+                  Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: const [
+                        Text('New Notification'),
+                      ],
+                    ),
                   ),
-                ),
-                NotificationCard(note1, date, icon1),
-                NotificationCard(note2, date, icon2),
-                Container(
-                  padding: EdgeInsets.symmetric(horizontal: 20,vertical: 5),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      Text('Early'),
-                    ],
+                  NotificationCard(note1, date, icon1),
+                  NotificationCard(note2, date, icon2),
+                  Container(
+                    padding: EdgeInsets.symmetric(horizontal: 20, vertical: 5),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: const [
+                        Text('Early'),
+                      ],
+                    ),
                   ),
-                ),
-                NotificationCard(note1, date, icon1),
-                NotificationCard(note2, date, icon2),
-                NotificationCard(note3, date, icon3),
-              ],
+                  NotificationCard(note1, date, icon1),
+                  NotificationCard(note2, date, icon2),
+                  NotificationCard(note3, date, icon3),
+                ],
+              ),
             ),
           ),
         ],
@@ -67,7 +71,8 @@ class NotificationCard extends StatelessWidget {
   String text2;
   final IconData next;
 
-  NotificationCard(this.text1, this.text2, this.next) {
+  NotificationCard(this.text1, this.text2, this.next, {Key? key})
+      : super(key: key) {
     // this.text1 = text1;
     // this.text2 = text2;
     // this.next;
@@ -75,11 +80,11 @@ class NotificationCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20,vertical: 10 ),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
       child: Container(
-        padding: EdgeInsets.symmetric(vertical: 20, horizontal: 5),
+        padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 5),
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.all(
+          borderRadius: const BorderRadius.all(
             Radius.circular(10),
           ),
           border: Border.all(color: Colors.grey.withOpacity(0.1), width: 2),
@@ -94,9 +99,7 @@ class NotificationCard extends StatelessWidget {
                   size: 50,
                   color: Colors.green,
                 ),
-                SizedBox(
-                  width: 20,
-                ),
+                const SizedBox(width: 20),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -105,7 +108,7 @@ class NotificationCard extends StatelessWidget {
                     Text(text1), //<==
                     Text(
                       text2,
-                      style: TextStyle(color: Colors.grey),
+                      style: const TextStyle(color: Colors.grey),
                     ), //<==
                   ],
                 ),

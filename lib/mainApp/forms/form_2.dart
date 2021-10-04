@@ -51,14 +51,25 @@ class _FormTwoState extends State<FormTwo> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               const SizedBox(height: 60),
-              CircleAvatar(
-                backgroundColor: Colors.transparent,
-                radius: 50,
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(100),
-                  child: Image.asset("assets/user_image.png"),
-                ),
-              ),
+              Stack(
+                    //using stack to lap edit icon over Picture
+                    children: const [
+                      ClipRRect(
+                        child: Image(
+                          height: 100,
+                          image: AssetImage('assets/user_image.png'),
+                        ),
+                      ),
+                      Positioned(
+                          bottom: 10,
+                          right: 0,
+                          child: Image(
+                            image: AssetImage('assets/custom/Vector.png'),
+                            width: 30,
+                            fit: BoxFit.cover,
+                          )),
+                    ],
+                  ),
               const SizedBox(height: 35),
               //--------------name-------------------//
               TextFormField(
