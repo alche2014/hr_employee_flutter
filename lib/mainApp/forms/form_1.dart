@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:hr_app/mainApp/bottom_navigation/bottom_nav_bar.dart';
 import 'package:hr_app/mainUtility/text_input_design.dart';
 
+import '../../colors.dart';
+
 enum Gender { male, female }
 
 class FormOne extends StatefulWidget {

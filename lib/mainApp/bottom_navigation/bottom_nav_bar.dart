@@ -7,7 +7,7 @@ import 'package:hr_app/mainApp/mainProfile/my_profile_edit.dart';
 int? count;
 
 class NavBar extends StatefulWidget {
-  NavBar(int a) {
+  NavBar(int a, {Key? key}) : super(key: key) {
     //Intializing Globle variable for indexing nav position
     count = a;
   }
@@ -15,17 +15,15 @@ class NavBar extends StatefulWidget {
   _NavBarState createState() => _NavBarState();
 }
 
-final darkRed = Color(0xffbf2634);
-
 class _NavBarState extends State<NavBar> {
   int _currentindex = count!;
 
   final tabs = [
     //Assigning Tabs for bottom bar position Icon
-    Center(child: MyProfileEdit()),
-    Center(child: MainAnnouncement()),
-    Center(child: LeaveManagement()),
-    Center(child: MainPersonal_Info()),
+    const Center(child: MyProfileEdit()),
+    const Center(child: MainAnnouncement()),
+    const Center(child: LeaveManagement()),
+    const Center(child: MainPersonal_Info()),
   ];
   @override
   Widget build(BuildContext context) {
@@ -34,7 +32,7 @@ class _NavBarState extends State<NavBar> {
         bottomNavigationBar: BottomNavigationBar(
             currentIndex: _currentindex,
             type: BottomNavigationBarType.fixed,
-            items: [
+            items: const [
               BottomNavigationBarItem(icon: Icon(Icons.home), label: ""),
               BottomNavigationBarItem(
                   icon: Icon(Icons.person_add_alt_1), label: ""),

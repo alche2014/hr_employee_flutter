@@ -3,6 +3,7 @@ import 'package:hr_app/AppBar/appbar.dart';
 import 'package:hr_app/background/background.dart';
 import 'package:hr_app/mainApp/education/main_education.dart';
 import 'package:hr_app/mainApp/experiences/add_experiences.dart';
+import 'package:hr_app/mainApp/my_team/main_team.dart';
 
 class MainExperiences extends StatelessWidget {
   const MainExperiences({Key? key}) : super(key: key);
@@ -133,29 +134,36 @@ class CardThree extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: Colors.grey.withOpacity(0.4), width: 1),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-          child: Row(children: [
-            SizedBox(height: 40, child: Image.asset('assets/picBack.png')),
-            const SizedBox(width: 20),
-            Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: const [
-                  Text(
-                    'Graphic Web Designer',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  SizedBox(height: 3),
-                  Text('Computer Xperts - Full time'),
-                  SizedBox(height: 3),
-                  Text('Mar 2016 – Feb 20182 yrs'),
-                ]),
-          ]),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(8),
+        onTap: () {
+          Navigator.of(context).push(
+              MaterialPageRoute(builder: (context) => const MyTeam()));
+        },
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(color: Colors.grey.withOpacity(0.4), width: 1),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+            child: Row(children: [
+              SizedBox(height: 40, child: Image.asset('assets/picBack.png')),
+              const SizedBox(width: 20),
+              Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: const [
+                    Text(
+                      'Graphic Web Designer',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    SizedBox(height: 3),
+                    Text('Computer Xperts - Full time'),
+                    SizedBox(height: 3),
+                    Text('Mar 2016 – Feb 20182 yrs'),
+                  ]),
+            ]),
+          ),
         ),
       ),
     );
