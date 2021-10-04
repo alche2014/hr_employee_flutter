@@ -17,6 +17,7 @@ class LeaveCard extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
       child: InkWell(
+        borderRadius: const BorderRadius.all(Radius.circular(10)),
         onTap: press,
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),

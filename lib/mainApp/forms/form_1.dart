@@ -1,4 +1,4 @@
-// ignore_for_file: prefer_const_declarations
+// ignore_for_file: prefer_const_declarations, duplicate_ignore
 
 import 'package:flutter/material.dart';
 import 'package:hr_app/mainApp/bottom_navigation/bottom_nav_bar.dart';
@@ -42,7 +42,6 @@ class _FormOneState extends State<FormOne> {
                 decoration: MyInputStyle('Your Name'),
                 autovalidateMode: AutovalidateMode.onUserInteraction,
                 validator: (value) {
-                  // ignore: prefer_const_declarations
                   final pattern = ('[a-zA-Z]+([\s][a-zA-Z]+)*');
                   final regExp = RegExp(pattern);
                   if (value!.isEmpty) {
@@ -174,7 +173,7 @@ class _FormOneState extends State<FormOne> {
                             dateOfBirth = value;
                           });
                         });
-                      })
+                      }),
                 ],
               ),
             ),
