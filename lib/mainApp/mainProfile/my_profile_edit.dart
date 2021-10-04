@@ -1,5 +1,6 @@
 // ignore_for_file: prefer_const_constructors, avoid_unnecessary_containers
 import 'package:flutter/material.dart';
+import 'package:hr_app/AppBar/appbar.dart';
 // import 'package:hr_app/AppBar/appbar.dart';
 import 'package:hr_app/mainApp/mainProfile/Card/AboutCard.dart';
 import 'package:hr_app/mainApp/mainProfile/Card/AccountInfoCard.dart';
@@ -16,8 +17,8 @@ class MyProfileEdit extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // extendBodyBehindAppBar: true,
-      // appBar: buildMyAppBar(context, 'Profile', true),
+      extendBodyBehindAppBar: true,
+      appBar: buildMyAppBar(context, 'Profile', true),
       body: SingleChildScrollView(
         child: Column(
           children: const [
@@ -69,21 +70,6 @@ class UpperPortion extends StatelessWidget {
                   // crossAxisAlignment: CrossAxisAlignment.center,
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Row(children: [
-                            IconButton(
-                                onPressed: () {},
-                                icon: Icon(Icons.arrow_back_ios,
-                                    color: Colors.white)),
-                            Text('Profile',
-                                style: TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold)),
-                          ]),
-                          Icon(Icons.notifications, color: Colors.white)
-                        ]),
                     Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [

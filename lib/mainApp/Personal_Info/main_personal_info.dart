@@ -5,7 +5,6 @@ import 'package:hr_app/AppBar/appbar.dart';
 import 'package:hr_app/background/background.dart';
 import 'package:hr_app/mainApp/forms/form_2.dart';
 
-// import 'package:hr_app/mainApp/forms/form_2.dart';
 
 class MainPersonal_Info extends StatelessWidget {
   const MainPersonal_Info({Key? key}) : super(key: key);

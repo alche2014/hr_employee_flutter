@@ -24,7 +24,7 @@ class LeaveManagement extends StatelessWidget {
         children: [
           const BackgroundCircle(),
           Container(
-            padding: const EdgeInsets.only(top: 50),
+            padding: const EdgeInsets.only(top: 10),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:hr_app/AppBar/appbar.dart';
 import 'package:hr_app/background/background.dart';
 import 'package:hr_app/mainApp/work_info/utility/build_my_input_decoration.dart';
-import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 
 class MyWorkInfo extends StatefulWidget {
   const MyWorkInfo({Key? key}) : super(key: key);
@@ -25,7 +24,7 @@ class _MyWorkInfoState extends State<MyWorkInfo> {
           SingleChildScrollView(
             child: Column(
               children: [
-                const SizedBox(height: 60),
+                const SizedBox(height: 80),
                 //===============================================//
                 Center(
                   child: Stack(

@@ -15,6 +15,7 @@ class FormTwo extends StatefulWidget {
   @override
   _FormTwoState createState() => _FormTwoState();
 }
+
 final TextEditingController textController = TextEditingController();
 
 // class _ExampleMask {
@@ -33,16 +34,12 @@ final TextEditingController textController = TextEditingController();
 //       validator: (String? value) {}),
 // ];
 
-
-
 class _FormTwoState extends State<FormTwo> {
   // bool value = false;
   bool checkedValue = false;
   var gender;
   var dropGenderValue;
   var dropCityValue;
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -53,7 +50,7 @@ class _FormTwoState extends State<FormTwo> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              const SizedBox(height: 35),
+              const SizedBox(height: 60),
               CircleAvatar(
                 backgroundColor: Colors.transparent,
                 radius: 50,
@@ -280,7 +277,9 @@ class _FormTwoState extends State<FormTwo> {
               //--------------CNIC-------------------//
               TextFormField(
                 controller: textController,
-                inputFormatters: [MaskTextInputFormatter(mask: "#####-#######-#")],
+                inputFormatters: [
+                  MaskTextInputFormatter(mask: "#####-#######-#")
+                ],
                 decoration: MyInputStyle('CNIC No.'),
                 keyboardType: TextInputType.number,
                 validator: (value) {
