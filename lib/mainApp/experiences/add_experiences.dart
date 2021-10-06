@@ -1,4 +1,4 @@
-// ignore_for_file: prefer_typing_uninitialized_variables
+// ignore_for_file: prefer_typing_uninitialized_variables, unnecessary_string_escapes, prefer_const_declarations, prefer_const_constructors
 
 import 'package:flutter/material.dart';
 import 'package:hr_app/AppBar/appbar.dart';
@@ -14,18 +14,21 @@ class AddExperience extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       extendBodyBehindAppBar: true,
-      appBar: buildMyAppBar(context, 'Add Experience', true),
+      // appBar: buildMyAppBar(context, 'Add Experience', true),
       body: Stack(
         children: [
           const BackgroundCircle(),
-          SingleChildScrollView(
+          NestedScrollView(
+            headerSliverBuilder: (context, innerBoxIsScrolled) => [
+              buildMyNewAppBar(context, 'Add Experience', true),
+            ],
+          body: SingleChildScrollView(
             child: Column(
               children: const [
-                SizedBox(height: 50),
                 AddExperienceBody(),
               ],
             ),
-          ),
+          ),),
         ],
       ),
     );
@@ -66,22 +69,23 @@ class _AddExperienceBodyState extends State<AddExperienceBody> {
           ),
           const SizedBox(height: 15),
           //-------------------------------------------------//
-          SizedBox(
+          Container(
             height: 60,
-            child: Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10),
-                border: Border.all(
-                  color: Colors.grey.shade300.withOpacity(0.8),
-                  width: 2,
-                ),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(6),
+              border: Border.all(
+                color: Colors.grey.shade300.withOpacity(0.8),
+                width: 2,
               ),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 5),
               child: DropdownButtonFormField(
                 decoration: InputDecoration(
                     border: const OutlineInputBorder(
                       borderSide: BorderSide.none,
                       borderRadius: BorderRadius.all(
-                        Radius.circular(10.0),
+                        Radius.circular(6.0),
                       ),
                     ),
                     hintText: "Employment Status",
@@ -136,10 +140,10 @@ class _AddExperienceBodyState extends State<AddExperienceBody> {
               }
             },
           ),
-          const SizedBox(height: 5),
+          const SizedBox(height: 8),
           //-------------------------------------------------//
-          ListTile(
-            leading: Checkbox(
+          Row(children: [
+         Checkbox(
               value: checkedValue,
               activeColor: const Color(0xff61C1D1),
               onChanged: (newValue) {
@@ -148,64 +152,68 @@ class _AddExperienceBodyState extends State<AddExperienceBody> {
                 });
               },
             ),
-            title: const Text('I am currently working in this role'),
-          ),
-          const SizedBox(height: 3),
-          //--------------------------------------------------//
-          Row(children: [
-            Expanded(
-                child: Container(
-              height: 60,
-              margin: const EdgeInsets.symmetric(vertical: 10),
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                  border: Border.all(
-                      color: Colors.grey.shade300.withOpacity(0.8), width: 2),
-                  borderRadius: BorderRadius.circular(10)),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text('Start Birth',
-                      style: TextStyle(color: Colors.grey)),
-                  IconButton(
-                      icon: const Icon(Icons.today, color: Colors.grey),
-                      onPressed: () {
-                        showDatePicker(
-                            context: context,
-                            initialDate: DateTime(2005),
-                            firstDate: DateTime(2000),
-                            lastDate: DateTime.now());
-                      })
-                ],
-              ),
-            )),
-            SizedBox(width: 10),
-            Expanded(
-                child: Container(
-              height: 60,
-              margin: EdgeInsets.symmetric(vertical: 10),
-              padding: EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                  border: Border.all(
-                      color: Colors.grey.shade300.withOpacity(0.8), width: 2),
-                  borderRadius: BorderRadius.circular(10)),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text('End Birth', style: TextStyle(color: Colors.grey)),
-                  IconButton(
-                      icon: Icon(Icons.today, color: Colors.grey),
-                      onPressed: () {
-                        showDatePicker(
-                            context: context,
-                            initialDate: DateTime(2005),
-                            firstDate: DateTime(2000),
-                            lastDate: DateTime.now());
-                      }),
-                ],
-              ),
-            )),
+            Text('I am currently working in this role'),
           ]),
+          //--------------------------------------------------//
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical:10 ),
+            child: Row(children: [
+              Expanded(
+                  child: Container(
+                height: 60,
+                decoration: BoxDecoration(
+                    border: Border.all(
+                        color: Colors.grey.shade300.withOpacity(0.8), width: 2),
+                    borderRadius: BorderRadius.circular(10)),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(left: 10),
+                      child: const Text('Start Birth',
+                          style: TextStyle(color: Colors.grey)),
+                    ),
+                    IconButton(
+                        icon: const Icon(Icons.today, color: Colors.grey),
+                        onPressed: () {
+                          showDatePicker(
+                              context: context,
+                              initialDate: DateTime(2005),
+                              firstDate: DateTime(2000),
+                              lastDate: DateTime.now());
+                        })
+                  ],
+                ),
+              )),
+              SizedBox(width: 10),
+              Expanded(
+                  child: Container(
+                height: 60,
+                decoration: BoxDecoration(
+                    border: Border.all(
+                        color: Colors.grey.shade300.withOpacity(0.8), width: 2),
+                    borderRadius: BorderRadius.circular(10)),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(left: 10),
+                      child: Text('End Birth', style: TextStyle(color: Colors.grey)),
+                    ),
+                    IconButton(
+                        icon: Icon(Icons.today, color: Colors.grey),
+                        onPressed: () {
+                          showDatePicker(
+                              context: context,
+                              initialDate: DateTime(2005),
+                              firstDate: DateTime(2000),
+                              lastDate: DateTime.now());
+                        }),
+                  ],
+                ),
+              )),
+            ]),
+          ),
           const SizedBox(height: 5),
           //--------------------------------------------------//
           TextFormField(
@@ -229,35 +237,38 @@ class _AddExperienceBodyState extends State<AddExperienceBody> {
             height: 60,
             child: Container(
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10),
+                borderRadius: BorderRadius.circular(6),
                 border: Border.all(
                   color: Colors.grey.shade300.withOpacity(0.8),
                   width: 2,
                 ),
               ),
-              child: DropdownButtonFormField(
-                decoration: InputDecoration(
-                    border: const OutlineInputBorder(
-                      borderSide: BorderSide.none,
-                      borderRadius: BorderRadius.all(
-                        Radius.circular(10.0),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 10),
+                child: DropdownButtonFormField(
+                  decoration: InputDecoration(
+                      border: const OutlineInputBorder(
+                        borderSide: BorderSide.none,
+                        borderRadius: BorderRadius.all(
+                          Radius.circular(6.0),
+                        ),
                       ),
-                    ),
-                    hintText: "Industry",
-                    fillColor: Theme.of(context).scaffoldBackgroundColor),
-                value: dropGenderValue,
-                items: <String>['Permanent', 'Temporary']
-                    .map<DropdownMenuItem<String>>((String value) {
-                  return DropdownMenuItem<String>(
-                    value: value,
-                    child: Text(value),
-                  );
-                }).toList(),
-                onChanged: (value) {
-                  setState(() {
-                    dropGenderValue = value;
-                  });
-                },
+                      hintText: "Industry",
+                      fillColor: Theme.of(context).scaffoldBackgroundColor),
+                  value: dropGenderValue,
+                  items: <String>['Permanent', 'Temporary']
+                      .map<DropdownMenuItem<String>>((String value) {
+                    return DropdownMenuItem<String>(
+                      value: value,
+                      child: Text(value),
+                    );
+                  }).toList(),
+                  onChanged: (value) {
+                    setState(() {
+                      dropGenderValue = value;
+                    });
+                  },
+                ),
               ),
             ),
           ),

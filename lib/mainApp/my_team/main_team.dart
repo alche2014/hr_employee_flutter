@@ -1,3 +1,5 @@
+// ignore_for_file: prefer_const_constructors
+
 import 'package:flutter/material.dart';
 import 'package:hr_app/AppBar/appbar.dart';
 import 'package:hr_app/background/background.dart';
@@ -10,27 +12,20 @@ class MyTeam extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       extendBodyBehindAppBar: true,
-      appBar: buildMyAppBar(context, 'My Team', false),
+      // appBar: buildMyAppBar(context, 'My Team', false),
       body: Stack(
-        children: const [
+        children: [
           BackgroundCircle(),
-          TeamAllView(),
+          NestedScrollView(
+            headerSliverBuilder: (context, innerBoxIsScrolled) => [
+              buildMyNewAppBar(context, 'My Team', false),
+            ],
+            body: ListView.builder(
+                itemCount: teamCardData.length,
+                itemBuilder: (context, index) => teamCardData[index]),
+          ),
         ],
       ),
     );
-  }
-}
-
-class TeamAllView extends StatelessWidget {
-  const TeamAllView({
-    Key? key,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return ListView.builder(
-        // scrollDirection: Axis.horizontal,
-        itemCount: teamCardData.length,
-        itemBuilder: (context, index) => teamCardData[index]);
   }
 }

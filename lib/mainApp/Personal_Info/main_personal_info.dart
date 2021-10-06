@@ -1,4 +1,4 @@
-// ignore_for_file: camel_case_types
+// ignore_for_file: camel_case_types, prefer_const_constructors
 
 import 'package:flutter/material.dart';
 import 'package:hr_app/AppBar/appbar.dart';
@@ -13,10 +13,15 @@ class MainPersonal_Info extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       extendBodyBehindAppBar: true,
-      appBar: buildMyAppBar(context, 'Personal Info', true),
-      body: Stack(children: const [
+      // appBar: buildMyAppBar(context, 'Personal Info', true),
+      body: Stack(children: [
         BackgroundCircle(),
-        FormTwo(),
+        NestedScrollView(
+            headerSliverBuilder: (context, innerBoxIsScrolled) => [
+              buildMyNewAppBar(context, 'Personal Info', true),
+            ],
+        body: FormTwo(),
+        ),
       ]),
     );
   }

@@ -1,3 +1,5 @@
+// ignore_for_file: prefer_const_constructors, avoid_unnecessary_containers
+
 import 'package:flutter/material.dart';
 import 'package:hr_app/mainApp/leave_management/Utility/showDialog.dart';
 
@@ -86,12 +88,12 @@ class MyCustomCard extends StatelessWidget {
   bool? picOrName;
 
   MyCustomCard(
-      {this.header,
+      {Key? key, this.header,
       this.body,
       this.status,
       this.buttonToggle,
       this.statusToggle,
-      this.picOrName});
+      this.picOrName}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

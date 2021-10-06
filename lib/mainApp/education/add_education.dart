@@ -1,3 +1,5 @@
+// ignore_for_file: prefer_typing_uninitialized_variables, prefer_const_declarations, prefer_const_constructors
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:hr_app/AppBar/appbar.dart';
@@ -14,16 +16,20 @@ class AddEducation extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       extendBodyBehindAppBar: true,
-      appBar: buildMyAppBar(context, 'Add Education', true),
+      // appBar: buildMyAppBar(context, 'Add Education', true),
       body: Stack(
         children: [
           const BackgroundCircle(),
-          SingleChildScrollView(
+          NestedScrollView(
+            headerSliverBuilder: (context, innerBoxIsScrolled) => [
+              buildMyNewAppBar(context, 'Add Education', true),
+            ],
+          body: SingleChildScrollView(
             child: Column(
               children: const [
-                SizedBox(height: 50),
                 AddEducationBody(),
               ],
+            ),
             ),
           ),
         ],
@@ -69,38 +75,41 @@ class _AddEducationBodyState extends State<AddEducationBody> {
           const SizedBox(height: 15),
           //-------------------------------------------------//
           SizedBox(
-            height: 60,
+            height: 62,
             child: Container(
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10),
+                borderRadius: BorderRadius.circular(6),
                 border: Border.all(
                   color: Colors.grey.shade300.withOpacity(0.8),
                   width: 2,
                 ),
               ),
-              child: DropdownButtonFormField(
-                decoration: InputDecoration(
-                    border: const OutlineInputBorder(
-                      borderSide: BorderSide.none,
-                      borderRadius: BorderRadius.all(
-                        Radius.circular(10.0),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 5),
+                child: DropdownButtonFormField(
+                  decoration: InputDecoration(
+                      border: const OutlineInputBorder(
+                        borderSide: BorderSide.none,
+                        borderRadius: BorderRadius.all(
+                          Radius.circular(6.0),
+                        ),
                       ),
-                    ),
-                    hintText: "Degree",
-                    fillColor: Theme.of(context).scaffoldBackgroundColor),
-                value: dropGenderValue,
-                items: <String>['Permanent', 'Temporary']
-                    .map<DropdownMenuItem<String>>((String value) {
-                  return DropdownMenuItem<String>(
-                    value: value,
-                    child: Text(value),
-                  );
-                }).toList(),
-                onChanged: (value) {
-                  setState(() {
-                    dropGenderValue = value;
-                  });
-                },
+                      hintText: "Degree",
+                      fillColor: Theme.of(context).scaffoldBackgroundColor),
+                  value: dropGenderValue,
+                  items: <String>['Permanent', 'Temporary']
+                      .map<DropdownMenuItem<String>>((String value) {
+                    return DropdownMenuItem<String>(
+                      value: value,
+                      child: Text(value),
+                    );
+                  }).toList(),
+                  onChanged: (value) {
+                    setState(() {
+                      dropGenderValue = value;
+                    });
+                  },
+                ),
               ),
             ),
           ),
@@ -121,79 +130,83 @@ class _AddEducationBodyState extends State<AddEducationBody> {
               }
             },
           ),
-          const SizedBox(height: 15),
           //-------------------------------------------------//
-          Row(children: [
-            Expanded(
-                child: Container(
-              height: 60,
-              margin: const EdgeInsets.symmetric(vertical: 10),
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                  border: Border.all(
-                      color: Colors.grey.shade300.withOpacity(0.8), width: 2),
-                  borderRadius: BorderRadius.circular(10)),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(startDate == null
-                        ? 'Start Birth'
-                        : '${startDate!.day}/${startDate!.month}/${startDate!.year}'
-                            .toString(),
-                            style: TextStyle(color: Colors.grey),),
-                  IconButton(
-                      icon: Icon(Icons.today, color: Colors.grey),
-                      onPressed: () {
-                        showDatePicker(
-                                context: context,
-                                initialDate: DateTime.now(),
-                                firstDate: DateTime(2000),
-                                lastDate: DateTime(2022))
-                            .then((value) {
-                          setState(() {
-                            startDate = value;
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 15),
+            child: Row(children: [
+              Expanded(
+                  child: Container(
+                height: 60,
+                decoration: BoxDecoration(
+                    border: Border.all(
+                        color: Colors.grey.shade300.withOpacity(0.8), width: 2),
+                    borderRadius: BorderRadius.circular(6)),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(left: 15),
+                      child: Text(startDate == null
+                            ? 'Start Birth'
+                            : '${startDate!.day}/${startDate!.month}/${startDate!.year}'
+                                .toString(),
+                                style: TextStyle(color: Colors.grey),),
+                    ),
+                    IconButton(
+                        icon: Icon(Icons.today, color: Colors.grey),
+                        onPressed: () {
+                          showDatePicker(
+                                  context: context,
+                                  initialDate: DateTime.now(),
+                                  firstDate: DateTime(2000),
+                                  lastDate: DateTime(2022))
+                              .then((value) {
+                            setState(() {
+                              startDate = value;
+                            });
                           });
-                        });
-                      })
-                ],
-              ),
-            )),
-            SizedBox(width: 10),
-            Expanded(
-                child: Container(
-              height: 60,
-              margin: EdgeInsets.symmetric(vertical: 10),
-              padding: EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                  border: Border.all(
-                      color: Colors.grey.shade300.withOpacity(0.8), width: 2),
-                  borderRadius: BorderRadius.circular(10)),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(endDate == null
-                        ? 'End Birth'
-                        : '${endDate!.day}/${endDate!.month}/${endDate!.year}'
-                            .toString(),
-                            style: TextStyle(color: Colors.grey),),
-                  IconButton(
-                      icon: Icon(Icons.today, color: Colors.grey),
-                      onPressed: () {
-                        showDatePicker(
-                                context: context,
-                                initialDate: DateTime.now(),
-                                firstDate: DateTime(2000),
-                                lastDate: DateTime(2022))
-                            .then((value) {
-                          setState(() {
-                            endDate = value;
+                        })
+                  ],
+                ),
+              )),
+              SizedBox(width: 10),
+              Expanded(
+                  child: Container(
+                height: 60,
+                decoration: BoxDecoration(
+                    border: Border.all(
+                        color: Colors.grey.shade300.withOpacity(0.8), width: 2),
+                    borderRadius: BorderRadius.circular(6)),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(left: 15),
+                      child: Text(endDate == null
+                            ? 'End Birth'
+                            : '${endDate!.day}/${endDate!.month}/${endDate!.year}'
+                                .toString(),
+                                style: TextStyle(color: Colors.grey),),
+                    ),
+                    IconButton(
+                        icon: Icon(Icons.today, color: Colors.grey),
+                        onPressed: () {
+                          showDatePicker(
+                                  context: context,
+                                  initialDate: DateTime.now(),
+                                  firstDate: DateTime(2000),
+                                  lastDate: DateTime(2022))
+                              .then((value) {
+                            setState(() {
+                              endDate = value;
+                            });
                           });
-                        });
-                      })
-                ],
-              ),
-            )),
-          ]),
+                        })
+                  ],
+                ),
+              )),
+            ]),
+          ),
           const SizedBox(height: 5),
           //--------------------------------------------------//
           TextFormField(

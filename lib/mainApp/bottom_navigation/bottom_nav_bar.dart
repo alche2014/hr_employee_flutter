@@ -32,6 +32,8 @@ class _NavBarState extends State<NavBar> {
         bottomNavigationBar: BottomNavigationBar(
             currentIndex: _currentindex,
             type: BottomNavigationBarType.fixed,
+            showSelectedLabels: false,
+            showUnselectedLabels: false,
             items: const [
               BottomNavigationBarItem(icon: Icon(Icons.home), label: ""),
               BottomNavigationBarItem(

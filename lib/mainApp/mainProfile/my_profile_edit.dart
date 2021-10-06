@@ -48,7 +48,7 @@ class UpperPortion extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: MediaQuery.of(context).size.height * 0.40,
+      height: MediaQuery.of(context).size.height * 0.30,
       child: Stack(
         children: [
           //--------------backimage-----------------//
@@ -57,7 +57,7 @@ class UpperPortion extends StatelessWidget {
             left: 0,
             right: 0,
             child: Container(
-              height: 300,
+              height: MediaQuery.of(context).size.height * 0.30,
               decoration: BoxDecoration(
                   image: DecorationImage(
                 image: AssetImage('assets/foggy.jpg'),
@@ -87,7 +87,7 @@ class UpperPortion extends StatelessWidget {
 
           //--------------mainWhite-Back-of-CenterCard---------------//
           Positioned(
-            top: MediaQuery.of(context).size.height * 0.35,
+            top: MediaQuery.of(context).size.height * 0.25,
             left: 0,
             right: 0,
             child: Container(

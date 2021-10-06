@@ -1,7 +1,10 @@
+// ignore_for_file: prefer_typing_uninitialized_variables, unnecessary_new, prefer_const_declarations, prefer_const_constructors
+
 import 'package:flutter/material.dart';
 import 'package:hr_app/AppBar/appbar.dart';
 import 'package:hr_app/background/background.dart';
 import 'package:hr_app/mainApp/work_info/utility/build_my_input_decoration.dart';
+import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 
 class MyWorkInfo extends StatefulWidget {
   const MyWorkInfo({Key? key}) : super(key: key);
@@ -13,18 +16,24 @@ class MyWorkInfo extends StatefulWidget {
 
 
 class _MyWorkInfoState extends State<MyWorkInfo> {
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       extendBodyBehindAppBar: true,
-      appBar: buildMyAppBar(context, 'Work Info', true),
+      // appBar: buildMyAppBar(context, 'Work Info', true),
       body: Stack(
         children: [
           const BackgroundCircle(),
-          SingleChildScrollView(
+          NestedScrollView(
+            headerSliverBuilder: (context, innerBoxIsScrolled) => [
+              buildMyNewAppBar(context, 'Work Info', true),
+            ],
+          body: SingleChildScrollView(
             child: Column(
               children: [
-                const SizedBox(height: 80),
+                // const SizedBox(height: 80),
                 //===============================================//
                 Center(
                   child: Stack(
@@ -55,7 +64,7 @@ class _MyWorkInfoState extends State<MyWorkInfo> {
               ],
             ),
           ),
-        ],
+          ),],
       ),
     );
   }
@@ -81,6 +90,10 @@ class _WorkFormState extends State<WorkForm> {
   TextEditingController controllerAddress = new TextEditingController();
   TextEditingController controllerPhone = new TextEditingController();
   TextEditingController controllerCNIC = new TextEditingController();
+
+    final maskFormatter = MaskTextInputFormatter(mask: '+92 ### ### ####');
+    final maskCNICFormatter = MaskTextInputFormatter(mask: '#####-#######-#');
+
 
   @override
   Widget build(BuildContext context) {
@@ -206,6 +219,7 @@ class _WorkFormState extends State<WorkForm> {
               controller: controllerCNIC,
               decoration: buildMyInputDecoration(context, 'CNIC No.'),
               keyboardType: TextInputType.number,
+              inputFormatters: [maskCNICFormatter],
               validator: (value) {
                 final regExp = RegExp('/^[0-9]{5}-[0-9]{7}-[0-9]{1}/g');
                 if (value!.isEmpty) {
@@ -260,6 +274,7 @@ class _WorkFormState extends State<WorkForm> {
             TextFormField(
               decoration: buildMyInputDecoration(context, 'Phone'),
               keyboardType: TextInputType.number,
+              inputFormatters: [maskFormatter],
               validator: (value) {
                 final regExp = RegExp('/^[0-9]{5}-[0-9]{7}-[0-9]{1}/g');
                 if (value!.isEmpty) {

@@ -1,4 +1,4 @@
-// ignore_for_file: prefer_typing_uninitialized_variables, prefer_const_declarations
+// ignore_for_file: prefer_typing_uninitialized_variables, prefer_const_declarations, unnecessary_string_escapes, prefer_const_constructors
 
 import 'package:flutter/material.dart';
 import 'package:hr_app/mainApp/settings/main_settings.dart';
@@ -18,21 +18,8 @@ class FormTwo extends StatefulWidget {
 
 final TextEditingController textController = TextEditingController();
 
-// class _ExampleMask {
-//   final TextEditingController textController = TextEditingController();
-//   final MaskTextInputFormatter formatter;
-//   FormFieldValidator<String> validator;
-//   String hint;
-//   _ExampleMask(
-//       {required this.formatter, required this.validator, required this.hint});
-// }
-
-// final List<_ExampleMask> examples = [
-//   _ExampleMask(
-//       formatter: MaskTextInputFormatter(mask: "#####-#######-#"),
-//       hint: "35202-1234567-8",
-//       validator: (String? value) {}),
-// ];
+    final maskFormatter = MaskTextInputFormatter(mask: '+92 ### ### ####');
+    final maskCNICFormatter = MaskTextInputFormatter(mask: '#####-#######-#');
 
 class _FormTwoState extends State<FormTwo> {
   // bool value = false;
@@ -50,7 +37,6 @@ class _FormTwoState extends State<FormTwo> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              const SizedBox(height: 60),
               Stack(
                     //using stack to lap edit icon over Picture
                     children: const [
@@ -113,6 +99,7 @@ class _FormTwoState extends State<FormTwo> {
               TextFormField(
                 decoration: MyInputStyle('Phone'),
                 keyboardType: TextInputType.number,
+                inputFormatters: [maskFormatter],
                 validator: (value) {
                   final regExp = RegExp('[0-9]');
                   if (value!.isEmpty) {
@@ -127,8 +114,9 @@ class _FormTwoState extends State<FormTwo> {
               const SizedBox(height: 15),
               //--------------City-------------------//
               Container(
+                height: 60,
                 decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius: BorderRadius.circular(6),
                   border: Border.all(
                     color: Colors.grey.withOpacity(0.4),
                     width: 1,
@@ -139,7 +127,7 @@ class _FormTwoState extends State<FormTwo> {
                       border: const OutlineInputBorder(
                         borderSide: BorderSide.none,
                         borderRadius: BorderRadius.all(
-                          Radius.circular(10.0),
+                          Radius.circular(6.0),
                         ),
                       ),
                       hintStyle: TextStyle(color: Colors.grey.withOpacity(0.8)),
@@ -200,8 +188,9 @@ class _FormTwoState extends State<FormTwo> {
               const SizedBox(height: 20),
               //--------------marital-status-------------------//
               Container(
+                height: 60,
                 decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius: BorderRadius.circular(6),
                   border: Border.all(
                     color: Colors.grey.withOpacity(0.4),
                     width: 1,
@@ -212,7 +201,7 @@ class _FormTwoState extends State<FormTwo> {
                       border: const OutlineInputBorder(
                         borderSide: BorderSide.none,
                         borderRadius: BorderRadius.all(
-                          Radius.circular(10.0),
+                          Radius.circular(6.0),
                         ),
                       ),
                       hintStyle: TextStyle(color: Colors.grey.withOpacity(0.8)),
@@ -252,8 +241,8 @@ class _FormTwoState extends State<FormTwo> {
               ),
               const SizedBox(height: 15),
               //--------------CheckBox-------------------//
-              ListTile(
-                leading: Checkbox(
+              Row(children: [
+                Checkbox(
                   value: checkedValue,
                   activeColor: const Color(0xff6036D8),
                   onChanged: (newValue) {
@@ -262,12 +251,12 @@ class _FormTwoState extends State<FormTwo> {
                     });
                   },
                 ),
-                title: const Text('Vaccinated against COVID'),
-              ),
+                 Text('Vaccinated against COVID'),
+              ]),
               const SizedBox(height: 15),
               //--------------buttons-------------------//
               Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   ElevatedButton(
                       style: ElevatedButton.styleFrom(primary: Colors.grey),
@@ -288,9 +277,7 @@ class _FormTwoState extends State<FormTwo> {
               //--------------CNIC-------------------//
               TextFormField(
                 controller: textController,
-                inputFormatters: [
-                  MaskTextInputFormatter(mask: "#####-#######-#")
-                ],
+                inputFormatters: [maskCNICFormatter],
                 decoration: MyInputStyle('CNIC No.'),
                 keyboardType: TextInputType.number,
                 validator: (value) {

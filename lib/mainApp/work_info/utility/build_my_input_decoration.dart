@@ -3,11 +3,11 @@ import 'package:flutter/material.dart';
 InputDecoration buildMyInputDecoration(BuildContext context, String hint) {
   return InputDecoration(
     focusedBorder: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(10),
+      borderRadius: BorderRadius.circular(6),
       borderSide: BorderSide(color: Colors.grey.shade300, width: 1),
     ),
     enabledBorder: OutlineInputBorder(
-      borderRadius: BorderRadius.circular(10),
+      borderRadius: BorderRadius.circular(6),
       borderSide:
           BorderSide(color: Colors.grey.shade300.withOpacity(0.8), width: 2),
     ),

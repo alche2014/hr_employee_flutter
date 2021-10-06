@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_unnecessary_containers, prefer_const_constructors
+
 import 'package:flutter/material.dart';
 import 'package:hr_app/AppBar/appbar.dart';
 import 'package:hr_app/background/background.dart';
@@ -25,32 +27,34 @@ class MainCheckIn extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       extendBodyBehindAppBar: true,
-      appBar: buildMyAppBar(context, 'Checkin History', true), //custom appbar
+      // appBar: buildMyAppBar(context, 'Checkin History', true), //custom appbar
       body: Stack(
         children: [
           const BackgroundCircle(),
-          Padding(
-            padding: const EdgeInsets.only(top: 50),
-            child: Container(
-              child: SingleChildScrollView(
-                child: Column(
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        DropDownOpt(),        //dropdown menu define below
-                      ],
-                    ),
-                    SizedBox(height: 10),
-                    LeaveCard(),
-                    CheckInCard('Late'),
-                    CheckInCard('on Time'),
-                    CheckInCard('Late'),
-                    CheckInCard('on Time'),
-                  ],
-                ),
+          NestedScrollView(
+            headerSliverBuilder: (context, innerBoxIsScrolled) => [
+              buildMyNewAppBar(context, 'Checkin History', true),
+            ],
+          body: Container(
+            child: SingleChildScrollView(
+              child: Column(
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      DropDownOpt(),        //dropdown menu define below
+                    ],
+                  ),
+                  SizedBox(height: 10),
+                  LeaveCard(),
+                  CheckInCard('Late'),
+                  CheckInCard('on Time'),
+                  CheckInCard('Late'),
+                  CheckInCard('on Time'),
+                ],
               ),
             ),
+          ),
           ),
         ],
       ),

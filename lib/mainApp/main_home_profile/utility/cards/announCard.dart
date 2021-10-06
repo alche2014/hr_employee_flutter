@@ -1,3 +1,5 @@
+// ignore_for_file: file_names, prefer_const_constructors_in_immutables, prefer_const_constructors, unnecessary_string_interpolations
+
 import 'package:flutter/material.dart';
 
 final darkRed = Color(0xffbf2634);
@@ -6,7 +8,7 @@ class AnnCard extends StatelessWidget {
   final String head;
   final String body;
   final String date;
-  AnnCard(this.head, this.body, this.date);
+  AnnCard(this.head, this.body, this.date, {Key? key}) : super(key: key);
 
   //reuse but with changing
   @override

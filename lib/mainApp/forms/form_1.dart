@@ -1,8 +1,9 @@
-// ignore_for_file: prefer_const_declarations, duplicate_ignore
+// ignore_for_file: prefer_const_declarations, duplicate_ignore, prefer_typing_uninitialized_variables
 
 import 'package:flutter/material.dart';
 import 'package:hr_app/mainApp/bottom_navigation/bottom_nav_bar.dart';
 import 'package:hr_app/mainUtility/text_input_design.dart';
+import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 
 import '../../colors.dart';
 
@@ -17,6 +18,8 @@ class FormOne extends StatefulWidget {
 
 class _FormOneState extends State<FormOne> {
   // ignore: prefer_typing_uninitialized_variables
+
+  final maskFormatter = MaskTextInputFormatter(mask: '+92 ### ### ####');
   var gender;
   var dateOfBirth;
   var dropdownValue;
@@ -96,6 +99,7 @@ class _FormOneState extends State<FormOne> {
               TextFormField(
                 decoration: MyInputStyle('Phone'),
                 keyboardType: TextInputType.number,
+                inputFormatters: [maskFormatter],
                 validator: (value) {
                   final regExp = RegExp('[0-9]');
                   if (value!.isEmpty) {
@@ -110,32 +114,36 @@ class _FormOneState extends State<FormOne> {
               const SizedBox(height: 15),
               //-------------------------------------------------//
               Container(
+                height: 60,
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
                   border:
                       Border.all(color: Colors.grey.withOpacity(0.4), width: 1),
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius: BorderRadius.circular(6),
                 ),
                 child: DropdownButtonHideUnderline(
-                  child: DropdownButton<String>(
-                    value: dropdownValue,
-                    icon: const Icon(Icons.keyboard_arrow_down),
-                    elevation: 0,
-                    isExpanded: true,
-                    hint: const Text('Marital status',
-                        style: TextStyle(color: Colors.grey)),
-                    onChanged: (String? newValue) {
-                      //   setState(() {
-                      //     dropdownValue = newValue;
-                      //   });
-                    },
-                    items: <String>['Single', 'Married']
-                        .map<DropdownMenuItem<String>>((String value) {
-                      return DropdownMenuItem<String>(
-                        value: value,
-                        child: Text(value),
-                      );
-                    }).toList(),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                    child: DropdownButton<String>(
+                      value: dropdownValue,
+                      icon: const Icon(Icons.keyboard_arrow_down),
+                      elevation: 0,
+                      isExpanded: true,
+                      hint: const Text('Marital status',
+                          style: TextStyle(color: Colors.grey)),
+                      onChanged: (String? newValue) {
+                        //   setState(() {
+                        //     dropdownValue = newValue;
+                        //   });
+                      },
+                      items: <String>['Single', 'Married']
+                          .map<DropdownMenuItem<String>>((String value) {
+                        return DropdownMenuItem<String>(
+                          value: value,
+                          child: Text(value),
+                        );
+                      }).toList(),
+                    ),
                   ),
                 ),
               ),
@@ -143,7 +151,7 @@ class _FormOneState extends State<FormOne> {
               //-------------------------------------------------//
               Container(
               height: 60,
-              padding: const EdgeInsets.all(10),
+              padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(10),
                   border: Border.all(
@@ -153,12 +161,15 @@ class _FormOneState extends State<FormOne> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    dateOfBirth == null
-                        ? 'Date of Birth'
-                        : '${dateOfBirth!.day}/${dateOfBirth!.month}/${dateOfBirth!.year}'
-                            .toString(),
-                            style: const TextStyle(color: Colors.grey),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 10),
+                    child: Text(
+                      dateOfBirth == null
+                          ? 'Date of Birth'
+                          : '${dateOfBirth!.day}/${dateOfBirth!.month}/${dateOfBirth!.year}'
+                              .toString(),
+                              style: const TextStyle(color: Colors.grey),
+                    ),
                   ),
                   IconButton(
                       icon: Icon(Icons.today, color: Colors.grey),
@@ -177,6 +188,7 @@ class _FormOneState extends State<FormOne> {
                 ],
               ),
             ),
+              const SizedBox(height: 10),
               //-------------------------------------------------//
               Row(
                 children: [
@@ -213,7 +225,7 @@ class _FormOneState extends State<FormOne> {
                   ),
                 ],
               ),
-              const SizedBox(height: 30),
+              const SizedBox(height: 25),
               //=============================//
               Row(
                 children: [
