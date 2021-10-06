@@ -1,3 +1,5 @@
+// ignore_for_file: prefer_const_constructors, prefer_const_constructors_in_immutables
+
 import 'package:flutter/material.dart';
 
 final darkRed = Color(0xffbf2634);
@@ -6,7 +8,7 @@ class AnnCard extends StatelessWidget {
   final String head;
   final String body;
   final String date;
-  AnnCard(this.head, this.body, this.date);
+  AnnCard(this.head, this.body, this.date, {Key? key}) : super(key: key);
 
   //reuse but with changing
   @override
@@ -14,6 +16,7 @@ class AnnCard extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10 ),
       child: Container(
+                width: MediaQuery.of(context).size.width * 0.88,
         padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
         decoration: BoxDecoration(
           borderRadius: const BorderRadius.all(
@@ -42,7 +45,7 @@ class AnnCard extends StatelessWidget {
                 fontSize: 15,
               ),
             ),
-            SizedBox(height: 50),
+            SizedBox(height: 40),
             Text(
               date,
               style: TextStyle(

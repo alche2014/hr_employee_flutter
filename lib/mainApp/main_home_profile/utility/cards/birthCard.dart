@@ -1,3 +1,5 @@
+// ignore_for_file: file_names, prefer_const_constructors_in_immutables, prefer_const_constructors, unnecessary_string_interpolations
+
 import 'package:flutter/material.dart';
 
 final darkRed = Color(0xffbf2634);
@@ -6,7 +8,7 @@ class BirthDayCard extends StatelessWidget {
   final String name;
   final String date;
   final String day;
-  BirthDayCard(this.name, this.date, this.day);
+  BirthDayCard(this.name, this.date, this.day, {Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -39,7 +41,7 @@ class BirthDayCard extends StatelessWidget {
                   ClipRRect(
                     borderRadius:
                         BorderRadius.circular(10.0), //add border radius here
-                    child: Image.asset('assets/images/ben.jpg',
+                    child: Image.asset('assets/ben.jpg',
                         height: 85), //add image location here
                   ),
                   SizedBox(width: 20),

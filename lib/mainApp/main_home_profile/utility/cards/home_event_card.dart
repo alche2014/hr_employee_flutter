@@ -1,3 +1,5 @@
+// ignore_for_file: prefer_const_constructors, avoid_unnecessary_containers, unnecessary_string_interpolations
+
 import 'package:flutter/material.dart';
 import '../../../../colors.dart';
 
@@ -8,7 +10,7 @@ class HomeEventCard extends StatelessWidget {
   String head;
   String timeDate;
   String pic;
-  HomeEventCard(this.date, this.month, this.head, this.timeDate, this.pic);
+  HomeEventCard(this.date, this.month, this.head, this.timeDate, this.pic, {Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -29,7 +31,7 @@ class HomeEventCard extends StatelessWidget {
               Stack(
                 children: [
                   Image(
-                    image: AssetImage('assets/images/$pic.png'),
+                    image: AssetImage('assets/$pic.png'),
                     height: 150,
                     width: MediaQuery.of(context).size.width,
                     fit: BoxFit.cover,

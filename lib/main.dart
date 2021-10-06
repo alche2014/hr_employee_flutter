@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hr_app/Log%20Screen/sign_in.dart';
+import 'test/testing.dart';
 import 'theme.dart';
 
 void main() {
@@ -36,3 +37,6 @@ class _MyAppState extends State<MyApp> {
     );
   }
 }
+
+// home: const MainTesting(),
+// home: const SignIn(),

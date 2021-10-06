@@ -1,10 +1,12 @@
+// ignore_for_file: file_names, prefer_const_constructors, unnecessary_string_interpolations
+
 import 'package:flutter/material.dart';
 
 // ignore: must_be_immutable
 class LeaveCard extends StatelessWidget {
   String head;
   String body;
-  LeaveCard(this.head, this.body);
+  LeaveCard(this.head, this.body, {Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +26,7 @@ class LeaveCard extends StatelessWidget {
           children: [
             CircleAvatar(
               backgroundColor: Colors.white,
-              backgroundImage: AssetImage('assets/icons/custom/round.png'),
+              backgroundImage: AssetImage('assets/custom/round.png'),
               radius: 30,
             ),
             SizedBox(width: 20),

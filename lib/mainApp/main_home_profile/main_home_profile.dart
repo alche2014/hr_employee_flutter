@@ -1,3 +1,5 @@
+// ignore_for_file: use_key_in_widget_constructors, sized_box_for_whitespace, prefer_const_constructors, unnecessary_string_interpolations
+
 import 'package:flutter/material.dart';
 import '../../colors.dart';
 import 'Utility/cards/teamCard.dart';
@@ -29,7 +31,7 @@ class _MainHomeProfileState extends State<MainHomeProfile> {
                       height: 300,
                       decoration: BoxDecoration(
                           image: DecorationImage(
-                        image: AssetImage('assets/images/foggy.jpg'),
+                        image: AssetImage('assets/foggy.jpg'),
                         fit: BoxFit.cover,
                       )),
                       child: Column(
@@ -51,7 +53,7 @@ class _MainHomeProfileState extends State<MainHomeProfile> {
                           ),
                           CircleAvatar(
                             backgroundImage:
-                                AssetImage('assets/images/ben.jpg'),
+                                AssetImage('assets/ben.jpg'),
                             maxRadius: 40,
                           ),
                           SizedBox(height: 10),
@@ -306,7 +308,7 @@ class _MainHomeProfileState extends State<MainHomeProfile> {
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
       child: ListTile(
         leading: Image(
-            image: AssetImage('assets/icons/custom/$icon.png'), height: 40),
+            image: AssetImage('assets/custom/$icon.png'), height: 40),
         title: Text('$head', style: TextStyle(fontWeight: FontWeight.bold)),
         trailing: TextButton(
             onPressed: () {},

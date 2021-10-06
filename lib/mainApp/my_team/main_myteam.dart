@@ -1,6 +1,7 @@
 // ignore_for_file: prefer_const_constructors, avoid_unnecessary_containers
 import 'package:flutter/material.dart';
 import 'package:hr_app/AppBar/appbar.dart';
+import 'package:hr_app/mainApp/main_home_profile/main_home_profile.dart';
 
 class MyTeamProfile extends StatelessWidget {
   const MyTeamProfile({Key? key}) : super(key: key);
@@ -16,7 +17,10 @@ class MyTeamProfile extends StatelessWidget {
             // ignore: sized_box_for_whitespace
             UpperPortion(),
             //================================//
-            ProfileCard(headTitle: 'Personal Information', press: () {}),
+            ProfileCard(headTitle: 'Personal Information', press: () {
+                        Navigator.push(context,
+          MaterialPageRoute(builder: (context) => MainHomeProfile()));
+            }),
             ProfileCard(headTitle: 'Attendence', press: () {}),
             ProfileCard(headTitle: 'Requests', press: () {}),
             SizedBox(height: 30),
