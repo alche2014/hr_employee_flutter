@@ -12,7 +12,6 @@ class MainSignUp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
       extendBodyBehindAppBar: true,
       appBar: buildMyAppBar(context, '', false),
       body: Stack(
@@ -123,7 +122,8 @@ class ResetByNumberCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text('via sms:',
-                          style: TextStyle(color: Colors.grey, fontSize: 15)),
+                          style: TextStyle(fontSize: 15)),
+                          SizedBox(height: 5),
                       Text(
                           //on card
                           '.... .... 9011',
@@ -178,7 +178,8 @@ class ResetByEmailCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text('via email:',
-                          style: TextStyle(color: Colors.grey, fontSize: 15)),
+                          style: TextStyle( fontSize: 15)),
+                          SizedBox(height: 5),
                       Text(
                           //on card
                           '.... ....el@gmail.com',

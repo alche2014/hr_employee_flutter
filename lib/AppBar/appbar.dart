@@ -19,6 +19,7 @@ import '../colors.dart';
               title: Text(
                 name,
                 style: TextStyle(
+                    fontFamily: 'Sodia',
                     color: MediaQuery.of(context).platformBrightness ==
                             Brightness.light
                         ? kContentColorLightTheme
@@ -63,6 +64,7 @@ AppBar buildMyAppBar(BuildContext context, String name, bool turn ) {
     title: Text(
       name,
       style: TextStyle(
+        fontFamily: 'Sodia',
           color: MediaQuery.of(context).platformBrightness == Brightness.light
               ? kContentColorLightTheme
               : Colors.grey),

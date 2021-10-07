@@ -48,9 +48,9 @@ class LeaveCard extends StatelessWidget {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      SizedBox(height: 5),
+                      SizedBox(height: 8),
                       Text(text!),
-                      SizedBox(height: 5),
+                      SizedBox(height: 8),
                       Text('20 anual leaves pending',
                           style: TextStyle(color: Colors.grey, fontSize: 10)),
                       TextButton(

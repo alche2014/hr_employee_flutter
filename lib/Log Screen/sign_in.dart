@@ -1,5 +1,8 @@
+// ignore_for_file: prefer_const_constructors
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:hr_app/background/background.dart';
 import 'package:hr_app/mainApp/Personal_Info/personal_info.dart';
 import 'package:hr_app/sign_up/sign_up.dart';
@@ -34,8 +37,6 @@ class LogBody extends StatelessWidget {
     Key? key,
   }) : super(key: key);
 
-  
-
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
@@ -64,8 +65,10 @@ class LogBody extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(horizontal: 20),
                     child: Column(children: [
                       TextFormField(
+                        style: GoogleFonts.sofia(),
                           decoration: InputDecoration(
-                            hintText: "Email",
+                            hintText: "Username",
+                            hintStyle: TextStyle(fontFamily: 'Sofia'),
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(10.0),
                               borderSide: const BorderSide(

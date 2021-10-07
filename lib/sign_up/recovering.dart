@@ -1,8 +1,10 @@
-// ignore_for_file: prefer_const_constructors, must_be_immutable, prefer_const_literals_to_create_immutables, prefer_const_constructors_in_immutables
+// ignore_for_file: prefer_const_constructors, must_be_immutable, prefer_const_literals_to_create_immutables, prefer_const_constructors_in_immutables, curly_braces_in_flow_control_structures
 
 import 'package:flutter/material.dart';
 import 'package:hr_app/AppBar/appbar.dart';
 import 'package:hr_app/background/background.dart';
+import 'package:hr_app/colors.dart';
+import 'package:hr_app/sign_up/reset_password.dart';
 
 //use welcome screen to run app
 class MainRecovering extends StatelessWidget {
@@ -11,7 +13,6 @@ class MainRecovering extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
       extendBodyBehindAppBar: true,
       appBar: buildMyAppBar(context, '', false),
       body: Stack(
@@ -73,96 +74,150 @@ class _MainMainRecoveringBody extends StatelessWidget {
         // Spacer(),
         //----------------------------------------------//
         Spacer(flex: 1),
-        ResetByNumberCard(),
+        _RecoveryCards(),
         Spacer(flex: 2),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: FractionallySizedBox(
+            widthFactor: 1,
+            child: ElevatedButton(
+              onPressed: () {
+                Navigator.of(context).push(MaterialPageRoute(
+                    builder: (context) => MainResetPassword()));
+              },
+              style: ElevatedButton.styleFrom(
+                primary: kPrimaryRed,
+                padding: EdgeInsets.symmetric(
+                  vertical: 20,
+                ),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(5)),
+              ),
+              child: Text(
+                'NEXT',
+              ),
+            ),
+          ),
+        ),
+        Spacer(),
       ],
     );
   }
 }
 //===========================================================//
 
-class ResetByNumberCard extends StatelessWidget {
-  ResetByNumberCard({Key? key}) : super(key: key);
+class _RecoveryCards extends StatelessWidget {
+  _RecoveryCards({Key? key}) : super(key: key);
+
+  final node0 = FocusNode();
+  final node1 = FocusNode();
+  final node2 = FocusNode();
+  final node3 = FocusNode();
 
   @override
   Widget build(BuildContext context) {
     return Padding(
                 padding: EdgeInsets.symmetric(horizontal: 30),
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          Container(
-            height: 66,
-            width: 66,
-            decoration: BoxDecoration(
-              // borderRadius: const BorderRadius.all(
-              //   Radius.circular(4),
-              // ),
-              border: Border.all(color: Colors.grey.withOpacity(0.8), width: 1),
-            ),
-            child: TextFormField(
-                            decoration: InputDecoration(
-                              counter: Offstage(),
-                              border: InputBorder.none,
-                            ),
-                            maxLines: 1,
-          ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-//=======================================================================//
-class ResetByEmailCard extends StatelessWidget {
-  String? text;
-  VoidCallback? press;
-  ResetByEmailCard({Key? key, this.text, this.press}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-      child: InkWell(
-        borderRadius: const BorderRadius.all(Radius.circular(8)),
-        onTap: press,
-        child: Container(
-          height: 108,
-          padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
-          decoration: BoxDecoration(
-            borderRadius: const BorderRadius.all(
-              Radius.circular(8),
-            ),
-            border: Border.all(color: Colors.grey.withOpacity(0.1), width: 2),
-          ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              Row(
-                children: [
-                  Icon(
-                    Icons.mail_outline,
-                    size: 50,
-                  ),
-                  SizedBox(
-                    width: 20,
-                  ),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('via email:',
-                          style: TextStyle(color: Colors.grey, fontSize: 15)),
-                      Text(
-                          //on card
-                          '.... ....el@gmail.com',
-                          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24)),
-                    ],
-                  ),
-                ],
+           Container(
+              alignment: Alignment.center,
+              height: 60,
+              width: 60,
+              decoration: BoxDecoration(
+                border: Border.all(width: 1, color: Colors.grey),
               ),
-            ],
-          ),
-        ),
+              child: TextField(
+                focusNode: node0,
+                style: TextStyle(fontSize: 42),
+                textAlign: TextAlign.center,
+                maxLength: 1,
+                decoration: InputDecoration(
+                    isDense: true,
+                    border: InputBorder.none,
+                    counter: Offstage()),
+                keyboardType: TextInputType.number,
+                onChanged: (value) {
+                  if(value.isNotEmpty)
+                    FocusScope.of(context).requestFocus(node1);
+                },
+              ),
+            ),
+            Container(
+              alignment: Alignment.center,
+              height: 60,
+              width: 60,
+              decoration: BoxDecoration(
+                border: Border.all(width: 1, color: Colors.grey),
+              ),
+              child: TextField(
+                focusNode: node1,
+                style: TextStyle(fontSize: 42),
+                textAlign: TextAlign.center,
+                maxLength: 1,
+                decoration: InputDecoration(
+                    isDense: true,
+                    border: InputBorder.none,
+                    counter: Offstage()),
+                keyboardType: TextInputType.number,
+                onChanged: (value) {
+                  if (value.isNotEmpty)
+                    FocusScope.of(context).requestFocus(node2);
+                  if (value.isEmpty)
+                    FocusScope.of(context).requestFocus(node0);
+                },
+              ),
+            ),
+            Container(
+              alignment: Alignment.center,
+              height: 60,
+              width: 60,
+              decoration: BoxDecoration(
+                border: Border.all(width: 1, color: Colors.grey),
+              ),
+              child: TextField(
+                focusNode: node2,
+                style: TextStyle(fontSize: 42),
+                textAlign: TextAlign.center,
+                maxLength: 1,
+                decoration: InputDecoration(
+                    isDense: true,
+                    border: InputBorder.none,
+                    counter: Offstage()),
+                keyboardType: TextInputType.number,
+                onChanged: (value) {
+                  if (value.isNotEmpty)
+                    FocusScope.of(context).requestFocus(node3);
+                  if (value.isEmpty)
+                    FocusScope.of(context).requestFocus(node1);
+                },
+              ),
+            ),
+            Container(
+              alignment: Alignment.center,
+              height: 60,
+              width: 60,
+              decoration: BoxDecoration(
+                border: Border.all(width: 1, color: Colors.grey),
+              ),
+              child: TextField(
+                focusNode: node3,
+                style: TextStyle(fontSize: 42),
+                textAlign: TextAlign.center,
+                maxLength: 1,
+                decoration: InputDecoration(
+                    isDense: true,
+                    border: InputBorder.none,
+                    counter: Offstage()),
+                keyboardType: TextInputType.number,
+                onChanged: (value) {
+                  if (value.isEmpty)
+                    FocusScope.of(context).requestFocus(node2);
+                },
+              ),
+            ),
+        ],
       ),
     );
   }
