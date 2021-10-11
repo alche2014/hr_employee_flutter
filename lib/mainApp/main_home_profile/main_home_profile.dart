@@ -1,17 +1,34 @@
-// ignore_for_file: use_key_in_widget_constructors, sized_box_for_whitespace, prefer_const_constructors, unnecessary_string_interpolations
+// ignore_for_file: sized_box_for_whitespace, prefer_const_constructors
 
 import 'package:flutter/material.dart';
+import 'package:hr_app/mainApp/main_home_profile/utility/content/list_of_data.dart';
 import '../../colors.dart';
 import 'Utility/cards/teamCard.dart';
-import 'Utility/content/list_of_data.dart';
-
+import 'package:stop_watch_timer/stop_watch_timer.dart';
 
 class MainHomeProfile extends StatefulWidget {
+  const MainHomeProfile({Key? key}) : super(key: key);
+
   @override
   _MainHomeProfileState createState() => _MainHomeProfileState();
 }
 
 class _MainHomeProfileState extends State<MainHomeProfile> {
+  final StopWatchTimer _stopWatchTimer = StopWatchTimer();
+  final _isHour = true;
+  var _isStart = false;
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  void dispose() async {
+    super.dispose();
+    await _stopWatchTimer.dispose(); // Need to call dispose function.
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -52,8 +69,7 @@ class _MainHomeProfileState extends State<MainHomeProfile> {
                                 ]),
                           ),
                           CircleAvatar(
-                            backgroundImage:
-                                AssetImage('assets/ben.jpg'),
+                            backgroundImage: AssetImage('assets/ben.jpg'),
                             maxRadius: 40,
                           ),
                           SizedBox(height: 10),
@@ -103,7 +119,7 @@ class _MainHomeProfileState extends State<MainHomeProfile> {
                           topRight: Radius.circular(10),
                         ),
                         child: Container(
-                          height: 140,
+                          height: 150,
                           // margin: EdgeInsets.symmetric(horizontal: 25),
                           decoration: BoxDecoration(
                             border: const Border(
@@ -122,17 +138,49 @@ class _MainHomeProfileState extends State<MainHomeProfile> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
+                                    SizedBox(height: 5),
                                     const Text('Check In',
                                         style: TextStyle(
                                             fontWeight: FontWeight.bold)),
                                     SizedBox(height: 5),
                                     const Text('You Haven,t chock in yet',
                                         style: TextStyle(color: Colors.grey)),
-                                    SizedBox(height: 5),
-                                    const Text('00 : 00 : 00 HRS',
-                                        style: TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 18)),
+                                    // SizedBox(height: 5),
+                                    StreamBuilder<int>(
+                                      stream: _stopWatchTimer.rawTime,
+                                      initialData: 0,
+                                      builder: (context, snap) {
+                                        final value = snap.data;
+                                        final displayTime =
+                                            StopWatchTimer.getDisplayTime(
+                                                value!, milliSecond: false);
+                                        return Column(
+                                          children: <Widget>[
+                                            Padding(
+                                              padding: const EdgeInsets.all(8),
+                                              child: Text(
+                                                displayTime,
+                                                style: TextStyle(
+                                                    fontSize: 27,
+                                                    fontWeight:
+                                                        FontWeight.bold),
+                                              ),
+                                            ),
+                                            // Padding(
+                                            //   padding: const EdgeInsets.all(8),
+                                            //   child: Text(
+                                            //     value.toString(),
+                                            //     style: TextStyle(
+                                            //         // fontSize: 16,
+                                            //         fontFamily: 'Helvetica',
+                                            //         fontWeight: FontWeight.w400
+                                            //     ),
+                                            //   ),
+                                            // ),
+                                          ],
+                                        );
+                                      },
+                                    ),
                                     //----------------------//
                                     TextButton(
                                         onPressed: () {
@@ -162,9 +210,25 @@ class _MainHomeProfileState extends State<MainHomeProfile> {
                                                 : Color(0xff34354A),
                                           ),
                                           child: ElevatedButton(
-                                            onPressed: () {},
-                                            child: Text('Check In',
-                                                style: TextStyle(fontSize: 11)),
+                                            onPressed: () {
+                                              if (_isStart != true) {
+                                                _stopWatchTimer.onExecute.add(
+                                                    StopWatchExecute.start);
+                                                    setState(() {
+                                                      _isStart = true;
+                                                    });
+                                                print('Start');
+                                              } else if (_isStart == true) {
+                                                _stopWatchTimer.onExecute
+                                                    .add(StopWatchExecute.stop);
+                                                setState(() {
+                                                  _isStart = false;
+                                                });
+                                                print('Stop');
+                                              }
+                                            },
+                                            child: Text(_isStart == false ? 'Check in' : 'Check out',
+                                                style: TextStyle(fontSize: 9)),
                                             style: ElevatedButton.styleFrom(
                                               shape: CircleBorder(),
                                               // padding: EdgeInsets.all(14),
@@ -182,15 +246,15 @@ class _MainHomeProfileState extends State<MainHomeProfile> {
                 ],
               ),
             ),
-            SizedBox(height: 10),
+            SizedBox(height: 5),
             //--------------------ALL--Widgets------------------//
             headViewList('Announcements', 'orange'),
             Container(
-              height: 260,
+              height: 270,
               child: ListView.builder(
                   scrollDirection: Axis.horizontal,
-                  itemCount: annCardData.length,
-                  itemBuilder: (context, index) => annCardData[index]),
+                  itemCount: annHomeCardData.length,
+                  itemBuilder: (context, index) => annHomeCardData[index]),
             ),
             //--------------------------------------//
             headViewList('Birthday', 'lightgreen'),
@@ -281,8 +345,9 @@ class _MainHomeProfileState extends State<MainHomeProfile> {
                     child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
+                          SizedBox(height: 20),
                           SizedBox(
-                            height: 250,
+                            height: 240,
                             child: ListView.builder(
                                 physics: NeverScrollableScrollPhysics(),
                                 itemCount: holidayCardData.length,
@@ -294,7 +359,7 @@ class _MainHomeProfileState extends State<MainHomeProfile> {
                 ),
               ),
             ),
-            SizedBox(height: 50),
+            SizedBox(height: 20),
           ],
         ),
       ),
@@ -307,8 +372,8 @@ class _MainHomeProfileState extends State<MainHomeProfile> {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
       child: ListTile(
-        leading: Image(
-            image: AssetImage('assets/custom/$icon.png'), height: 40),
+        leading:
+            Image(image: AssetImage('assets/custom/$icon.png'), height: 40),
         title: Text('$head', style: TextStyle(fontWeight: FontWeight.bold)),
         trailing: TextButton(
             onPressed: () {},
@@ -318,3 +383,23 @@ class _MainHomeProfileState extends State<MainHomeProfile> {
     );
   }
 }
+
+// Text('00 : 00 : 00 HRS',
+//     style: TextStyle(
+//         fontWeight: FontWeight.bold,
+//         fontSize: 18)),
+
+// Start
+// _stopWatchTimer.onExecute.add(StopWatchExecute.start);
+
+
+// Stop
+// _stopWatchTimer.onExecute.add(StopWatchExecute.stop);
+
+
+// Reset
+// _stopWatchTimer.onExecute.add(StopWatchExecute.reset);
+
+
+// Lap time
+// _stopWatchTimer.onExecute.add(StopWatchExecute.lap);

@@ -150,44 +150,42 @@ class _FormOneState extends State<FormOne> {
               const SizedBox(height: 10),
               //-------------------------------------------------//
               Container(
-              height: 60,
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(
-                    color: Colors.grey.shade300.withOpacity(0.8),
-                    width: 2,
-                  )),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.only(left: 10),
-                    child: Text(
-                      dateOfBirth == null
-                          ? 'Date of Birth'
-                          : '${dateOfBirth!.day}/${dateOfBirth!.month}/${dateOfBirth!.year}'
-                              .toString(),
-                              style: const TextStyle(color: Colors.grey),
+                height: 60,
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(
+                        color: Colors.grey.withOpacity(0.4), width: 1)),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(left: 10),
+                      child: Text(
+                        dateOfBirth == null
+                            ? 'Date of Birth'
+                            : '${dateOfBirth!.day}/${dateOfBirth!.month}/${dateOfBirth!.year}'
+                                .toString(),
+                        style: const TextStyle(color: Colors.grey),
+                      ),
                     ),
-                  ),
-                  IconButton(
-                      icon: Icon(Icons.today, color: Colors.grey),
-                      onPressed: () {
-                        showDatePicker(
-                                context: context,
-                                initialDate: DateTime.now(),
-                                firstDate: DateTime(2000),
-                                lastDate: DateTime(2022))
-                            .then((value) {
-                          setState(() {
-                            dateOfBirth = value;
+                    IconButton(
+                        icon: Icon(Icons.today, color: Colors.grey),
+                        onPressed: () {
+                          showDatePicker(
+                                  context: context,
+                                  initialDate: DateTime.now(),
+                                  firstDate: DateTime(2000),
+                                  lastDate: DateTime(2022))
+                              .then((value) {
+                            setState(() {
+                              dateOfBirth = value;
+                            });
                           });
-                        });
-                      }),
-                ],
+                        }),
+                  ],
+                ),
               ),
-            ),
               const SizedBox(height: 10),
               //-------------------------------------------------//
               Row(

@@ -18,20 +18,20 @@ class LeaveManagement extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       extendBodyBehindAppBar: true,
       appBar: buildMyAppBar(context, 'Leave Management', true),
       body: Stack(
         children: [
           const BackgroundCircle(),
-          Container(
-            padding: const EdgeInsets.only(top: 10),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Align(
-                  alignment: Alignment.topRight,
-                  child: TextButton(
-                    onPressed: null,
+          Padding(
+            padding: const EdgeInsets.only(top: 70),
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Align(
+                    alignment: Alignment.topRight,
                     child: TextButton(
                       onPressed: () {
                         Navigator.of(context).push(MaterialPageRoute(
@@ -43,27 +43,27 @@ class LeaveManagement extends StatelessWidget {
                       ),
                     ),
                   ),
-                ),
-                LeaveCard(
-                  text: text1,
-                  press: () {
-                    Navigator.of(context).push(MaterialPageRoute(
-                        builder: (context) => const MainAbout()));
-                  },
-                ),
-                LeaveCard(
-                    text: text2,
+                  LeaveCard(
+                    text: text1,
                     press: () {
                       Navigator.of(context).push(MaterialPageRoute(
-                          builder: (context) => const MyWorkInfo()));
-                    }),
-                LeaveCard(
-                    text: text3,
-                    press: () {
-                      Navigator.of(context).push(MaterialPageRoute(
-                          builder: (context) => const MainExperiences()));
-                    }),
-              ],
+                          builder: (context) => const MainAbout()));
+                    },
+                  ),
+                  LeaveCard(
+                      text: text2,
+                      press: () {
+                        Navigator.of(context).push(MaterialPageRoute(
+                            builder: (context) => const MyWorkInfo()));
+                      }),
+                  LeaveCard(
+                      text: text3,
+                      press: () {
+                        Navigator.of(context).push(MaterialPageRoute(
+                            builder: (context) => const MainExperiences()));
+                      }),
+                ],
+              ),
             ),
           ),
         ],
