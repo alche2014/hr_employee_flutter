@@ -296,7 +296,7 @@ class _AddExperienceBodyState extends State<AddExperienceBody> {
             children: [
               Expanded(
                 child: SizedBox(
-                  height: 60,
+                  height: 60,   
                   child: ElevatedButton(
                     child: const Text('SAVE'), //next button
                     style: ElevatedButton.styleFrom(

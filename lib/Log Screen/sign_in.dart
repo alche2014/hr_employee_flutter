@@ -185,7 +185,7 @@ class LogBody extends StatelessWidget {
                         ),
                         onPressed: () {
                           Navigator.of(context).push(MaterialPageRoute(
-                              builder: (context) => const Personalinfo()));
+                              builder: (context) =>  Personalinfo()));
                         },
                       ),
                     ),

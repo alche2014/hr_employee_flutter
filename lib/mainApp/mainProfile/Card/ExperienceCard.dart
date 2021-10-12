@@ -3,6 +3,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
+import 'package:hr_app/mainApp/experiences/add_experiences.dart';
 
 import '../../../colors.dart';
 
@@ -27,7 +28,10 @@ class ExperienceCard extends StatelessWidget {
                     style:
                         TextStyle(fontWeight: FontWeight.bold, color: darkRed)),
                 IconButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      Navigator.push(context, MaterialPageRoute(builder: 
+                      (context)=> AddExperience()));
+                    },
                     icon: const Icon(Icons.edit_outlined, color: Colors.grey)),
               ]),
               Column(children: [

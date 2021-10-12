@@ -2,6 +2,7 @@
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:hr_app/mainApp/skills/main_skill.dart';
 import 'package:hr_app/models/listofdata.dart';
 
 import '../../../colors.dart';
@@ -27,7 +28,10 @@ class SkillsCard extends StatelessWidget {
                     style:
                         TextStyle(fontWeight: FontWeight.bold, color: darkRed)),
                 IconButton(
-                    onPressed: () {},
+                     onPressed: () {
+                      Navigator.push(context, MaterialPageRoute(builder: 
+                      (context)=> MainSkills()));
+                    },
                     icon: const Icon(Icons.edit_outlined, color: Colors.grey)),
               ]),
               Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [

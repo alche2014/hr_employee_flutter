@@ -21,9 +21,9 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
-    SystemChrome.setEnabledSystemUIMode(
-    SystemUiMode.immersiveSticky,
-  );
+    // SystemChrome.setEnabledSystemUIMode(
+    // SystemUiMode.immersiveSticky,
+    //);
   }
 
   @override
