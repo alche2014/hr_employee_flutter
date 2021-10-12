@@ -22,13 +22,14 @@ class AddExperience extends StatelessWidget {
             headerSliverBuilder: (context, innerBoxIsScrolled) => [
               buildMyNewAppBar(context, 'Add Experience', true),
             ],
-          body: SingleChildScrollView(
-            child: Column(
-              children: const [
-                AddExperienceBody(),
-              ],
+            body: SingleChildScrollView(
+              child: Column(
+                children: const [
+                  AddExperienceBody(),
+                ],
+              ),
             ),
-          ),),
+          ),
         ],
       ),
     );
@@ -74,8 +75,8 @@ class _AddExperienceBodyState extends State<AddExperienceBody> {
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(6),
               border: Border.all(
-                color: Colors.grey.shade300.withOpacity(0.8),
-                width: 2,
+                color: Colors.grey.withOpacity(0.4),
+                width: 1,
               ),
             ),
             child: Padding(
@@ -95,7 +96,7 @@ class _AddExperienceBodyState extends State<AddExperienceBody> {
                     .map<DropdownMenuItem<String>>((String value) {
                   return DropdownMenuItem<String>(
                     value: value,
-                    child: Text(value),
+                    child: Text(value, style: TextStyle(color: Colors.grey),),
                   );
                 }).toList(),
                 onChanged: (value) {
@@ -143,7 +144,7 @@ class _AddExperienceBodyState extends State<AddExperienceBody> {
           const SizedBox(height: 8),
           //-------------------------------------------------//
           Row(children: [
-         Checkbox(
+            Checkbox(
               value: checkedValue,
               activeColor: const Color(0xff61C1D1),
               onChanged: (newValue) {
@@ -156,22 +157,22 @@ class _AddExperienceBodyState extends State<AddExperienceBody> {
           ]),
           //--------------------------------------------------//
           Padding(
-            padding: const EdgeInsets.symmetric(vertical:10 ),
+            padding: const EdgeInsets.symmetric(vertical: 10),
             child: Row(children: [
               Expanded(
                   child: Container(
                 height: 60,
                 decoration: BoxDecoration(
                     border: Border.all(
-                        color: Colors.grey.shade300.withOpacity(0.8), width: 2),
-                    borderRadius: BorderRadius.circular(10)),
+                        color: Colors.grey.withOpacity(0.4), width: 1),
+                    borderRadius: BorderRadius.circular(6)),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Padding(
                       padding: const EdgeInsets.only(left: 10),
-                      child: const Text('Start Birth',
-                          style: TextStyle(color: Colors.grey)),
+                      child: Text('Start Birth',
+                          style: TextStyle(color: Colors.grey.shade800)),
                     ),
                     IconButton(
                         icon: const Icon(Icons.today, color: Colors.grey),
@@ -191,14 +192,15 @@ class _AddExperienceBodyState extends State<AddExperienceBody> {
                 height: 60,
                 decoration: BoxDecoration(
                     border: Border.all(
-                        color: Colors.grey.shade300.withOpacity(0.8), width: 2),
-                    borderRadius: BorderRadius.circular(10)),
+                        color: Colors.grey.withOpacity(0.4), width: 1),
+                    borderRadius: BorderRadius.circular(6)),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Padding(
                       padding: const EdgeInsets.only(left: 10),
-                      child: Text('End Birth', style: TextStyle(color: Colors.grey)),
+                      child: Text('End Birth',
+                          style: TextStyle(color: Colors.grey.shade800)),
                     ),
                     IconButton(
                         icon: Icon(Icons.today, color: Colors.grey),
@@ -239,8 +241,8 @@ class _AddExperienceBodyState extends State<AddExperienceBody> {
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(6),
                 border: Border.all(
-                  color: Colors.grey.shade300.withOpacity(0.8),
-                  width: 2,
+                  color: Colors.grey.withOpacity(0.4),
+                  width: 1,
                 ),
               ),
               child: Padding(
@@ -260,7 +262,7 @@ class _AddExperienceBodyState extends State<AddExperienceBody> {
                       .map<DropdownMenuItem<String>>((String value) {
                     return DropdownMenuItem<String>(
                       value: value,
-                      child: Text(value),
+                      child: Text(value, style: TextStyle(color: Colors.grey)),
                     );
                   }).toList(),
                   onChanged: (value) {

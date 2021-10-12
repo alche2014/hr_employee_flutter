@@ -31,36 +31,68 @@ Future<dynamic> applyLeave(BuildContext context) {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               _TypeDropMenu('Type'),
-              Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: SizedBox(
-                    width: 120,
-                    height: 50,
-                    child: TextFormField(
-                      obscureText: true,
-                      decoration: InputDecoration(
-                        hintText: "Date",
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(4),
-                          borderSide: const BorderSide(
-                            color: Colors.transparent,
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 11),
+                child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: SizedBox(
+                      width: 120,
+                      height: 54,
+                      child: TextFormField(
+                        // obscureText: true,
+                        keyboardType: TextInputType.number,
+                        decoration: InputDecoration(
+                          hintText: " From Date",
+                          labelText: "From Date",
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(4),
+                            borderSide: const BorderSide(
+                              color: Colors.transparent,
+                            ),
                           ),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(4),
-                          borderSide: BorderSide(
-                            color: Colors.grey.withOpacity(0.4),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(4),
+                            borderSide: BorderSide(
+                              color: Colors.grey.withOpacity(0.4),
+                            ),
                           ),
                         ),
                       ),
                     ),
                   ),
-                ),
-                Align(
-                    alignment: Alignment.centerRight,
-                    child: SizedBox(width: 120, child: _FormDropMenu('Form'))),
-              ]),
+                   Align(
+                    alignment: Alignment.centerLeft,
+                    child: SizedBox(
+                      width: 120,
+                      height: 54,
+                      child: TextFormField(
+                        // obscureText: true,
+                        keyboardType: TextInputType.number,
+                        decoration: InputDecoration(
+                          hintText: " Till Date",
+                          labelText: "Till Date",
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(4),
+                            borderSide: const BorderSide(
+                              color: Colors.transparent,
+                            ),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(4),
+                            borderSide: BorderSide(
+                              color: Colors.grey.withOpacity(0.4),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  // Align(
+                  //     alignment: Alignment.centerRight,
+                  //     child: SizedBox(width: 120, child: _FormDropMenu('Form'))),
+                ]),
+              ),
               TextField(
                 maxLines: 4,
                 decoration: InputDecoration(
@@ -155,16 +187,16 @@ class _TypeDropMenuState extends State<_TypeDropMenu> {
     'Causal',
     'Married',
     'Check up',
+    'Sick',
   ];
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 50,
+      height: 54,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(4),
         border: Border.all(
                     color: Colors.grey.withOpacity(0.4),
-                    width: 2,
                   ),
       ),
       child: Center(

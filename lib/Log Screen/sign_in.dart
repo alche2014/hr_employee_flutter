@@ -1,4 +1,4 @@
-// ignore_for_file: prefer_const_constructors
+// ignore_for_file: prefer_const_constructors, unused_field, must_be_immutable, prefer_final_fields, unnecessary_new
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -19,11 +19,12 @@ class SignIn extends StatefulWidget {
 
 class _SignInState extends State<SignIn> {
   late String data;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Stack(
-        children: const [
+        children: [
           BackgroundCircle(),
           LogBody(),
         ],
@@ -32,10 +33,26 @@ class _SignInState extends State<SignIn> {
   }
 }
 
-class LogBody extends StatelessWidget {
-  const LogBody({
+class LogBody extends StatefulWidget {
+  LogBody({
     Key? key,
   }) : super(key: key);
+
+  @override
+  State<LogBody> createState() => _LogBodyState();
+}
+
+class _LogBodyState extends State<LogBody> {
+  TextEditingController _controller1 = new TextEditingController();
+
+  TextEditingController _userPasswordController = new TextEditingController();
+
+  late bool _passwordVisible;
+
+  @override
+  void initState() {
+    _passwordVisible = false;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -65,8 +82,10 @@ class LogBody extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(horizontal: 20),
                     child: Column(children: [
                       TextFormField(
-                        style: GoogleFonts.sofia(),
+                          controller: _controller1,
+                          textInputAction: TextInputAction.next,
                           decoration: InputDecoration(
+                            labelText: "Username",
                             hintText: "Username",
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(10.0),
@@ -100,9 +119,26 @@ class LogBody extends StatelessWidget {
                       const SizedBox(height: 20),
                       //-------------------------------------------------------//
                       TextFormField(
-                          obscureText: true,
+                          controller: _userPasswordController,
+                          textInputAction: TextInputAction.done,
+                          obscureText: !_passwordVisible,
                           decoration: InputDecoration(
+                            labelText: "Password",
                             hintText: "Password",
+                             suffixIcon: IconButton(
+                                icon: Icon(
+                                  // Based on passwordVisible state choose the icon
+                                  _passwordVisible
+                                  ? Icons.visibility
+                                  : Icons.visibility_off,
+                                  ),
+                                onPressed: () {
+                                  // Update the state i.e. toogle the state of passwordVisible variable
+                                  setState(() {
+                                      _passwordVisible = !_passwordVisible;
+                                  });
+                                },
+                                ),
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(10.0),
                               borderSide: const BorderSide(
@@ -159,7 +195,7 @@ class LogBody extends StatelessWidget {
                     Expanded(
                       child: TextButton(
                         onPressed: () {
-                                                    Navigator.of(context).push(MaterialPageRoute(
+                          Navigator.of(context).push(MaterialPageRoute(
                               builder: (context) => const MainSignUp()));
                         },
                         child: const Text(
@@ -180,8 +216,19 @@ class LogBody extends StatelessWidget {
                               borderRadius: BorderRadius.circular(5)),
                         ),
                         onPressed: () {
+                          //  if (_controller1.text.isNotEmpty &&
+                          //       _controller2.text.isNotEmpty) {
                           Navigator.of(context).push(MaterialPageRoute(
-                              builder: (context) => const Personalinfo()));
+                              builder: (context) => Personalinfo()));
+                          // }
+                          // if (_controller1.text.isEmpty ||
+                          //     _controller2.text.isEmpty) {
+                          //   ScaffoldMessenger.of(context).showSnackBar(
+                          //     const SnackBar(
+                          //       content: Text('Enter User Name & Password.'),
+                          //     ),
+                          //   );
+                          // }
                         },
                       ),
                     ),

@@ -4,17 +4,20 @@ InputDecoration buildMyInputDecoration(BuildContext context, String hint) {
   return InputDecoration(
     focusedBorder: OutlineInputBorder(
       borderRadius: BorderRadius.circular(6),
-      borderSide: BorderSide(color: Colors.grey.shade300, width: 1),
+      borderSide: BorderSide(color:Colors.grey.withOpacity(0.4), 
+       width: 1),
     ),
     enabledBorder: OutlineInputBorder(
       borderRadius: BorderRadius.circular(6),
       borderSide:
-          BorderSide(color: Colors.grey.shade300.withOpacity(0.8), width: 2),
+          BorderSide(color: Colors.grey.withOpacity(0.4), 
+       width: 1),
     ),
     contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
     // filled: true,
     fillColor: Theme.of(context).scaffoldBackgroundColor,
+    labelText: hint,
     hintText: hint,
-    hintStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.w400),
+    // hintStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.w400),
   );
 }

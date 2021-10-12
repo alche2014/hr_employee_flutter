@@ -18,15 +18,22 @@ class FormTwo extends StatefulWidget {
 
 final TextEditingController textController = TextEditingController();
 
-    final maskFormatter = MaskTextInputFormatter(mask: '+92 ### ### ####');
-    final maskCNICFormatter = MaskTextInputFormatter(mask: '#####-#######-#');
+final maskFormatter = MaskTextInputFormatter(mask: '+92 ### ### ####');
+final maskCNICFormatter = MaskTextInputFormatter(mask: '#####-#######-#');
 
 class _FormTwoState extends State<FormTwo> {
+  TextEditingController _controller1 = new TextEditingController();
+  TextEditingController _controller2 = new TextEditingController();
+  TextEditingController _controller3 = new TextEditingController();
+  TextEditingController _controller4 = new TextEditingController();
+  TextEditingController _controller5 = new TextEditingController();
+
   // bool value = false;
   bool checkedValue = false;
   var gender;
   var dropGenderValue;
   var dropCityValue;
+  var dropBloodGroup;
 
   @override
   Widget build(BuildContext context) {
@@ -38,27 +45,29 @@ class _FormTwoState extends State<FormTwo> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Stack(
-                    //using stack to lap edit icon over Picture
-                    children: const [
-                      ClipRRect(
-                        child: Image(
-                          height: 100,
-                          image: AssetImage('assets/user_image.png'),
-                        ),
-                      ),
-                      Positioned(
-                          bottom: 10,
-                          right: 0,
-                          child: Image(
-                            image: AssetImage('assets/custom/Vector.png'),
-                            width: 30,
-                            fit: BoxFit.cover,
-                          )),
-                    ],
+                //using stack to lap edit icon over Picture
+                children: const [
+                  ClipRRect(
+                    child: Image(
+                      height: 100,
+                      image: AssetImage('assets/user_image.png'),
+                    ),
                   ),
+                  Positioned(
+                      bottom: 10,
+                      right: 0,
+                      child: Image(
+                        image: AssetImage('assets/custom/Vector.png'),
+                        width: 30,
+                        fit: BoxFit.cover,
+                      )),
+                ],
+              ),
               const SizedBox(height: 35),
               //--------------name-------------------//
               TextFormField(
+                controller: _controller1,
+                textInputAction: TextInputAction.next,
                 decoration: MyInputStyle('Name'),
                 autovalidateMode: AutovalidateMode.onUserInteraction,
                 validator: (value) {
@@ -76,6 +85,8 @@ class _FormTwoState extends State<FormTwo> {
               const SizedBox(height: 15),
               //--------------email-------------------//
               TextFormField(
+                controller: _controller2,
+                textInputAction: TextInputAction.next,
                 decoration: MyInputStyle('Email'),
                 autovalidateMode: AutovalidateMode.onUserInteraction,
                 validator: (value) {
@@ -97,6 +108,8 @@ class _FormTwoState extends State<FormTwo> {
               const SizedBox(height: 15),
               //--------------phone-------------------//
               TextFormField(
+                controller: _controller3,
+                textInputAction: TextInputAction.next,
                 decoration: MyInputStyle('Phone'),
                 keyboardType: TextInputType.number,
                 inputFormatters: [maskFormatter],
@@ -224,21 +237,64 @@ class _FormTwoState extends State<FormTwo> {
               ),
               const SizedBox(height: 15),
               //--------------blood-group-------------------//
-              TextFormField(
-                decoration: MyInputStyle('Blood Group'),
-                autovalidateMode: AutovalidateMode.onUserInteraction,
-                validator: (value) {
-                  final pattern = ('[a-zA-Z]+([\s][a-zA-Z]+)*');
-                  final regExp = RegExp(pattern);
-                  if (value!.isEmpty) {
-                    return null;
-                  } else if (!regExp.hasMatch(value)) {
-                    return 'Enter only Alphabets';
-                  } else {
-                    return null;
-                  }
-                },
+              Container(
+                height: 60,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(6),
+                  border: Border.all(
+                    color: Colors.grey.withOpacity(0.4),
+                    width: 1,
+                  ),
+                ),
+                child: DropdownButtonFormField(
+                  decoration: InputDecoration(
+                      border: const OutlineInputBorder(
+                        borderSide: BorderSide.none,
+                        borderRadius: BorderRadius.all(
+                          Radius.circular(6.0),
+                        ),
+                      ),
+                      hintStyle: TextStyle(color: Colors.grey.withOpacity(0.8)),
+                      hintText: "Blood Group",
+                      fillColor: Theme.of(context).scaffoldBackgroundColor),
+                  value: dropBloodGroup,
+                  items: <String>[
+                    'A+',
+                    'A-',
+                    'B+',
+                    'B-',
+                    'O+',
+                    'O-',
+                    'AB+',
+                    'AB-',
+                  ].map<DropdownMenuItem<String>>((String value) {
+                    return DropdownMenuItem<String>(
+                      value: value,
+                      child: Text(value),
+                    );
+                  }).toList(),
+                  onChanged: (value) {
+                    setState(() {
+                      dropBloodGroup = value;
+                    });
+                  },
+                ),
               ),
+              // TextFormField(
+              //   decoration: MyInputStyle('Blood Group'),
+              //   autovalidateMode: AutovalidateMode.onUserInteraction,
+              //   validator: (value) {
+              //     final pattern = ('[a-zA-Z]+([\s][a-zA-Z]+)*');
+              //     final regExp = RegExp(pattern);
+              //     if (value!.isEmpty) {
+              //       return null;
+              //     } else if (!regExp.hasMatch(value)) {
+              //       return 'Enter only Alphabets';
+              //     } else {
+              //       return null;
+              //     }
+              //   },
+              // ),
               const SizedBox(height: 15),
               //--------------CheckBox-------------------//
               Row(children: [
@@ -251,7 +307,7 @@ class _FormTwoState extends State<FormTwo> {
                     });
                   },
                 ),
-                 Text('Vaccinated against COVID'),
+                Text('Vaccinated against COVID'),
               ]),
               const SizedBox(height: 15),
               //--------------buttons-------------------//
@@ -259,23 +315,28 @@ class _FormTwoState extends State<FormTwo> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   ElevatedButton(
-                      style: ElevatedButton.styleFrom(primary: Colors.grey),
-                      onPressed: () {},
+                      style: ElevatedButton.styleFrom(primary: checkedValue == false ? Colors.grey : kPrimaryRed),
+                      onPressed: checkedValue == false ? null : () {},
                       child: const Text('BROWSE')),
                   const SizedBox(width: 25),
-                  GestureDetector(
-                      child: const Text("JPG Attachment",
-                          style: TextStyle(
-                              decoration: TextDecoration.underline,
-                              color: Colors.blue)),
-                      onTap: () {
-                        // do what you need to do when "Click here" gets clicked
-                      })
+                  if(checkedValue != false)
+                  SizedBox(
+                    height: 30,
+                    child: InkWell(
+                        child: const Text("JPG Attachment",
+                            style: TextStyle(
+                                decoration: TextDecoration.underline,
+                                color: Colors.blue)),
+                        onTap: () {}),
+                  ),
+                    if(checkedValue == true)
+                    SizedBox(),
                 ],
               ),
               const SizedBox(height: 15),
               //--------------CNIC-------------------//
               TextFormField(
+                textInputAction: TextInputAction.done,
                 controller: textController,
                 inputFormatters: [maskCNICFormatter],
                 decoration: MyInputStyle('CNIC No.'),

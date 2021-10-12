@@ -46,6 +46,13 @@ class AddEducationBody extends StatefulWidget {
 }
 
 class _AddEducationBodyState extends State<AddEducationBody> {
+
+  TextEditingController _controller1 = new TextEditingController();
+  TextEditingController _controller2 = new TextEditingController();
+  TextEditingController _controller3 = new TextEditingController();
+  TextEditingController _controller4 = new TextEditingController();
+  TextEditingController _controller5 = new TextEditingController();
+
   var dropGenderValue;
   var checkedValue = false;
   var startDate;
@@ -58,6 +65,8 @@ class _AddEducationBodyState extends State<AddEducationBody> {
           child: Column(
         children: [
           TextFormField(
+            textInputAction: TextInputAction.next,
+            controller: _controller1,
             decoration: buildMyInputDecoration(context, 'School'),
             autovalidateMode: AutovalidateMode.onUserInteraction,
             validator: (value) {
@@ -116,6 +125,8 @@ class _AddEducationBodyState extends State<AddEducationBody> {
           const SizedBox(height: 15),
           //-------------------------------------------------//
           TextFormField(
+            textInputAction: TextInputAction.next,
+            controller: _controller2,
             decoration: buildMyInputDecoration(context, 'Field of study'),
             autovalidateMode: AutovalidateMode.onUserInteraction,
             validator: (value) {
@@ -139,7 +150,8 @@ class _AddEducationBodyState extends State<AddEducationBody> {
                 height: 60,
                 decoration: BoxDecoration(
                     border: Border.all(
-                        color: Colors.grey.shade300.withOpacity(0.8), width: 2),
+                        color: Colors.grey.withOpacity(0.4), 
+       width: 1),
                     borderRadius: BorderRadius.circular(6)),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -150,7 +162,7 @@ class _AddEducationBodyState extends State<AddEducationBody> {
                             ? 'Start Birth'
                             : '${startDate!.day}/${startDate!.month}/${startDate!.year}'
                                 .toString(),
-                                style: TextStyle(color: Colors.grey),),
+                                style: TextStyle(color: Colors.grey.shade700),),
                     ),
                     IconButton(
                         icon: Icon(Icons.today, color: Colors.grey),
@@ -175,7 +187,8 @@ class _AddEducationBodyState extends State<AddEducationBody> {
                 height: 60,
                 decoration: BoxDecoration(
                     border: Border.all(
-                        color: Colors.grey.shade300.withOpacity(0.8), width: 2),
+                        color: Colors.grey.withOpacity(0.4), 
+       width: 1),
                     borderRadius: BorderRadius.circular(6)),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -186,7 +199,7 @@ class _AddEducationBodyState extends State<AddEducationBody> {
                             ? 'End Birth'
                             : '${endDate!.day}/${endDate!.month}/${endDate!.year}'
                                 .toString(),
-                                style: TextStyle(color: Colors.grey),),
+                                style: TextStyle(color: Colors.grey.shade700),),
                     ),
                     IconButton(
                         icon: Icon(Icons.today, color: Colors.grey),
@@ -210,6 +223,8 @@ class _AddEducationBodyState extends State<AddEducationBody> {
           const SizedBox(height: 5),
           //--------------------------------------------------//
           TextFormField(
+                        textInputAction: TextInputAction.next,
+            controller: _controller3,
             decoration: buildMyInputDecoration(context, 'Grade'),
             autovalidateMode: AutovalidateMode.onUserInteraction,
             validator: (value) {
@@ -227,6 +242,8 @@ class _AddEducationBodyState extends State<AddEducationBody> {
           const SizedBox(height: 15),
           //-------------------------------------------------//
           TextFormField(
+                        textInputAction: TextInputAction.next,
+            controller: _controller4,
             decoration:
                 buildMyInputDecoration(context, 'Activities & Societies'),
             autovalidateMode: AutovalidateMode.onUserInteraction,
@@ -245,6 +262,8 @@ class _AddEducationBodyState extends State<AddEducationBody> {
           const SizedBox(height: 15),
           //-------------------------------------------------//
           TextFormField(
+                        textInputAction: TextInputAction.done,
+            controller: _controller5,
             maxLines: 5,
             decoration: buildMyInputDecoration(context, 'Description'),
             autovalidateMode: AutovalidateMode.onUserInteraction,

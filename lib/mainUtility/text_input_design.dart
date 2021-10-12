@@ -17,6 +17,7 @@ import 'package:flutter/material.dart';
        contentPadding:
       const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
                   hintText: hint,
+                  labelText: hint,
                   hintStyle: const TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w400,

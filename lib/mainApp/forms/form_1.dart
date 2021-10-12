@@ -1,4 +1,4 @@
-// ignore_for_file: prefer_const_declarations, duplicate_ignore, prefer_typing_uninitialized_variables
+// ignore_for_file: prefer_const_declarations, duplicate_ignore, prefer_typing_uninitialized_variables, prefer_const_constructors
 
 import 'package:flutter/material.dart';
 import 'package:hr_app/mainApp/bottom_navigation/bottom_nav_bar.dart';
@@ -18,11 +18,16 @@ class FormOne extends StatefulWidget {
 
 class _FormOneState extends State<FormOne> {
   // ignore: prefer_typing_uninitialized_variables
+  TextEditingController _controller1 = new TextEditingController();
+  TextEditingController _controller2 = new TextEditingController();
+  TextEditingController _controller3 = new TextEditingController();
+  TextEditingController _controller4 = new TextEditingController();
+  TextEditingController _controller5 = new TextEditingController();
 
   final maskFormatter = MaskTextInputFormatter(mask: '+92 ### ### ####');
   var gender;
   var dateOfBirth;
-  var dropdownValue;
+  var _dropdownValue;
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
@@ -42,6 +47,8 @@ class _FormOneState extends State<FormOne> {
               //-------------------------------------------------//
               const SizedBox(height: 25),
               TextFormField(
+                controller: _controller1,
+                textInputAction: TextInputAction.next,
                 decoration: MyInputStyle('Your Name'),
                 autovalidateMode: AutovalidateMode.onUserInteraction,
                 validator: (value) {
@@ -59,6 +66,8 @@ class _FormOneState extends State<FormOne> {
               const SizedBox(height: 15),
               //-------------------------------------------------//
               TextFormField(
+                                controller: _controller2,
+                textInputAction: TextInputAction.next,
                 decoration: MyInputStyle('Father Name'),
                 autovalidateMode: AutovalidateMode.onUserInteraction,
                 validator: (value) {
@@ -76,6 +85,8 @@ class _FormOneState extends State<FormOne> {
               const SizedBox(height: 15),
               //-------------------------------------------------//
               TextFormField(
+                                controller: _controller3,
+                textInputAction: TextInputAction.next,
                 decoration: MyInputStyle('Email'),
                 autovalidateMode: AutovalidateMode.onUserInteraction,
                 validator: (value) {
@@ -97,6 +108,8 @@ class _FormOneState extends State<FormOne> {
               const SizedBox(height: 15),
               //-------------------------------------------------//
               TextFormField(
+                                controller: _controller4,
+                textInputAction: TextInputAction.next,
                 decoration: MyInputStyle('Phone'),
                 keyboardType: TextInputType.number,
                 inputFormatters: [maskFormatter],
@@ -115,36 +128,37 @@ class _FormOneState extends State<FormOne> {
               //-------------------------------------------------//
               Container(
                 height: 60,
-                padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  border:
-                      Border.all(color: Colors.grey.withOpacity(0.4), width: 1),
                   borderRadius: BorderRadius.circular(6),
-                ),
-                child: DropdownButtonHideUnderline(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 10),
-                    child: DropdownButton<String>(
-                      value: dropdownValue,
-                      icon: const Icon(Icons.keyboard_arrow_down),
-                      elevation: 0,
-                      isExpanded: true,
-                      hint: const Text('Marital status',
-                          style: TextStyle(color: Colors.grey)),
-                      onChanged: (String? newValue) {
-                        //   setState(() {
-                        //     dropdownValue = newValue;
-                        //   });
-                      },
-                      items: <String>['Single', 'Married']
-                          .map<DropdownMenuItem<String>>((String value) {
-                        return DropdownMenuItem<String>(
-                          value: value,
-                          child: Text(value),
-                        );
-                      }).toList(),
-                    ),
+                  border: Border.all(
+                    color: Colors.grey.withOpacity(0.4), 
+                    width: 1,
                   ),
+                ),
+                child: DropdownButtonFormField(
+                  decoration: InputDecoration(
+                      border: const OutlineInputBorder(
+                        borderSide: BorderSide.none,
+                        borderRadius: BorderRadius.all(
+                          Radius.circular(6.0),
+                        ),
+                      ),
+                      hintText: "Material Status",
+                      prefixStyle: TextStyle(color: Colors.grey),
+                      fillColor: Theme.of(context).scaffoldBackgroundColor),
+                  value: _dropdownValue,
+                  items: <String>['Single', 'Married']
+                      .map<DropdownMenuItem<String>>((String value) {
+                    return DropdownMenuItem<String>(
+                      value: value,
+                      child: Text(value),
+                    );
+                  }).toList(),
+                  onChanged: (value) {
+                    setState(() {
+                      _dropdownValue = value;
+                    });
+                  },
                 ),
               ),
               const SizedBox(height: 10),
@@ -153,7 +167,7 @@ class _FormOneState extends State<FormOne> {
                 height: 60,
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(10),
+                    borderRadius: BorderRadius.circular(6),
                     border: Border.all(
                         color: Colors.grey.withOpacity(0.4), width: 1)),
                 child: Row(
@@ -166,7 +180,7 @@ class _FormOneState extends State<FormOne> {
                             ? 'Date of Birth'
                             : '${dateOfBirth!.day}/${dateOfBirth!.month}/${dateOfBirth!.year}'
                                 .toString(),
-                        style: const TextStyle(color: Colors.grey),
+                        style: TextStyle(color: Colors.grey[800]),
                       ),
                     ),
                     IconButton(
@@ -174,9 +188,9 @@ class _FormOneState extends State<FormOne> {
                         onPressed: () {
                           showDatePicker(
                                   context: context,
-                                  initialDate: DateTime.now(),
-                                  firstDate: DateTime(2000),
-                                  lastDate: DateTime(2022))
+                                  initialDate: DateTime(2010),
+                                  firstDate: DateTime(1900),
+                                  lastDate: DateTime(2021))
                               .then((value) {
                             setState(() {
                               dateOfBirth = value;

@@ -180,10 +180,10 @@ class _WorkFormState extends State<WorkForm> {
               height: 60,
               child: Container(
                 decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius: BorderRadius.circular(6),
                   border: Border.all(
-                    color: Colors.grey.shade300.withOpacity(0.8),
-                    width: 2,
+                    color: Colors.grey.withOpacity(0.4), 
+                     width: 1,
                   ),
                 ),
                 child: DropdownButtonFormField(
@@ -191,7 +191,7 @@ class _WorkFormState extends State<WorkForm> {
                       border: const OutlineInputBorder(
                         borderSide: BorderSide.none,
                         borderRadius: BorderRadius.all(
-                          Radius.circular(10.0),
+                          Radius.circular(6.0),
                         ),
                       ),
                       hintText: "Employment Status",
@@ -236,21 +236,24 @@ class _WorkFormState extends State<WorkForm> {
             //===========Joining Date===========//
             Container(
               height: 60,
-              padding: const EdgeInsets.all(10),
+              padding: const EdgeInsets.all(6),
               decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius: BorderRadius.circular(6),
                   border: Border.all(
-                    color: Colors.grey.shade300.withOpacity(0.8),
-                    width: 2,
+                    color: Colors.grey.withOpacity(0.4), 
+                    width: 1,
                   )),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    dateOfBirth == null
-                        ? 'Joining Date'
-                        : '${dateOfBirth!.day}/${dateOfBirth!.month}/${dateOfBirth!.year}'
-                            .toString(),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 10),
+                    child: Text(
+                      dateOfBirth == null
+                          ? 'Joining Date'
+                          : '${dateOfBirth!.day}/${dateOfBirth!.month}/${dateOfBirth!.year}'
+                              .toString(),
+                    ),
                   ),
                   IconButton(
                       icon: Icon(Icons.today, color: Colors.grey),

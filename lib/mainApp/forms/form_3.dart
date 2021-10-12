@@ -1,11 +1,22 @@
+// ignore_for_file: prefer_const_constructors, prefer_const_declarations, prefer_final_fields, unused_field, unnecessary_new
+
 import 'package:flutter/material.dart';
 
 class FormThree extends StatefulWidget {
+  const FormThree({Key? key}) : super(key: key);
+
   @override
   _FormThreeState createState() => _FormThreeState();
 }
 
 class _FormThreeState extends State<FormThree> {
+
+TextEditingController _controller1 = new TextEditingController();
+  TextEditingController _controller2 = new TextEditingController();
+  TextEditingController _controller3 = new TextEditingController();
+  TextEditingController _controller4 = new TextEditingController();
+  TextEditingController _controller5 = new TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     return Form(
