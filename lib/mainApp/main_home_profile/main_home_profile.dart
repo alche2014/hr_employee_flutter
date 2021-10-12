@@ -146,41 +146,7 @@ class _MainHomeProfileState extends State<MainHomeProfile> {
                                     const Text('You Haven,t chock in yet',
                                         style: TextStyle(color: Colors.grey)),
                                     // SizedBox(height: 5),
-                                    StreamBuilder<int>(
-                                      stream: _stopWatchTimer.rawTime,
-                                      initialData: 0,
-                                      builder: (context, snap) {
-                                        final value = snap.data;
-                                        final displayTime =
-                                            StopWatchTimer.getDisplayTime(
-                                                value!, milliSecond: false);
-                                        return Column(
-                                          children: <Widget>[
-                                            Padding(
-                                              padding: const EdgeInsets.all(8),
-                                              child: Text(
-                                                displayTime,
-                                                style: TextStyle(
-                                                    fontSize: 27,
-                                                    fontWeight:
-                                                        FontWeight.bold),
-                                              ),
-                                            ),
-                                            // Padding(
-                                            //   padding: const EdgeInsets.all(8),
-                                            //   child: Text(
-                                            //     value.toString(),
-                                            //     style: TextStyle(
-                                            //         // fontSize: 16,
-                                            //         fontFamily: 'Helvetica',
-                                            //         fontWeight: FontWeight.w400
-                                            //     ),
-                                            //   ),
-                                            // ),
-                                          ],
-                                        );
-                                      },
-                                    ),
+                                    stopwatch(),
                                     //----------------------//
                                     TextButton(
                                         onPressed: () {
@@ -364,6 +330,34 @@ class _MainHomeProfileState extends State<MainHomeProfile> {
         ),
       ),
     );
+  }
+
+  StreamBuilder<int> stopwatch() {
+    return StreamBuilder<int>(
+                                    stream: _stopWatchTimer.rawTime,
+                                    initialData: 0,
+                                    builder: (context, snap) {
+                                      final value = snap.data;
+                                      final displayTime =
+                                          StopWatchTimer.getDisplayTime(
+                                              value!, milliSecond: false);
+                                      return Column(
+                                        children: <Widget>[
+                                          Padding(
+                                            padding: const EdgeInsets.only(top: 10),
+                                            child: Text(
+                                              displayTime,
+                                              style: TextStyle(
+                                                  fontSize: 27,
+                                                  fontWeight:
+                                                      FontWeight.bold),
+                                            ),
+                                          ),
+                                          
+                                        ],
+                                      );
+                                    },
+                                  );
   }
   //-----------------------UI--ended--------------------------------//
 
