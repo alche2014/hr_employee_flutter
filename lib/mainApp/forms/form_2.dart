@@ -1,6 +1,11 @@
-// ignore_for_file: prefer_typing_uninitialized_variables, prefer_const_declarations, unnecessary_string_escapes, prefer_const_constructors
+// ignore_for_file: prefer_typing_uninitialized_variables, prefer_const_declarations, unnecessary_string_escapes, prefer_const_constructors, unnecessary_new
 
+import 'dart:io';
+
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:hr_app/mainApp/forms/utility/file_picker.dart';
 import 'package:hr_app/mainApp/settings/main_settings.dart';
 import 'package:hr_app/mainUtility/text_input_design.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
@@ -22,11 +27,10 @@ final maskFormatter = MaskTextInputFormatter(mask: '+92 ### ### ####');
 final maskCNICFormatter = MaskTextInputFormatter(mask: '#####-#######-#');
 
 class _FormTwoState extends State<FormTwo> {
-  TextEditingController _controller1 = new TextEditingController();
-  TextEditingController _controller2 = new TextEditingController();
-  TextEditingController _controller3 = new TextEditingController();
-  TextEditingController _controller4 = new TextEditingController();
-  TextEditingController _controller5 = new TextEditingController();
+  final TextEditingController _controller1 = new TextEditingController();
+  final TextEditingController _controller2 = new TextEditingController();
+  final TextEditingController _controller3 = new TextEditingController();
+  final TextEditingController _controller = new TextEditingController();
 
   // bool value = false;
   bool checkedValue = false;
@@ -34,6 +38,16 @@ class _FormTwoState extends State<FormTwo> {
   var dropGenderValue;
   var dropCityValue;
   var dropBloodGroup;
+  String? _directoryPath;
+  bool _loadingPath = false;
+  String? path;
+  String? fileName;
+  final String _extension = 'jpg';
+
+  @override
+  void initState() {
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -315,24 +329,85 @@ class _FormTwoState extends State<FormTwo> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   ElevatedButton(
-                      style: ElevatedButton.styleFrom(primary: checkedValue == false ? Colors.grey : kPrimaryRed),
-                      onPressed: checkedValue == false ? null : () {},
+                      style: ElevatedButton.styleFrom(
+                          primary: checkedValue == false
+                              ? Colors.grey
+                              : kPrimaryRed),
+                      onPressed: checkedValue == false
+                          ? null
+                          : () async {
+                            FilePickerResult? result = await FilePicker.platform.pickFiles(
+                                type: FileType.custom,
+                                allowedExtensions: ['pdf'],
+                              )
+                              .then((value){
+                                if(value == null){
+                                print('-------------------value is null so it nothing---------------------------')
+                                }else if(value != null){
+                                  setState(() {
+                                  path = value.toString();
+                                  print('---------------------value is not-null it something--------------------')
+                                })
+                                }
+                              });
+                              File file = new File(path!);
+                              fileName = file.path.split('/').last;
+                            },
                       child: const Text('BROWSE')),
                   const SizedBox(width: 25),
-                  if(checkedValue != false)
-                  SizedBox(
-                    height: 30,
-                    child: InkWell(
-                        child: const Text("JPG Attachment",
-                            style: TextStyle(
-                                decoration: TextDecoration.underline,
-                                color: Colors.blue)),
-                        onTap: () {}),
-                  ),
-                    if(checkedValue == true)
-                    SizedBox(),
+                  if (checkedValue != false)
+                    SizedBox(
+                      height: 30,
+                      child: InkWell(
+                          child: const Text("JPG Attachment",
+                              style: TextStyle(
+                                  decoration: TextDecoration.underline,
+                                  color: Colors.blue)),
+                          onTap: () async{
+                                FilePickerResult? result = await FilePicker.platform.pickFiles(
+                                type: FileType.custom,
+                                allowedExtensions: ['jpg'],
+                              )
+                              .then((value){
+                                if(value == null){
+                                print('-------------------value is null so it nothing---------------------------')
+                                }else if(value != null){
+                                  setState(() {
+                                  path = value.toString();
+                                  print('---------------------value is not-null it something--------------------')
+                                })
+                                }
+                              });
+                              File file = new File(path!);
+                              fileName = file.path.split('/').last;
+                          }),
+                    ),
+                  if (checkedValue == true) SizedBox(),
                 ],
               ),
+              if (path != null) 
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    SizedBox(
+                      width: MediaQuery.of(context).size.width * 0.4,
+                      child: Text(fileName!,
+                      maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        softWrap: false,
+                      style: TextStyle()),
+                    ),
+                    IconButton(onPressed: (){
+                      setState(() {
+                        path = null;
+                        FilePicker.platform.clearTemporaryFiles().then((result) {
+                          }); 
+                      });
+                    }, icon: Icon(Icons.close)),
+                  ],
+                ),
+              if(path == null)
+              SizedBox(),
               const SizedBox(height: 15),
               //--------------CNIC-------------------//
               TextFormField(
