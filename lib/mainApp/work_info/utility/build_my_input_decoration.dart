@@ -17,7 +17,6 @@ InputDecoration buildMyInputDecoration(BuildContext context, String hint) {
     // filled: true,
     fillColor: Theme.of(context).scaffoldBackgroundColor,
     labelText: hint,
-    hintText: hint,
     // hintStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.w400),
   );
 }

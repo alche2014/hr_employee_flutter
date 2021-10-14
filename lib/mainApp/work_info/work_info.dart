@@ -105,6 +105,7 @@ class _WorkFormState extends State<WorkForm> {
             //=============Department==================//
             const SizedBox(height: 15),
             TextFormField(
+              textInputAction: TextInputAction.next,
               decoration: buildMyInputDecoration(context, 'Department'),
               autovalidateMode: AutovalidateMode.onUserInteraction,
               validator: (value) {
@@ -123,6 +124,7 @@ class _WorkFormState extends State<WorkForm> {
             //
             //=============Designation==================//
             TextFormField(
+              textInputAction: TextInputAction.next,
               decoration: buildMyInputDecoration(context, 'Designation'),
               autovalidateMode: AutovalidateMode.onUserInteraction,
               validator: (value) {
@@ -141,6 +143,7 @@ class _WorkFormState extends State<WorkForm> {
             //
             //=============Role=================//
             TextFormField(
+              textInputAction: TextInputAction.next,
               decoration: buildMyInputDecoration(context, 'Role'),
               autovalidateMode: AutovalidateMode.onUserInteraction,
               validator: (value) {
@@ -159,6 +162,7 @@ class _WorkFormState extends State<WorkForm> {
             //
             //=============Reporting to=================//
             TextFormField(
+              textInputAction: TextInputAction.next,
               decoration: buildMyInputDecoration(context, 'Reporting to'),
               autovalidateMode: AutovalidateMode.onUserInteraction,
               validator: (value) {
@@ -216,6 +220,7 @@ class _WorkFormState extends State<WorkForm> {
             //
             //===========CNIC===============//
             TextFormField(
+              textInputAction: TextInputAction.next,
               controller: controllerCNIC,
               decoration: buildMyInputDecoration(context, 'CNIC No.'),
               keyboardType: TextInputType.number,
@@ -275,6 +280,7 @@ class _WorkFormState extends State<WorkForm> {
             const SizedBox(height: 15),
             //===========Phone===============//
             TextFormField(
+              textInputAction: TextInputAction.done,
               decoration: buildMyInputDecoration(context, 'Phone'),
               keyboardType: TextInputType.number,
               inputFormatters: [maskFormatter],
@@ -304,46 +310,7 @@ class _WorkFormState extends State<WorkForm> {
                         shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(10)),
                       ),
-                      onPressed: () {
-                        setState(() {});
-                        // Navigator.pushReplacement(
-                        //     context,
-                        //     MaterialPageRoute(
-                        //         builder: (context) => SecondProfile()));
-                        //
-                        // // Navigator.of(context).pushAndRemoveUntil(
-                        // //     MaterialPageRoute(
-                        // //         builder: (context) => SecondProfile()),
-                        // //     (Route<dynamic> route) => false);
-                        //
-                        // var getEmail = controllerEmail.text;
-                        // var getUserName = controllerUserName.text;
-                        // var getFatherName = controllerFatherName.text;
-                        // var getPhone = controllerPhone.text;
-                        // var getCnic = controllerCNIC.text;
-                        // var getAddress = controllerAddress.text;
-                        // var getCity = dropCityValue;
-                        // var getGender = dropGenderValue;
-                        // var getStatus = dropStatusValue;
-                        // var getDate = dateOfBirth;
-                        //
-                        // UserSaveData.instance.setStringValue("email", getEmail);
-                        // UserSaveData.instance
-                        //     .setStringValue("username", getUserName);
-                        // UserSaveData.instance
-                        //     .setStringValue("fathername", getFatherName);
-                        // UserSaveData.instance.setStringValue("phone", getPhone);
-                        // UserSaveData.instance.setStringValue("cnic", getCnic);
-                        // UserSaveData.instance.setStringValue("city", getCity);
-                        // UserSaveData.instance
-                        //     .setStringValue("gender", getGender);
-                        // UserSaveData.instance
-                        //     .setStringValue("status", getStatus);
-                        // UserSaveData.instance
-                        //     .setStringValue("date", getDate.toString());
-                        // UserSaveData.instance
-                        //     .setStringValue("address", getAddress);
-                      },
+                      onPressed: () {},
                     ),
                   ),
                 ),
@@ -356,3 +323,44 @@ class _WorkFormState extends State<WorkForm> {
     );
   }
 }
+
+
+//============ignore====================//
+// setState(() {});
+// Navigator.pushReplacement(
+//     context,
+//     MaterialPageRoute(
+//         builder: (context) => SecondProfile()));
+//
+// // Navigator.of(context).pushAndRemoveUntil(
+// //     MaterialPageRoute(
+// //         builder: (context) => SecondProfile()),
+// //     (Route<dynamic> route) => false);
+//
+// var getEmail = controllerEmail.text;
+// var getUserName = controllerUserName.text;
+// var getFatherName = controllerFatherName.text;
+// var getPhone = controllerPhone.text;
+// var getCnic = controllerCNIC.text;
+// var getAddress = controllerAddress.text;
+// var getCity = dropCityValue;
+// var getGender = dropGenderValue;
+// var getStatus = dropStatusValue;
+// var getDate = dateOfBirth;
+//
+// UserSaveData.instance.setStringValue("email", getEmail);
+// UserSaveData.instance
+//     .setStringValue("username", getUserName);
+// UserSaveData.instance
+//     .setStringValue("fathername", getFatherName);
+// UserSaveData.instance.setStringValue("phone", getPhone);
+// UserSaveData.instance.setStringValue("cnic", getCnic);
+// UserSaveData.instance.setStringValue("city", getCity);
+// UserSaveData.instance
+//     .setStringValue("gender", getGender);
+// UserSaveData.instance
+//     .setStringValue("status", getStatus);
+// UserSaveData.instance
+//     .setStringValue("date", getDate.toString());
+// UserSaveData.instance
+//     .setStringValue("address", getAddress);

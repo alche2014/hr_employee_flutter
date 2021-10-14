@@ -54,6 +54,7 @@ class _AddExperienceBodyState extends State<AddExperienceBody> {
           child: Column(
         children: [
           TextFormField(
+            textInputAction: TextInputAction.next,
             decoration: buildMyInputDecoration(context, 'Title'),
             autovalidateMode: AutovalidateMode.onUserInteraction,
             validator: (value) {
@@ -110,6 +111,7 @@ class _AddExperienceBodyState extends State<AddExperienceBody> {
           const SizedBox(height: 15),
           //-------------------------------------------------//
           TextFormField(
+            textInputAction: TextInputAction.next,
             decoration: buildMyInputDecoration(context, 'Company Name'),
             autovalidateMode: AutovalidateMode.onUserInteraction,
             validator: (value) {
@@ -127,6 +129,7 @@ class _AddExperienceBodyState extends State<AddExperienceBody> {
           const SizedBox(height: 15),
           //-------------------------------------------------//
           TextFormField(
+            textInputAction: TextInputAction.next,
             decoration: buildMyInputDecoration(context, 'Location'),
             autovalidateMode: AutovalidateMode.onUserInteraction,
             validator: (value) {
@@ -219,6 +222,7 @@ class _AddExperienceBodyState extends State<AddExperienceBody> {
           const SizedBox(height: 5),
           //--------------------------------------------------//
           TextFormField(
+            textInputAction: TextInputAction.next,
             decoration: buildMyInputDecoration(context, 'Headline'),
             autovalidateMode: AutovalidateMode.onUserInteraction,
             validator: (value) {
@@ -277,6 +281,7 @@ class _AddExperienceBodyState extends State<AddExperienceBody> {
           const SizedBox(height: 15),
           //-------------------------------------------------//
           TextFormField(
+            textInputAction: TextInputAction.done,
             maxLines: 5,
             decoration: buildMyInputDecoration(context, 'Description'),
             autovalidateMode: AutovalidateMode.onUserInteraction,

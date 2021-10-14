@@ -51,7 +51,8 @@ class _LogBodyState extends State<LogBody> {
 
   @override
   void initState() {
-    _passwordVisible = false;
+    super.initState();
+        _passwordVisible = false;
   }
 
   @override
@@ -86,7 +87,6 @@ class _LogBodyState extends State<LogBody> {
                           textInputAction: TextInputAction.next,
                           decoration: InputDecoration(
                             labelText: "Username",
-                            hintText: "Username",
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(10.0),
                               borderSide: const BorderSide(
@@ -124,7 +124,6 @@ class _LogBodyState extends State<LogBody> {
                           obscureText: !_passwordVisible,
                           decoration: InputDecoration(
                             labelText: "Password",
-                            hintText: "Password",
                              suffixIcon: IconButton(
                                 icon: Icon(
                                   // Based on passwordVisible state choose the icon

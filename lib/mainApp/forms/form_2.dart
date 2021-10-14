@@ -38,11 +38,8 @@ class _FormTwoState extends State<FormTwo> {
   var dropGenderValue;
   var dropCityValue;
   var dropBloodGroup;
-  String? _directoryPath;
-  bool _loadingPath = false;
   String? path;
   String? fileName;
-  final String _extension = 'jpg';
 
   @override
   void initState() {
@@ -294,21 +291,6 @@ class _FormTwoState extends State<FormTwo> {
                   },
                 ),
               ),
-              // TextFormField(
-              //   decoration: MyInputStyle('Blood Group'),
-              //   autovalidateMode: AutovalidateMode.onUserInteraction,
-              //   validator: (value) {
-              //     final pattern = ('[a-zA-Z]+([\s][a-zA-Z]+)*');
-              //     final regExp = RegExp(pattern);
-              //     if (value!.isEmpty) {
-              //       return null;
-              //     } else if (!regExp.hasMatch(value)) {
-              //       return 'Enter only Alphabets';
-              //     } else {
-              //       return null;
-              //     }
-              //   },
-              // ),
               const SizedBox(height: 15),
               //--------------CheckBox-------------------//
               Row(children: [
