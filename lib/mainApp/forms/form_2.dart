@@ -7,7 +7,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hr_app/mainApp/forms/utility/file_picker.dart';
 import 'package:hr_app/mainApp/settings/main_settings.dart';
+import 'package:hr_app/mainUtility/share_preference.dart';
 import 'package:hr_app/mainUtility/text_input_design.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 
 import '../../colors.dart';
@@ -41,9 +43,35 @@ class _FormTwoState extends State<FormTwo> {
   String? path;
   String? fileName;
 
+   File? image;
+  String? imagePath;
+
+  Future pickImage() async {
+    try {
+      final image = await ImagePicker().pickImage(source: ImageSource.gallery);
+      if (image == null) return;
+
+      
+
+      setState(() {
+        imagePath= image.path;
+        // this.image = imageTemp;
+        // saveImage(this.image);
+      });
+      saveImage('SaveImage',image.path);
+    } on PlatformException catch (e) {
+      print('Access Rejected: $e');
+    }
+  }
+
   @override
   void initState() {
     super.initState();
+    loadImage('SaveImage').then((value) {
+      setState(() {
+        imagePath = value;
+      });
+    });
   }
 
   @override
@@ -55,24 +83,70 @@ class _FormTwoState extends State<FormTwo> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Stack(
-                //using stack to lap edit icon over Picture
-                children: const [
-                  ClipRRect(
-                    child: Image(
-                      height: 100,
-                      image: AssetImage('assets/user_image.png'),
-                    ),
-                  ),
-                  Positioned(
-                      bottom: 10,
-                      right: 0,
-                      child: Image(
-                        image: AssetImage('assets/custom/Vector.png'),
-                        width: 30,
-                        fit: BoxFit.cover,
-                      )),
-                ],
+              InkWell(
+                onTap: (){
+                  showModalBottomSheet(
+                    context: context,
+                    builder: (BuildContext bc) {
+                      return Container(
+                        child: new Wrap(
+                          children: <Widget>[
+                            new ListTile(
+                              leading: new Icon(Icons.image),
+                              title: new Text('Gallery'),
+                              onTap: () {
+                                Navigator.pop(context);
+                                pickImage();
+                              },
+                            ),
+                          ],
+                        ),
+                      );
+                    });
+                },
+                child: Stack(
+                  //using stack to lap edit icon over Picture
+                  children: [
+                    imagePath != null
+                      ? CircleAvatar(
+                          radius: 50,
+                          child: ClipRRect(
+                            clipBehavior: Clip.antiAlias,
+                            borderRadius: BorderRadius.circular(100),
+                            child: Image(
+                              image: FileImage(File(imagePath!)),
+                              height: 114,
+                              width: 115,
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                        )
+                      : CircleAvatar(
+                          radius: 50,
+                          child: ClipRRect(
+                            clipBehavior: Clip.antiAlias,
+                            borderRadius: BorderRadius.circular(100),
+                            child: image != null
+                                ? Image.file(image!)
+                                : Image.asset(
+                                    "assets/user_image.png",
+                                    height: 114,
+                                    width: 115,
+                                    fit: BoxFit.cover,
+                                  ),
+                          ),
+                        ),
+                    
+                    Positioned(
+                        bottom: 10,
+                        right: 0,
+                        child: Image(
+                          image: AssetImage('assets/custom/Vector.png'),
+                          width: 30,
+                          fit: BoxFit.cover,
+                        )),
+                  ],
+                ),
               ),
               const SizedBox(height: 35),
               //--------------name-------------------//
