@@ -20,10 +20,10 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   @override
   void initState() {
-    super.initState();
-    SystemChrome.setEnabledSystemUIMode(
-    SystemUiMode.immersiveSticky,
-  );
+  super.initState();
+  // SystemChrome.setEnabledSystemUIMode(
+  // SystemUiMode.immersiveSticky,
+  // );
   }
 
   @override
@@ -35,9 +35,7 @@ class _MyAppState extends State<MyApp> {
       darkTheme: darkThemeData(context),
       home: const SignIn(),
     );
-  }
-  
-}
-
+   } 
+   }
 // home: const MainTesting(),
 // home: const SignIn(),

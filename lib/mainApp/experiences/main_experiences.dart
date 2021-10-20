@@ -60,15 +60,13 @@ class CardOne extends StatelessWidget {
                   const SizedBox(width: 20),
                   Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
-                      children: const [
-                        Text(
-                          'UI UX Designer',
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                        SizedBox(height: 3),
-                        Text('Alchemative - Full time'),
-                        SizedBox(height: 3),
-                        Text('Mar 2020 - Present 1yr 7 mos'),
+                      children: const [ 
+                  Text('UI UX Designer',
+                  style: TextStyle(fontWeight: FontWeight.bold),),
+                  SizedBox(height: 3),
+                  Text('Alchemative - Full time'),
+                  SizedBox(height: 3),
+                  Text('Mar 2020 - Present 1yr 7 mos'),
                       ]),
                 ]),
                 const SizedBox(height: 15),
