@@ -1,4 +1,4 @@
-// ignore_for_file: prefer_const_declarations, duplicate_ignore, prefer_typing_uninitialized_variables, prefer_const_constructors
+// ignore_for_file: prefer_const_declarations, duplicate_ignore, prefer_typing_uninitialized_variables, prefer_const_constructors, unnecessary_new, prefer_final_fields
 
 import 'package:flutter/material.dart';
 import 'package:hr_app/mainApp/bottom_navigation/bottom_nav_bar.dart';
@@ -66,7 +66,7 @@ class _FormOneState extends State<FormOne> {
               const SizedBox(height: 15),
               //-------------------------------------------------//
               TextFormField(
-                                controller: _controller2,
+                controller: _controller2,
                 textInputAction: TextInputAction.next,
                 decoration: MyInputStyle('Father Name'),
                 autovalidateMode: AutovalidateMode.onUserInteraction,
@@ -108,7 +108,7 @@ class _FormOneState extends State<FormOne> {
               const SizedBox(height: 15),
               //-------------------------------------------------//
               TextFormField(
-                                controller: _controller4,
+                controller: _controller4,
                 textInputAction: TextInputAction.next,
                 decoration: MyInputStyle('Phone'),
                 keyboardType: TextInputType.number,

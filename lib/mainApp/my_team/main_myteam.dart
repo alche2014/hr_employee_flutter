@@ -149,10 +149,10 @@ class ProfileCard extends StatelessWidget {
   String? headTitle;
   final VoidCallback? press;
 
-  ProfileCard({
+  ProfileCard({Key? key, 
     this.headTitle,
     this.press,
-  });
+  }) : super(key: key);
   @override
   Widget build(BuildContext context) {
     return Padding(
