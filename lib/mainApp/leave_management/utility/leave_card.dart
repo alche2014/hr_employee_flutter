@@ -1,4 +1,4 @@
-// ignore_for_file: prefer_const_constructors, avoid_unnecessary_containers
+// ignore_for_file: prefer_const_constructors, avoid_unnecessary_containers, prefer_const_literals_to_create_immutables
 
 import 'package:flutter/material.dart';
 import 'package:hr_app/mainApp/leave_management/Utility/showDialog.dart';
@@ -8,19 +8,24 @@ import '../../../colors.dart';
 
 
 // ignore: must_be_immutable
-class LeaveCard extends StatelessWidget {
+class LeaveCard extends StatefulWidget {
   //resue card but with chainging
   String? text;
   VoidCallback? press;
   LeaveCard({Key? key, this.text, this.press}) : super(key: key);
 
   @override
+  State<LeaveCard> createState() => _LeaveCardState();
+}
+
+class _LeaveCardState extends State<LeaveCard> {
+  @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
       child: InkWell(
         borderRadius: const BorderRadius.all(Radius.circular(10)),
-        onTap: press,
+        onTap: widget.press,
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
           decoration: BoxDecoration(
@@ -49,7 +54,7 @@ class LeaveCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       SizedBox(height: 8),
-                      Text(text!),
+                      Text(widget.text!),
                       SizedBox(height: 8),
                       Text('20 anual leaves pending',
                           style: TextStyle(color: Colors.grey, fontSize: 10)),

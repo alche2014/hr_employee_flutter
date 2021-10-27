@@ -1,9 +1,12 @@
-// ignore_for_file: prefer_const_literals_to_create_immutables, unnecessary_string_interpolations, file_names, prefer_const_constructors, sized_box_for_whitespace, must_be_immutable, duplicate_ignore
+// ignore_for_file: prefer_const_literals_to_create_immutables, unnecessary_string_interpolations, file_names, prefer_const_constructors, sized_box_for_whitespace, must_be_immutable, duplicate_ignore, prefer_typing_uninitialized_variables
 
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:hr_app/colors.dart';
+
+DateTime? _fromDate;
+DateTime? _tillDate;
 
 Future<dynamic> applyLeave(BuildContext context) {
   return showDialog(
@@ -16,7 +19,10 @@ Future<dynamic> applyLeave(BuildContext context) {
       title: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text('Apply Leave', style: TextStyle(color: kPrimaryRed),),
+          Text(
+            'Apply Leave',
+            style: TextStyle(color: kPrimaryRed),
+          ),
           IconButton(
               onPressed: () {
                 Navigator.of(context).pop();
@@ -33,65 +39,21 @@ Future<dynamic> applyLeave(BuildContext context) {
               _TypeDropMenu('Type'),
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 11),
-                child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: SizedBox(
-                      width: 120,
-                      height: 54,
-                      child: TextFormField(
-                        // obscureText: true,
-                        keyboardType: TextInputType.number,
-                        decoration: InputDecoration(
-                          hintText: " From Date",
-                          labelText: "From Date",
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(4),
-                            borderSide: const BorderSide(
-                              color: Colors.transparent,
-                            ),
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(4),
-                            borderSide: BorderSide(
-                              color: Colors.grey.withOpacity(0.4),
-                            ),
-                          ),
-                        ),
+                child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: FromDate(),
                       ),
-                    ),
-                  ),
-                   Align(
-                    alignment: Alignment.centerLeft,
-                    child: SizedBox(
-                      width: 120,
-                      height: 54,
-                      child: TextFormField(
-                        // obscureText: true,
-                        keyboardType: TextInputType.number,
-                        decoration: InputDecoration(
-                          hintText: " Till Date",
-                          labelText: "Till Date",
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(4),
-                            borderSide: const BorderSide(
-                              color: Colors.transparent,
-                            ),
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(4),
-                            borderSide: BorderSide(
-                              color: Colors.grey.withOpacity(0.4),
-                            ),
-                          ),
-                        ),
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: TillDate(),
                       ),
-                    ),
-                  ),
-                  // Align(
-                  //     alignment: Alignment.centerRight,
-                  //     child: SizedBox(width: 120, child: _FormDropMenu('Form'))),
-                ]),
+                      // Align(
+                      //     alignment: Alignment.centerRight,
+                      //     child: SizedBox(width: 120, child: _FormDropMenu('Form'))),
+                    ]),
               ),
               TextField(
                 maxLines: 4,
@@ -99,17 +61,17 @@ Future<dynamic> applyLeave(BuildContext context) {
                   hintText: 'Comment',
                   hintStyle: TextStyle(color: Colors.grey),
                   border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(4),
-                          borderSide: const BorderSide(
-                            color: Colors.transparent,
-                          ),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(4),
-                          borderSide: BorderSide(
-                            color: Colors.grey.withOpacity(0.4),
-                          ),
-                        ),
+                    borderRadius: BorderRadius.circular(4),
+                    borderSide: const BorderSide(
+                      color: Colors.transparent,
+                    ),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(4),
+                    borderSide: BorderSide(
+                      color: Colors.grey.withOpacity(0.4),
+                    ),
+                  ),
                 ),
               ),
               SizedBox(
@@ -140,8 +102,8 @@ Future<dynamic> applyLeave(BuildContext context) {
                           children: [
                             SizedBox(
                                 height: 200,
-                                child: Image.asset(
-                                    'assets/custom/truecheck.png')),
+                                child:
+                                    Image.asset('assets/custom/truecheck.png')),
                             SizedBox(
                               height: 50,
                             ),
@@ -170,6 +132,108 @@ Future<dynamic> applyLeave(BuildContext context) {
 }
 
 //===========================================================================//
+
+class FromDate extends StatefulWidget {
+  FromDate({Key? key}) : super(key: key);
+
+  @override
+  _FromDateState createState() => _FromDateState();
+}
+
+class _FromDateState extends State<FromDate> {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 60,
+      padding: const EdgeInsets.all(8),
+      decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(6),
+          border: Border.all(color: Colors.grey.withOpacity(0.4), width: 1)),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          GestureDetector(
+            onTap: () {
+              showDatePicker(
+                      context: context,
+                      initialDate: DateTime.now(),
+                      firstDate: DateTime.now(),
+                      lastDate: DateTime(2022))
+                  .then((value) {
+                setState(() {
+                  _fromDate = value;
+                  print(_fromDate);
+                });
+              });
+            },
+            child: Text(
+              _fromDate == null
+                  ? 'From Date'
+                  : '${_fromDate!.day}/${_fromDate!.month}/${_fromDate!.year}'
+                      .toString(),
+              style: TextStyle(color: Colors.grey[800]),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+//---------------------------------------------------------------//
+class TillDate extends StatefulWidget {
+  const TillDate({Key? key}) : super(key: key);
+
+  @override
+  _TillDateState createState() => _TillDateState();
+}
+
+class _TillDateState extends State<TillDate> {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 60,
+      padding: const EdgeInsets.all(8),
+      decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(6),
+          border: Border.all(color: Colors.grey.withOpacity(0.4), width: 1)),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          GestureDetector(
+            onTap: () {
+              if (_fromDate != null) {
+                showDatePicker(
+                        context: context,
+                        initialDate: DateTime(_fromDate!.year.toInt(),
+                            _fromDate!.month.toInt(), _fromDate!.day.toInt()),
+                        firstDate: DateTime(_fromDate!.year.toInt(),
+                            _fromDate!.month.toInt(), _fromDate!.day.toInt()),
+                        lastDate: DateTime(2022))
+                    .then((value) {
+                  setState(() {
+                    _tillDate = value;
+                    print(_tillDate);
+                  });
+                });
+              }
+            },
+            child: Text(
+              _tillDate == null
+                  ? 'Till Date'
+                  : '${_tillDate!.day}/${_tillDate!.month}/${_tillDate!.year}'
+                      .toString(),
+              style: TextStyle(color: Colors.grey[800]),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+//----------------------------------------------------------------//
+
 // ignore: must_be_immutable
 class _TypeDropMenu extends StatefulWidget {
   String hintTxt;
@@ -192,12 +256,12 @@ class _TypeDropMenuState extends State<_TypeDropMenu> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 54,
+      height: 50,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(4),
         border: Border.all(
-                    color: Colors.grey.withOpacity(0.4),
-                  ),
+          color: Colors.grey.withOpacity(0.4),
+        ),
       ),
       child: Center(
         child: Padding(
@@ -256,8 +320,8 @@ class _FormDropMenuState extends State<_FormDropMenu> {
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(4),
           border: Border.all(
-                    color: Colors.grey.withOpacity(0.4),
-                  ),
+            color: Colors.grey.withOpacity(0.4),
+          ),
         ),
         child: Center(
           child: Padding(
