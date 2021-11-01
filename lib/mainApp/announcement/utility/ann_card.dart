@@ -1,6 +1,7 @@
 // ignore_for_file: prefer_const_constructors, prefer_const_constructors_in_immutables
 
 import 'package:flutter/material.dart';
+import 'package:hr_app/colors.dart';
 
 final darkRed = Color(0xffbf2634);
 
@@ -13,8 +14,9 @@ class AnnCard extends StatelessWidget {
   //reuse but with changing
   @override
   Widget build(BuildContext context) {
+    int myMaxLines = 3;
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 5 ),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 20),
         decoration: BoxDecoration(
@@ -26,7 +28,6 @@ class AnnCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            
             Text(
               head,
               style: TextStyle(
@@ -35,16 +36,36 @@ class AnnCard extends StatelessWidget {
                 fontSize: 17,
               ),
             ),
-            SizedBox(
-              height: 30.0,
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  body,
+                  maxLines: myMaxLines,
+                  style: TextStyle(
+                    fontSize: 15,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                if (body.length > 80)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 15),
+                    child: GestureDetector(
+                      onTap: () {},
+                      child: Text(
+                        'Readmore!',
+                        // maxLines: 3,
+                        style: TextStyle(
+                            fontSize: 15,
+                            // overflow: TextOverflow.ellipsis,
+                            fontWeight: FontWeight.bold,
+                            color: kPrimaryRed),
+                      ),
+                    ),
+                  ),
+              ],
             ),
-            Text(
-              body,
-              style: TextStyle(
-                fontSize: 15,
-              ),
-            ),
-            SizedBox(height: 40),
+            // SizedBox(height: 50),
             Text(
               date,
               style: TextStyle(

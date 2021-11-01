@@ -1,21 +1,43 @@
-import 'package:hr_app/mainApp/main_home_profile/utility/cards/announCard.dart';
 import 'package:hr_app/mainApp/main_home_profile/utility/cards/birthCard.dart';
 import 'package:hr_app/mainApp/main_home_profile/utility/cards/home_event_card.dart';
 import 'package:hr_app/mainApp/main_home_profile/utility/cards/leaveCard.dart';
 
-List<AnnHomeCard> annHomeCardData = [
-  AnnHomeCard(
-      'This super Leogue lorem 2017',
-      'Hello guys, we have discussed about post-corona vacation plan and our decision is to go to Bali. We will have a very big party after this corona ends!Hello guys, We will have a very big party after this corona ends!',
-      '14:01 20/10/2020'),
-  AnnHomeCard(
-      'This super Leogue lorem 2017',
-      'Hello guys, we have discussed about post-corona vacation plan and our decision is to go to Bali. We will have a very big party after this corona ends!Hello guys, We will have a very big party after this corona ends!',
-      '14:01 20/10/2020'),
-  AnnHomeCard(
-      'This super Leogue lorem 2017',
-      'Hello guys, we have discussed about post-corona vacation plan and our decision is to go to Bali. We will have a very big party after this corona ends! We will have a very big party after this corona ends!',
-      '14:01 20/10/2020'),
+class MyAnnCard {
+  String? head;
+  String? body;
+  String? date;
+  MyAnnCard({this.head, this.body, this.date});
+}
+
+List<MyAnnCard> mainAnnCardData = [
+  MyAnnCard(
+      head: 'This super Leogue lorem 2017',
+      body:
+          'Hello guys, we have discussed about post-corona vacation plan and our decision is to go to Bali. We will have a very big party after this corona ends!Hello guys, We will have a very big party after this corona ends!, Hello guys, we have discussed about post-corona vacation plan and our decision is to go to Bali. We will have a very big party after this corona ends!Hello guys, We will have a very big party after this corona ends,Hello guys, we have discussed about post-corona vacation plan and our decision is to go to Bali. We will have a very big party after this corona ends!, Hello guys, We will have a very big party after this corona ends!',
+      date: '14:01 20/10/2020'),
+  MyAnnCard(
+      head: 'This super Leogue lorem 2017',
+      body: 'Hello guys, This Soud Haroon...!',
+      date: '14:01 20/10/2020'),
+  MyAnnCard(
+      head: 'This super Leogue lorem 2017',
+      body: 'Hello guys, This Soud Haroon...!, our decision is to go to Bali.',
+      date: '14:01 20/10/2020'),
+  MyAnnCard(
+      head: 'This super Leogue lorem 2017',
+      body:
+          'Hello guys, we have discussed about post-corona vacation plan and our decision is to go to Bali. We will have a very big party after this corona ends!Hello guys, We will have a very big party after this corona ends!',
+      date: '14:01 20/10/2020'),
+  MyAnnCard(
+      head: 'This super Leogue lorem 2017',
+      body:
+          'Hello guys, we have discussed about post-corona vacation plan and our decision is to go to Bali. We will have a very big party after this corona ends! We will have a very big party after this corona ends!',
+      date: '14:01 20/10/2020'),
+  MyAnnCard(
+      head: 'This super Leogue lorem 2017',
+      body:
+          'Hello guys, This Soud Haroon, we have discussed about post-corona vacation plan and our decision is to go to Bali. We will have a very big party after this corona ends!Hello guys, We will have a very big party after this corona ends!, Hello guys, we have discussed about post-corona vacation plan and our decision is to go to Bali. We will have a very big party after this corona ends!Hello guys, We will have a very big party after this corona ends,Hello guys, we have discussed about post-corona vacation plan and our decision is to go to Bali. We will have a very big party after this corona ends!, Hello guys, We will have a very big party after this corona ends!',
+      date: '14:01 20/10/2020'),
 ];
 
 // 2nd final BirthdayCard Data
