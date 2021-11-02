@@ -2,22 +2,33 @@
 
 import 'package:flutter/material.dart';
 import 'package:hr_app/colors.dart';
+import 'package:hr_app/mainApp/main_home_profile/utility/content/list_of_data.dart';
 
 final darkRed = Color(0xffbf2634);
 
-class AnnCard extends StatelessWidget {
-  final String head;
-  final String body;
-  final String date;
-  AnnCard(this.head, this.body, this.date, {Key? key}) : super(key: key);
+class AnnCard extends StatefulWidget {
+  // final String head;
+  // final String body;
+  // final String date;
 
-  //reuse but with changing
+  MyAnnCard myAnnCard = MyAnnCard();
+
+  AnnCard(this.myAnnCard, {Key? key}) : super(key: key);
+
+  @override
+  State<AnnCard> createState() => _AnnCardState();
+}
+
+class _AnnCardState extends State<AnnCard> {
+  int myMaxLines = 3;
+  bool isExpaneded = false;
+
   @override
   Widget build(BuildContext context) {
-    int myMaxLines = 3;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
       child: Container(
+        height: isExpaneded == true ? null : widget.myAnnCard.body!.length > 140 ? 225 : 165,
         padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 20),
         decoration: BoxDecoration(
           borderRadius: const BorderRadius.all(
@@ -26,38 +37,52 @@ class AnnCard extends StatelessWidget {
           border: Border.all(color: Colors.grey.withOpacity(0.1), width: 2),
         ),
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
             Text(
-              head,
+              widget.myAnnCard.head!,
               style: TextStyle(
                 color: darkRed, //color red
                 fontWeight: FontWeight.bold,
                 fontSize: 17,
               ),
             ),
+            SizedBox(height: 20),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                if(isExpaneded != true)
                 Text(
-                  body,
+                  widget.myAnnCard.body!,
                   maxLines: myMaxLines,
                   style: TextStyle(
+                    height: 1.5,
                     fontSize: 15,
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
-                if (body.length > 80)
+                if(isExpaneded == true)
+                Text(
+                  widget.myAnnCard.body!,
+                  style: TextStyle(
+                    height: 1.5,
+                    fontSize: 15,
+                  ),
+                ),
+                if (widget.myAnnCard.body!.length > 140)
                   Padding(
                     padding: const EdgeInsets.only(top: 15),
                     child: GestureDetector(
-                      onTap: () {},
+                      onTap: () {
+                        setState(() {
+                          isExpaneded = !isExpaneded;
+                        });
+                      },
                       child: Text(
-                        'Readmore!',
-                        // maxLines: 3,
+                        isExpaneded != true ? 'Readmore!' : 'Readless!',
                         style: TextStyle(
                             fontSize: 15,
-                            // overflow: TextOverflow.ellipsis,
                             fontWeight: FontWeight.bold,
                             color: kPrimaryRed),
                       ),
@@ -65,9 +90,9 @@ class AnnCard extends StatelessWidget {
                   ),
               ],
             ),
-            // SizedBox(height: 50),
+            SizedBox(height: 20),
             Text(
-              date,
+              widget.myAnnCard.date!,
               style: TextStyle(
                 fontSize: 10,
                 color: Colors.grey,

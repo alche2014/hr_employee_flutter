@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:hr_app/AppBar/appbar.dart';
 import 'package:hr_app/background/background.dart';
-import 'utility/list_of_data.dart';
+import 'package:hr_app/mainApp/announcement/utility/ann_card.dart';
+import 'package:hr_app/mainApp/main_home_profile/utility/content/list_of_data.dart';
 
 class MainAnnouncement extends StatelessWidget {
   const MainAnnouncement({Key? key}) : super(key: key);
@@ -20,8 +21,10 @@ class MainAnnouncement extends StatelessWidget {
             body: Padding(
               padding: const EdgeInsets.only(top: 20),
               child: ListView.builder(
-                  itemCount: annCardData.length,
-                  itemBuilder: (context, index) => annCardData[index]),
+                  itemCount: mainAnnCardData.length,
+                  itemBuilder: (context, index) {
+                    return AnnCard(mainAnnCardData[index]);
+                  }),
             ),
           ),
         ],

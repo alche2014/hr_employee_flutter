@@ -5,8 +5,6 @@ import 'theme.dart';
 
 void main() {
   runApp(const MyApp());
-  
-  
 }
 
 class MyApp extends StatefulWidget {
@@ -21,8 +19,9 @@ class _MyAppState extends State<MyApp> {
   void initState() {
     super.initState();
     SystemChrome.setEnabledSystemUIMode(
-    SystemUiMode.immersiveSticky,
-  );
+      SystemUiMode.manual,
+      overlays: [SystemUiOverlay.bottom],
+    );
   }
 
   @override
@@ -35,7 +34,6 @@ class _MyAppState extends State<MyApp> {
       home: const SignIn(),
     );
   }
-  
 }
 
 // home: const MainTesting(),
