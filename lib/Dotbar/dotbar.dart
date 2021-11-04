@@ -40,7 +40,8 @@ class DotLineBar extends StatelessWidget {
                           decoration: BoxDecoration(
                               border: step <= counter
                                   ? Border.all(
-                                      width: 1.8, color: const Color(0xffC53B4B))
+                                      width: 1.8,
+                                      color: const Color(0xffC53B4B))
                                   : Border.all(
                                       width: 2, color: const Color(0xffEEB8B8)),
                               borderRadius: BorderRadius.circular(20),
@@ -108,7 +109,8 @@ class OutlineCircle extends StatelessWidget {
                 height: 10,
                 width: 10,
                 decoration: BoxDecoration(
-                  border: Border.all(width: 1.8, color: const Color(0xffEEB8B8)),
+                  border:
+                      Border.all(width: 1.8, color: const Color(0xffEEB8B8)),
                   borderRadius: BorderRadius.circular(20),
                   color: Colors.transparent,
                 ),
