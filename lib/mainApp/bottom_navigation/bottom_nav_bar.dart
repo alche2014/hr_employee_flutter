@@ -3,6 +3,7 @@ import 'package:hr_app/mainApp/Announcement/main_announcement.dart';
 import 'package:hr_app/mainApp/Personal_Info/main_personal_info.dart';
 import 'package:hr_app/mainApp/leave_management/leave_management.dart';
 import 'package:hr_app/mainApp/mainProfile/my_profile_edit.dart';
+import 'package:hr_app/mainApp/main_home_profile/main_home_profile.dart';
 
 int? count;
 
@@ -20,7 +21,7 @@ class _NavBarState extends State<NavBar> {
 
   final tabs = [
     //Assigning Tabs for bottom bar position Icon
-    const Center(child: MyProfileEdit()),
+    const Center(child: MainHomeProfile()),
     const Center(child: MainAnnouncement()),
     const Center(child: LeaveManagement()),
     const Center(child: MainPersonal_Info()),

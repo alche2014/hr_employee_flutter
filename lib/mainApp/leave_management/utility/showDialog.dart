@@ -171,7 +171,11 @@ class _FromDateState extends State<FromDate> {
                   ? 'From Date'
                   : '${_fromDate!.day}/${_fromDate!.month}/${_fromDate!.year}'
                       .toString(),
-              style: TextStyle(color: Colors.grey[800]),
+              style: TextStyle(
+                  color: MediaQuery.of(context).platformBrightness ==
+                          Brightness.light
+                      ? Colors.grey
+                      : null),
             ),
           ),
         ],
@@ -223,7 +227,11 @@ class _TillDateState extends State<TillDate> {
                   ? 'Till Date'
                   : '${_tillDate!.day}/${_tillDate!.month}/${_tillDate!.year}'
                       .toString(),
-              style: TextStyle(color: Colors.grey[800]),
+              style: TextStyle(
+                  color: MediaQuery.of(context).platformBrightness ==
+                          Brightness.light
+                      ? Colors.grey
+                      : null),
             ),
           ),
         ],

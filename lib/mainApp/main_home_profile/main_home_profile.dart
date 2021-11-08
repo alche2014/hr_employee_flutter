@@ -1,10 +1,12 @@
 // ignore_for_file: sized_box_for_whitespace, prefer_const_constructors
 
 import 'package:flutter/material.dart';
+import 'package:hr_app/mainApp/main_home_profile/utility/cards/announCard.dart';
 import 'package:hr_app/mainApp/main_home_profile/utility/content/list_of_data.dart';
-import '../../colors.dart';
 import 'Utility/cards/teamCard.dart';
 import 'package:stop_watch_timer/stop_watch_timer.dart';
+
+final darkRed = Color(0xffbf2634);
 
 class MainHomeProfile extends StatefulWidget {
   const MainHomeProfile({Key? key}) : super(key: key);
@@ -15,7 +17,7 @@ class MainHomeProfile extends StatefulWidget {
 
 class _MainHomeProfileState extends State<MainHomeProfile> {
   final StopWatchTimer _stopWatchTimer = StopWatchTimer();
-  final _isHour = true;
+  var _isHour = true;
   var _isStart = false;
 
   @override
@@ -122,7 +124,7 @@ class _MainHomeProfileState extends State<MainHomeProfile> {
                           height: 150,
                           // margin: EdgeInsets.symmetric(horizontal: 25),
                           decoration: BoxDecoration(
-                            border: const Border(
+                            border: Border(
                                 bottom: BorderSide(color: darkRed, width: 3)),
                             color: MediaQuery.of(context).platformBrightness ==
                                     Brightness.light
@@ -180,9 +182,9 @@ class _MainHomeProfileState extends State<MainHomeProfile> {
                                               if (_isStart != true) {
                                                 _stopWatchTimer.onExecute.add(
                                                     StopWatchExecute.start);
-                                                    setState(() {
-                                                      _isStart = true;
-                                                    });
+                                                setState(() {
+                                                  _isStart = true;
+                                                });
                                                 print('Start');
                                               } else if (_isStart == true) {
                                                 _stopWatchTimer.onExecute
@@ -193,7 +195,10 @@ class _MainHomeProfileState extends State<MainHomeProfile> {
                                                 print('Stop');
                                               }
                                             },
-                                            child: Text(_isStart == false ? 'Check in' : 'Check out',
+                                            child: Text(
+                                                _isStart == false
+                                                    ? 'Check in'
+                                                    : 'Check out',
                                                 style: TextStyle(fontSize: 9)),
                                             style: ElevatedButton.styleFrom(
                                               shape: CircleBorder(),
@@ -213,14 +218,16 @@ class _MainHomeProfileState extends State<MainHomeProfile> {
               ),
             ),
             SizedBox(height: 5),
-            //--------------------ALL--Widgets------------------//
+            //-----------------------ALL--Widgets--------------------//
             headViewList('Announcements', 'orange'),
             Container(
-              height: 270,
+              height: 190,
               child: ListView.builder(
                   scrollDirection: Axis.horizontal,
-                  itemCount: annHomeCardData.length,
-                  itemBuilder: (context, index) => annHomeCardData[index]),
+                  itemCount: mainAnnCardData.length,
+                  itemBuilder: (context, index) {
+                    return AnnHomeCard(mainAnnCardData[index]);
+                  }),
             ),
             //--------------------------------------//
             headViewList('Birthday', 'lightgreen'),
@@ -334,30 +341,25 @@ class _MainHomeProfileState extends State<MainHomeProfile> {
 
   StreamBuilder<int> stopwatch() {
     return StreamBuilder<int>(
-                                    stream: _stopWatchTimer.rawTime,
-                                    initialData: 0,
-                                    builder: (context, snap) {
-                                      final value = snap.data;
-                                      final displayTime =
-                                          StopWatchTimer.getDisplayTime(
-                                              value!, milliSecond: false);
-                                      return Column(
-                                        children: <Widget>[
-                                          Padding(
-                                            padding: const EdgeInsets.only(top: 10),
-                                            child: Text(
-                                              displayTime,
-                                              style: TextStyle(
-                                                  fontSize: 27,
-                                                  fontWeight:
-                                                      FontWeight.bold),
-                                            ),
-                                          ),
-                                          
-                                        ],
-                                      );
-                                    },
-                                  );
+      stream: _stopWatchTimer.rawTime,
+      initialData: 0,
+      builder: (context, snap) {
+        final value = snap.data;
+        final displayTime =
+            StopWatchTimer.getDisplayTime(value!, milliSecond: false);
+        return Column(
+          children: <Widget>[
+            Padding(
+              padding: const EdgeInsets.only(top: 10),
+              child: Text(
+                displayTime,
+                style: TextStyle(fontSize: 27, fontWeight: FontWeight.bold),
+              ),
+            ),
+          ],
+        );
+      },
+    );
   }
   //-----------------------UI--ended--------------------------------//
 
