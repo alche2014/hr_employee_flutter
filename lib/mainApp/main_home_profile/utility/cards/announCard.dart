@@ -7,6 +7,7 @@ import 'package:hr_app/mainApp/main_home_profile/utility/read_more/read_more_pag
 
 final darkRed = Color(0xffbf2634);
 
+// ignore: must_be_immutable
 class AnnHomeCard extends StatefulWidget {
   // final String head;
   // final String body;

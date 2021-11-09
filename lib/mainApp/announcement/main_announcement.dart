@@ -18,9 +18,9 @@ class MainAnnouncement extends StatelessWidget {
             headerSliverBuilder: (context, innerBoxIsScrolled) => [
               buildMyNewAppBar(context, 'Announcement', true),
             ],
-            body: Padding(
-              padding: const EdgeInsets.only(top: 20),
-              child: ListView.builder(
+                body: Padding(
+                padding: const EdgeInsets.only(top: 20),
+                 child: ListView.builder(
                   itemCount: mainAnnCardData.length,
                   itemBuilder: (context, index) {
                     return AnnCard(mainAnnCardData[index]);

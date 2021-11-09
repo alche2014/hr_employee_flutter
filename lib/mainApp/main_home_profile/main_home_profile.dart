@@ -370,7 +370,7 @@ class _MainHomeProfileState extends State<MainHomeProfile> {
       child: ListTile(
         leading:
             Image(image: AssetImage('assets/custom/$icon.png'), height: 40),
-        title: Text('$head', style: TextStyle(fontWeight: FontWeight.bold)),
+        title: Text(head, style: TextStyle(fontWeight: FontWeight.bold)),
         trailing: TextButton(
             onPressed: () {},
             child:
