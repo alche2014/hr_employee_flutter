@@ -6,6 +6,8 @@ import 'package:hr_app/mainApp/main_home_profile/main_home_profile.dart';
 class MyTeamProfile extends StatelessWidget {
   const MyTeamProfile({Key? key}) : super(key: key);
 
+  // final keyProfile = GlobalKey<_MainHomeProfileState>();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -17,10 +19,14 @@ class MyTeamProfile extends StatelessWidget {
             // ignore: sized_box_for_whitespace
             UpperPortion(),
             //================================//
-            ProfileCard(headTitle: 'Personal Information', press: () {
-                        Navigator.push(context,
-          MaterialPageRoute(builder: (context) => MainHomeProfile()));
-            }),
+            ProfileCard(
+                headTitle: 'Personal Information',
+                press: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => MainHomeProfile()));
+                }),
             ProfileCard(headTitle: 'Attendence', press: () {}),
             ProfileCard(headTitle: 'Requests', press: () {}),
             SizedBox(height: 30),

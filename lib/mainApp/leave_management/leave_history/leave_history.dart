@@ -24,7 +24,7 @@ class LeaveHistory extends StatelessWidget {
       body: Stack(children: [
         const BackgroundCircle(),
         Padding(
-          padding: const EdgeInsets.only(top: 50),
+          padding: const EdgeInsets.only(top: 70),
           child: SingleChildScrollView(
             child: Column(children: [
               const CreateButton(),

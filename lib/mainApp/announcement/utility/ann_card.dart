@@ -14,10 +14,9 @@ class AnnCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10 ),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 5 ),
       child: Container(
-                width: MediaQuery.of(context).size.width * 0.88,
-        padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
+        padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 20),
         decoration: BoxDecoration(
           borderRadius: const BorderRadius.all(
             Radius.circular(10),

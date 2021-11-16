@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 
   // ignore: non_constant_identifier_names
-  InputDecoration 
-  MyInputStyle(String hint) {
+  InputDecoration MyInputStyle(String hint) {
       return InputDecoration(
       border: OutlineInputBorder(
        borderRadius: BorderRadius.circular(6),

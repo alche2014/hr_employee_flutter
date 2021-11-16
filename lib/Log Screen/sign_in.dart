@@ -68,7 +68,6 @@ class LogBody extends StatelessWidget {
                         style: GoogleFonts.sofia(),
                           decoration: InputDecoration(
                             hintText: "Username",
-                            hintStyle: TextStyle(fontFamily: 'Sofia'),
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(10.0),
                               borderSide: const BorderSide(
@@ -150,9 +149,6 @@ class LogBody extends StatelessWidget {
                     ],
                   ),
                 ),
-                // const SizedBox(height: 150),
-
-                // const Spacer(flex: 3),
               ]),
               //--------------------------------------------------------//
               Padding(
@@ -192,7 +188,6 @@ class LogBody extends StatelessWidget {
                   ],
                 ),
               ),
-              // const Spacer(),
             ],
           ),
         ),

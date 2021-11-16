@@ -20,7 +20,7 @@ class MainNotification extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       extendBodyBehindAppBar: true,
-      appBar: buildMyAppBar(context, 'Notification', true),
+      appBar: buildMyAppBar(context, 'Notification', false),
       body: Stack(
         children: [
           const BackgroundCircle(),
