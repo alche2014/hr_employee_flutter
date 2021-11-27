@@ -28,7 +28,11 @@ class _AnnCardState extends State<AnnCard> {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
       child: Container(
-        height: isExpaneded == true ? null : widget.myAnnCard.body!.length > 140 ? 225 : 165,
+        height: isExpaneded == true
+            ? null
+            : widget.myAnnCard.body!.length > 140
+                ? 225
+                : 165,
         padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 20),
         decoration: BoxDecoration(
           borderRadius: const BorderRadius.all(
@@ -52,24 +56,24 @@ class _AnnCardState extends State<AnnCard> {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                if(isExpaneded != true)
-                Text(
-                  widget.myAnnCard.body!,
-                  maxLines: myMaxLines,
-                  style: TextStyle(
-                    height: 1.5,
-                    fontSize: 15,
-                    overflow: TextOverflow.ellipsis,
+                if (isExpaneded != true)
+                  Text(
+                    widget.myAnnCard.body!,
+                    maxLines: myMaxLines,
+                    style: TextStyle(
+                      height: 1.5,
+                      fontSize: 15,
+                      // overflow: TextOverflow.ellipsis,
+                    ),
                   ),
-                ),
-                if(isExpaneded == true)
-                Text(
-                  widget.myAnnCard.body!,
-                  style: TextStyle(
-                    height: 1.5,
-                    fontSize: 15,
+                if (isExpaneded == true)
+                  Text(
+                    widget.myAnnCard.body!,
+                    style: TextStyle(
+                      height: 1.5,
+                      fontSize: 15,
+                    ),
                   ),
-                ),
                 if (widget.myAnnCard.body!.length > 140)
                   Padding(
                     padding: const EdgeInsets.only(top: 15),

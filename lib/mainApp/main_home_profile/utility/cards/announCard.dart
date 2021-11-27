@@ -61,7 +61,7 @@ class _AnnHomeCardState extends State<AnnHomeCard> {
                     maxLines: myMaxLines,
                     style: TextStyle(
                       fontSize: 15,
-                      overflow: TextOverflow.ellipsis,
+                      // overflow: TextOverflow.ellipsis,
                     ),
                   ),
                   if (widget.myAnnCard.body!.length > 80)
