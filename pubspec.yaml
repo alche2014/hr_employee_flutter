@@ -36,7 +36,7 @@ dependencies:
   flushbar:
     git:
       url: https://github.com/valterh4ck3r/flushbar.git
-  google_sign_in: ^5.2.0
+  google_sign_in:
   photo_view: ^0.13.0
   firebase_storage: ^8.0.0
   fancy_bottom_navigation: ^0.3.2
@@ -47,7 +47,7 @@ dependencies:
   # file_picker: ^1.1.1
   fluttertoast: ^8.0.8
   firebase_dynamic_links: 
-  url_launcher: ^6.0.12
+  url_launcher:
   flutter_circular_chart: ^0.1.0
   # firebase_messaging: 10.0.8
   # cloud_functions:
@@ -76,7 +76,7 @@ dependencies:
   file_picker:
   image_picker: ^0.8.2
   geolocator: ^7.7.0
-  webview_flutter: ^2.1.2
+  # webview_flutter:
   month_picker_dialog: ^0.4.0
   # cached_network_image: ^3.1.0
   shared_preferences:
@@ -104,12 +104,12 @@ dependencies:
     # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   flutter_statusbarcolor: ^0.2.3
-  simple_animations: ^4.0.1
+  simple_animations:
   cloud_functions: ^3.0.6
   audioplayers: 
   # file_picker: ^1.13.3
-  video_player: ^2.2.5
-  json_annotation: ^4.3.0
+  video_player:
+  json_annotation: 
   intl: 0.17.0
   
 # dependency_overrides:
@@ -117,9 +117,9 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  build_runner: ^2.1.4
-  json_serializable: ^6.0.1
-  flutter_native_splash: ^1.2.4
+  build_runner:
+  json_serializable: 
+  flutter_native_splash:
 
   flutter_lints: ^1.0.0
 
