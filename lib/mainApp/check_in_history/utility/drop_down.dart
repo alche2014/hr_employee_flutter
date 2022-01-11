@@ -1,13 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
-class DropDownOpt extends StatefulWidget {    //dropdown
+class DropDownOpt extends StatefulWidget {
+  //dropdown
   @override
   State<DropDownOpt> createState() => _DropDownOptState();
 }
 
 /// This is the private State class that goes with MyStatefulWidget.
-class _DropDownOptState extends State<DropDownOpt> {      //dropdown
+class _DropDownOptState extends State<DropDownOpt> {
+  //dropdown
   String dropdownValue = 'January';
+  @override
+  void initState() {
+    dropdownValue = DateFormat('MMMM').format(DateTime.now()).toString();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -22,8 +30,20 @@ class _DropDownOptState extends State<DropDownOpt> {      //dropdown
           dropdownValue = newValue!;
         });
       },
-      items: <String>['January', 'Feb', 'March']
-          .map<DropdownMenuItem<String>>((String value) {
+      items: <String>[
+        'January',
+        'February',
+        'March ',
+        'April',
+        'May',
+        'June',
+        'July',
+        'August',
+        'September',
+        'October',
+        'November',
+        'December'
+      ].map<DropdownMenuItem<String>>((String value) {
         return DropdownMenuItem<String>(
           value: value,
           child: Text(value), //using a string value

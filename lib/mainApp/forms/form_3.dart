@@ -11,9 +11,9 @@ class _FormThreeState extends State<FormThree> {
     return Form(
         child: Column(
       children: [
-        
         //-----------------------------------------------------//
         TextFormField(
+          textCapitalization: TextCapitalization.sentences,
           decoration: InputDecoration(
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(10),
@@ -32,22 +32,23 @@ class _FormThreeState extends State<FormThree> {
                 fontSize: 14,
                 fontWeight: FontWeight.w400,
               )),
-              autovalidateMode: AutovalidateMode.onUserInteraction,
-                  validator: (value) {
-                    final pattern = ('[a-zA-Z]+([\s][a-zA-Z]+)*');
-                    final regExp = RegExp(pattern);
-                    if (value!.isEmpty) {
-                      return null;
-                    } else if (!regExp.hasMatch(value)) {
-                      return 'Enter only Alphabets';
-                    } else {
-                      return null;
-                    }
-                  },
+          autovalidateMode: AutovalidateMode.onUserInteraction,
+          validator: (value) {
+            final pattern = ('[a-zA-Z]+([\s][a-zA-Z]+)*');
+            final regExp = RegExp(pattern);
+            if (value!.isEmpty) {
+              return null;
+            } else if (!regExp.hasMatch(value)) {
+              return 'Enter only Alphabets';
+            } else {
+              return null;
+            }
+          },
         ),
         SizedBox(height: 15),
         //-------------------------------------------------//
         TextFormField(
+          textCapitalization: TextCapitalization.sentences,
           decoration: InputDecoration(
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(10),
@@ -66,22 +67,23 @@ class _FormThreeState extends State<FormThree> {
                 fontSize: 14,
                 fontWeight: FontWeight.w400,
               )),
-              autovalidateMode: AutovalidateMode.onUserInteraction,
-                  validator: (value) {
-                    final pattern = ('[a-zA-Z]+([\s][a-zA-Z]+)*');
-                    final regExp = RegExp(pattern);
-                    if (value!.isEmpty) {
-                      return null;
-                    } else if (!regExp.hasMatch(value)) {
-                      return 'Enter only Alphabets';
-                    } else {
-                      return null;
-                    }
-                  },
+          autovalidateMode: AutovalidateMode.onUserInteraction,
+          validator: (value) {
+            final pattern = ('[a-zA-Z]+([\s][a-zA-Z]+)*');
+            final regExp = RegExp(pattern);
+            if (value!.isEmpty) {
+              return null;
+            } else if (!regExp.hasMatch(value)) {
+              return 'Enter only Alphabets';
+            } else {
+              return null;
+            }
+          },
         ),
         SizedBox(height: 15),
         //-------------------------------------------------//
         TextFormField(
+          textCapitalization: TextCapitalization.sentences,
           decoration: InputDecoration(
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(10),
@@ -100,18 +102,18 @@ class _FormThreeState extends State<FormThree> {
                 fontSize: 14,
                 fontWeight: FontWeight.w400,
               )),
-              autovalidateMode: AutovalidateMode.onUserInteraction,
-                  validator: (value) {
-                    final pattern = ('[a-zA-Z]+([\s][a-zA-Z]+)*');
-                    final regExp = RegExp(pattern);
-                    if (value!.isEmpty) {
-                      return null;
-                    } else if (!regExp.hasMatch(value)) {
-                      return 'Enter only Alphabets';
-                    } else {
-                      return null;
-                    }
-                  },
+          autovalidateMode: AutovalidateMode.onUserInteraction,
+          validator: (value) {
+            final pattern = ('[a-zA-Z]+([\s][a-zA-Z]+)*');
+            final regExp = RegExp(pattern);
+            if (value!.isEmpty) {
+              return null;
+            } else if (!regExp.hasMatch(value)) {
+              return 'Enter only Alphabets';
+            } else {
+              return null;
+            }
+          },
         ),
         SizedBox(height: 5),
         //-------------------------------------------------//
@@ -167,6 +169,7 @@ class _FormThreeState extends State<FormThree> {
         SizedBox(height: 5),
         //--------------------------------------------------//
         TextFormField(
+          textCapitalization: TextCapitalization.sentences,
           decoration: InputDecoration(
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(10),
@@ -185,22 +188,23 @@ class _FormThreeState extends State<FormThree> {
                 fontSize: 14,
                 fontWeight: FontWeight.w400,
               )),
-              autovalidateMode: AutovalidateMode.onUserInteraction,
-                  validator: (value) {
-                    final pattern = ('[a-zA-Z]+([\s][a-zA-Z]+)*');
-                    final regExp = RegExp(pattern);
-                    if (value!.isEmpty) {
-                      return null;
-                    } else if (!regExp.hasMatch(value)) {
-                      return 'Enter only Alphabets';
-                    } else {
-                      return null;
-                    }
-                  },
+          autovalidateMode: AutovalidateMode.onUserInteraction,
+          validator: (value) {
+            final pattern = ('[a-zA-Z]+([\s][a-zA-Z]+)*');
+            final regExp = RegExp(pattern);
+            if (value!.isEmpty) {
+              return null;
+            } else if (!regExp.hasMatch(value)) {
+              return 'Enter only Alphabets';
+            } else {
+              return null;
+            }
+          },
         ),
         SizedBox(height: 15),
         //-------------------------------------------------//
         TextFormField(
+          textCapitalization: TextCapitalization.sentences,
           maxLines: 5,
           decoration: InputDecoration(
             hintText: 'Discription',
@@ -216,17 +220,17 @@ class _FormThreeState extends State<FormThree> {
                 )),
           ),
           autovalidateMode: AutovalidateMode.onUserInteraction,
-                  validator: (value) {
-                    final pattern = ('[a-zA-Z]+([\s][a-zA-Z]+)*');
-                    final regExp = RegExp(pattern);
-                    if (value!.isEmpty) {
-                      return null;
-                    } else if (!regExp.hasMatch(value)) {
-                      return 'Enter only Alphabets';
-                    } else {
-                      return null;
-                    }
-                  },
+          validator: (value) {
+            final pattern = ('[a-zA-Z]+([\s][a-zA-Z]+)*');
+            final regExp = RegExp(pattern);
+            if (value!.isEmpty) {
+              return null;
+            } else if (!regExp.hasMatch(value)) {
+              return 'Enter only Alphabets';
+            } else {
+              return null;
+            }
+          },
         ),
         SizedBox(height: 10),
       ],

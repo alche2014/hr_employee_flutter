@@ -3,91 +3,165 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
-import 'package:hr_app/mainApp/experiences/add_experiences.dart';
+import 'package:hr_app/main.dart';
+import 'package:hr_app/mainApp/experiences/main_experiences.dart';
 
 import '../../../colors.dart';
 
 class ExperienceCard extends StatelessWidget {
-  const ExperienceCard({Key? key}) : super(key: key);
+  // ignore: prefer_typing_uninitialized_variables
+  final data;
+  const ExperienceCard({Key? key, this.data}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    var courseDocument = data;
+    var workexp = courseDocument['workExperience'];
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
       child: Container(
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: Colors.grey.withOpacity(0.4), width: 1),
+          borderRadius: BorderRadius.circular(4),
+          border: Border.all(
+              color: isdarkmode.value == false
+                  ? Colors.grey.withOpacity(0.2)
+                  : Colors.white,
+              width: 1),
         ),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
           child: Column(
             children: [
               Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-                const Text('experience',
-                    style:
-                        TextStyle(fontWeight: FontWeight.bold, color: darkRed)),
-                IconButton(
-                    onPressed: () {
-                      Navigator.push(context, MaterialPageRoute(builder: 
-                      (context)=> AddExperience()));
+                const Text('Experience',
+                    style: TextStyle(
+                        fontWeight: FontWeight.w500,
+                        fontStyle: FontStyle.normal,
+                        fontSize: 16,
+                        color: darkRed)),
+                Expanded(
+                  flex: 2,
+                  child: InkWell(
+                    onTap: () {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => MainExperiences(
+                                    workexp: data,
+                                  )));
                     },
-                    icon: const Icon(Icons.edit_outlined, color: Colors.grey)),
-              ]),
-              Column(children: [
-                Row(children: [
-                  SizedBox(height: 40, child: Image.asset('assets/Logo.png')),
-                  const SizedBox(width: 20),
-                  Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: const [
-                        Text(
-                          'UI UX Designer',
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                        Text('Alchemative - Full time'),
-                        Text('Mar 2020 - Present 1yr 7 mos'),
-                      ]),
-                ]),
-                const SizedBox(height: 20),
-                //===============================================//
-                Row(children: [
-                  SizedBox(
-                      height: 40, child: Image.asset('assets/picBack.png')),
-                  const SizedBox(width: 20),
-                  Expanded(
-                    flex: 1,
-                    child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: const [
-                          Text(
-                            'Web UI & UX Designer at Technology Wisdom',
-                            style: TextStyle(fontWeight: FontWeight.bold),
-                          ),
-                          const SizedBox(height: 2),
-                          Text('Technology Wisdom - Full time'),
-                          Text('Feb 2018 – Feb 2020 2 yrs 1 mos'),
-                        ]),
+                    child: Container(
+                      width: 60,
+                      height: 40,
+                      padding:
+                          const EdgeInsets.only(top: 5, right: 10, bottom: 5),
+                      alignment: Alignment.topRight,
+                      child: Icon(Icons.edit_outlined,
+                          color: isdarkmode.value == false
+                              ? Color(0xff34354A)
+                              : Colors.grey[500]),
+                    ),
                   ),
-                ]),
-                const SizedBox(height: 20),
-                //==================================================//
-                Row(children: [
-                  SizedBox(
-                      height: 40, child: Image.asset('assets/picBack.png')),
-                  const SizedBox(width: 20),
-                  Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: const [
-                        Text(
-                          'Graphic Web Designer',
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                        Text('Computer Xperts - Full time'),
-                        Text('Mar 2016 – Feb 20182 yrs'),
-                      ]),
-                ]),
+                ),
               ]),
+              workexp == null
+                  ? Center(
+                      child: Text(
+                        "No experience added yet",
+                        style: TextStyle(
+                            color: isdarkmode.value == false
+                                ? Colors.grey[700]
+                                : Colors.grey[500],
+                            fontWeight: FontWeight.w400,
+                            fontSize: 13),
+                      ),
+                    )
+                  : workexp != null && workexp.length == 0
+                      ? Center(
+                          child: Text(
+                          "No experience added yet",
+                          style: TextStyle(
+                              color: isdarkmode.value == false
+                                  ? Colors.grey[700]
+                                  : Colors.grey[500],
+                              fontWeight: FontWeight.w400,
+                              fontSize: 13),
+                        ))
+                      : ListView.builder(
+                          padding: EdgeInsets.zero,
+                          itemCount: workexp.length,
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          itemBuilder: (BuildContext context, int index) {
+                            var dateto = workexp[index]['expLastDate'] ?? "";
+
+                            return Container(
+                              margin: const EdgeInsets.only(bottom: 10),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: <Widget>[
+                                  Text(
+                                    workexp == null
+                                        ? "Title"
+                                        : workexp[index]['title'],
+                                    style: const TextStyle(
+                                        fontWeight: FontWeight.bold),
+                                  ),
+                                  Container(
+                                    margin: const EdgeInsets.only(
+                                        top: 6, bottom: 6),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.start,
+                                      children: <Widget>[
+                                        Text(
+                                          workexp == null
+                                              ? "Company Name"
+                                              : workexp[index]['companyName'] +
+                                                  " - " +
+                                                  "" +
+                                                  workexp[index]['empStatus'],
+                                          style: TextStyle(
+                                              color: isdarkmode.value == false
+                                                  ? Colors.grey[700]
+                                                  : Colors.grey[500],
+                                              fontWeight: FontWeight.w400,
+                                              fontSize: 15),
+                                        )
+                                      ],
+                                    ),
+                                  ),
+                                  Container(
+                                    margin: const EdgeInsets.only(bottom: 6),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.start,
+                                      children: <Widget>[
+                                        Expanded(
+                                          flex: 8,
+                                          child: Text(
+                                            dateto == ""
+                                                ? workexp[index]['expstartDate']
+                                                : workexp[index]
+                                                        ['expstartDate'] +
+                                                    " - " +
+                                                    dateto,
+                                            style: TextStyle(
+                                                color: isdarkmode.value == false
+                                                    ? Colors.grey[700]
+                                                    : Colors.grey[500],
+                                                fontWeight: FontWeight.w400,
+                                                fontSize: 15),
+                                          ),
+                                        )
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
+                          }),
               const SizedBox(height: 15),
             ],
           ),

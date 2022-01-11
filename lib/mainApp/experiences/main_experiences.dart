@@ -1,15 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:hr_app/AppBar/appbar.dart';
 import 'package:hr_app/background/background.dart';
-import 'package:hr_app/mainApp/education/main_education.dart';
 import 'package:hr_app/mainApp/experiences/add_experiences.dart';
-import 'package:hr_app/mainApp/my_team/main_team.dart';
+import 'package:hr_app/mainApp/mainProfile/Announcemets/constants.dart';
 
 class MainExperiences extends StatelessWidget {
-  const MainExperiences({Key? key}) : super(key: key);
+  // ignore: prefer_typing_uninitialized_variables
+  final workexp;
+  const MainExperiences({this.workexp, Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    var experience = workexp['workExperience'];
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: buildMyAppBar(context, 'Experiences', true),
@@ -19,151 +21,177 @@ class MainExperiences extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 80),
             child: Column(
-              children: const [
-                CardOne(),
-                CardTwo(),
-                CardThree(),
+              children: [
+                CardOne(
+                  workexp: experience,
+                  mainExp: workexp,
+                ),
               ],
             ),
           ),
         ],
       ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => AddExperience(
+                        data: workexp,
+                        editable: false,
+                      )));
+        },
+        child: const Icon(
+          Icons.add,
+          color: Colors.white,
+        ),
+        backgroundColor: kPrimaryColor,
+      ),
     );
   }
 }
 
-class CardOne extends StatelessWidget {
-  const CardOne({Key? key}) : super(key: key);
+class CardOne extends StatefulWidget {
+  final workexp;
+  final mainExp;
+  const CardOne({this.workexp, this.mainExp, Key? key}) : super(key: key);
 
   @override
+  _CardOneState createState() => _CardOneState();
+}
+
+class _CardOneState extends State<CardOne> {
+  @override
   Widget build(BuildContext context) {
+    // var workexpDocument = widget.workexp['workExperience'];
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(8),
-        onTap: () {
-          Navigator.of(context).push(
-              MaterialPageRoute(builder: (context) => const AddExperience()));
-        },
-        child: Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: Colors.grey.withOpacity(0.4), width: 1),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-            child: Column(
-              children: [
-                const SizedBox(height: 15),
-                Row(children: [
-                  SizedBox(height: 40, child: Image.asset('assets/Logo.png')),
-                  const SizedBox(width: 20),
-                  Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: const [
-                        Text(
-                          'UI UX Designer',
-                          style: TextStyle(fontWeight: FontWeight.bold),
+      padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
+      child: Container(
+        margin: const EdgeInsets.only(top: 10),
+        child: widget.workexp == null
+            ? notfound()
+            : widget.workexp != null && widget.workexp.length == 0
+                ? notfound()
+                : ListView.builder(
+                    padding: EdgeInsets.zero,
+                    // separatorBuilder: (context, index) => Divider(
+                    // color: Colors.grey, )
+                    itemCount:
+                        widget.workexp != null ? widget.workexp.length : 0,
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemBuilder: (BuildContext context, int index) {
+                      var dateto = widget.workexp[index]['expLastDate'] ?? "";
+                      return InkWell(
+                        onTap: () {
+                          print(
+                              "uid::::::::::::::::::::::${widget.mainExp["uid"]}");
+
+                          Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => AddExperience(
+                                        data: widget.workexp[index],
+                                        uid: widget.mainExp,
+                                        editable: true,
+                                      )));
+                        },
+                        child: Container(
+                          margin: const EdgeInsets.only(bottom: 10),
+                          padding: const EdgeInsets.only(
+                              left: 10, top: 10, bottom: 10),
+                          decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(3),
+                              border: Border.all(
+                                  color: Colors.grey.withOpacity(0.3),
+                                  width: 1)),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: <Widget>[
+                              Text(
+                                widget.workexp == null
+                                    ? "Title"
+                                    : widget.workexp[index]['title'],
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.bold),
+                              ),
+                              Container(
+                                margin:
+                                    const EdgeInsets.only(top: 6, bottom: 6),
+                                child: Text(
+                                  widget.workexp == null
+                                      ? "Company Name"
+                                      : widget.workexp[index]['companyName'] +
+                                          " - " +
+                                          "" +
+                                          widget.workexp[index]['empStatus'],
+                                  style: const TextStyle(
+                                      fontWeight: FontWeight.w400,
+                                      fontSize: 15),
+                                ),
+                              ),
+                              Container(
+                                margin: const EdgeInsets.only(bottom: 6),
+                                child: Text(
+                                  dateto == ""
+                                      ? widget.workexp[index]['expstartDate']
+                                      : widget.workexp[index]['expstartDate'] +
+                                          " - " +
+                                          dateto,
+                                  style: const TextStyle(
+                                      fontWeight: FontWeight.w400,
+                                      fontSize: 15),
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
-                        SizedBox(height: 3),
-                        Text('Alchemative - Full time'),
-                        SizedBox(height: 3),
-                        Text('Mar 2020 - Present 1yr 7 mos'),
-                      ]),
-                ]),
-                const SizedBox(height: 15),
-              ],
+                      );
+                    }),
+      ),
+    );
+  }
+
+  Widget notfound() {
+    return Center(
+      child: Container(
+        height: MediaQuery.of(context).size.height / 1.4,
+        margin: const EdgeInsets.only(bottom: 10),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            const Icon(
+              Icons.work_outline_outlined,
+              color: Color(0xFFBF2B38),
+              size: 100,
             ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class CardTwo extends StatelessWidget {
-  const CardTwo({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(8),
-        onTap: () {
-          Navigator.of(context).push(
-              MaterialPageRoute(builder: (context) => const MainEducation()));
-        },
-        child: Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: Colors.grey.withOpacity(0.4), width: 1),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-            child: Row(children: [
-              SizedBox(height: 40, child: Image.asset('assets/picBack.png')),
-              const SizedBox(width: 20),
-              Expanded(
-                flex: 1,
-                child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: const [
-                      Text(
-                        'Web UI & UX Designer at Technology Wisdom',
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      SizedBox(height: 3),
-                      Text('Technology Wisdom - Full time'),
-                      SizedBox(height: 3),
-                      Text('Feb 2018 – Feb 2020 2 yrs 1 mos'),
-                    ]),
-              ),
-            ]),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class CardThree extends StatelessWidget {
-  const CardThree({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(8),
-        onTap: () {
-          Navigator.of(context).push(
-              MaterialPageRoute(builder: (context) => const MyTeam()));
-        },
-        child: Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: Colors.grey.withOpacity(0.4), width: 1),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-            child: Row(children: [
-              SizedBox(height: 40, child: Image.asset('assets/picBack.png')),
-              const SizedBox(width: 20),
-              Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: const [
-                    Text(
-                      'Graphic Web Designer',
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    SizedBox(height: 3),
-                    Text('Computer Xperts - Full time'),
-                    SizedBox(height: 3),
-                    Text('Mar 2016 – Feb 20182 yrs'),
-                  ]),
-            ]),
-          ),
+            Text(
+              "It's empty here.",
+              style: TextStyle(
+                  color: Colors.grey[400],
+                  fontSize: 16,
+                  fontFamily: "Roboto",
+                  fontWeight: FontWeight.w600),
+            ),
+            Text(
+              "You haven't added any experience yet.",
+              style: TextStyle(
+                  color: Colors.grey[400],
+                  fontSize: 12,
+                  fontFamily: "Roboto",
+                  fontWeight: FontWeight.w400),
+            ),
+            Text(
+              "Click Add New Experience to get started.",
+              style: TextStyle(
+                  color: Colors.grey[400],
+                  fontSize: 12,
+                  fontFamily: "Roboto",
+                  fontWeight: FontWeight.w400),
+            )
+          ],
         ),
       ),
     );

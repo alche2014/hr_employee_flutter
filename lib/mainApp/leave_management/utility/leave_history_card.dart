@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import '../../../colors.dart';
 
 // ignore: must_be_immutable
 class LeaveHistoryCard extends StatelessWidget {
+  // String header;
+  final bodyContent;
+  // String value;
 
-  String header;
-  String bodyContent;
-  String value;
-
-  LeaveHistoryCard(this.header, this.bodyContent, this.value, {Key? key}) : super(key: key);
+  const LeaveHistoryCard(this.bodyContent, {Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -28,44 +28,49 @@ class LeaveHistoryCard extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    header,
+                    bodyContent["leaveType"],
                     style: TextStyle(
-                      color: MediaQuery.of(context).platformBrightness ==
-                              Brightness.light
-                          ? darkredForWhite
-                          : lightRedForDark, //color red
+                      color: darkredForWhite, //color red
                       fontWeight: FontWeight.bold,
                       fontSize: 17,
                     ),
                   ),
                   Container(
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(10),
-                          color: value == 'apd' ? lightGreen : lightPink,
-                        ),
-                        child: Padding(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(10),
+                        color: bodyContent['leaveStatus'] == 'approved'
+                            ? lightGreen
+                            : lightPink,
+                      ),
+                      child: Padding(
                           padding: const EdgeInsets.all(8.0),
-                          child: value == 'apd' ? const Text('Approved',textAlign: TextAlign.center) : const Text('Pending',textAlign: TextAlign.center),
-                        )),
+                          child: Text(bodyContent['leaveStatus'])
+                          //== 'approved'
+                          // ? const Text('Approved',
+                          //     textAlign: TextAlign.center)
+                          // : const Text('Pending',
+                          //     textAlign: TextAlign.center),
+                          )),
                 ],
               ),
-              SizedBox(height: 20.0),
-              if(bodyContent.isNotEmpty)
-                Text(
-                  '$bodyContent',
-                  style: TextStyle(
-                    fontSize: 15,
-                  ),
-                ),
-              SizedBox(height: 30),
+              const SizedBox(height: 20.0),
+
               Text(
-                '14:01 20/10/2020',
-                style: TextStyle(
+                bodyContent['reason'],
+                style: const TextStyle(
+                  fontSize: 15,
+                ),
+              ),
+              const SizedBox(height: 30),
+              Text(
+                DateFormat.jm().add_yMd().format(
+                    DateTime.parse(bodyContent['timeStamp'].toString())),
+                style: const TextStyle(
                   fontSize: 10,
                   color: Colors.grey,
                 ),
               ),
-              SizedBox(height: 10),
+              // SizedBox(height: 10),
             ],
           ),
         ),

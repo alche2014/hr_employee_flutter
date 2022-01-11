@@ -22,10 +22,10 @@ class MyTeamProfile extends StatelessWidget {
             ProfileCard(
                 headTitle: 'Personal Information',
                 press: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => MainHomeProfile()));
+                  // Navigator.push(
+                  //     context,
+                  //     MaterialPageRoute(
+                  //         builder: (context) => MainHomeProfile()));
                 }),
             ProfileCard(headTitle: 'Attendence', press: () {}),
             ProfileCard(headTitle: 'Requests', press: () {}),

@@ -1,9 +1,17 @@
 // ignore_for_file: prefer_typing_uninitialized_variables, unnecessary_new, prefer_const_declarations, prefer_const_constructors
 
+import 'dart:async';
+
+import 'package:connectivity/connectivity.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_picker/flutter_picker.dart';
 import 'package:hr_app/AppBar/appbar.dart';
 import 'package:hr_app/background/background.dart';
+import 'package:hr_app/main.dart';
+import 'package:hr_app/mainApp/mainProfile/Announcemets/constants.dart';
 import 'package:hr_app/mainApp/work_info/utility/build_my_input_decoration.dart';
+import 'package:hr_app/widgets/ExpansionPanel.dart';
+import 'package:intl/intl.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 
 class MyWorkInfo extends StatefulWidget {
@@ -13,11 +21,7 @@ class MyWorkInfo extends StatefulWidget {
   _MyWorkInfoState createState() => _MyWorkInfoState();
 }
 
-
-
 class _MyWorkInfoState extends State<MyWorkInfo> {
-
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -30,41 +34,42 @@ class _MyWorkInfoState extends State<MyWorkInfo> {
             headerSliverBuilder: (context, innerBoxIsScrolled) => [
               buildMyNewAppBar(context, 'Work Info', true),
             ],
-          body: SingleChildScrollView(
-            child: Column(
-              children: [
-                // const SizedBox(height: 80),
-                //===============================================//
-                Center(
-                  child: Stack(
-                    //using stack to lap edit icon over Picture
-                    children: const [
-                      ClipRRect(
-                        child: Image(
-                          height: 100,
-                          image: AssetImage('assets/user_image.png'),
-                        ),
-                      ),
-                      Positioned(
-                          bottom: 10,
-                          right: 0,
+            body: SingleChildScrollView(
+              child: Column(
+                children: [
+                  // const SizedBox(height: 80),
+                  //===============================================//
+                  Center(
+                    child: Stack(
+                      //using stack to lap edit icon over Picture
+                      children: const [
+                        ClipRRect(
                           child: Image(
-                            image: AssetImage('assets/custom/Vector.png'),
-                            width: 30,
-                            fit: BoxFit.cover,
-                          )),
-                    ],
+                            height: 100,
+                            image: AssetImage('assets/user_image.png'),
+                          ),
+                        ),
+                        Positioned(
+                            bottom: 10,
+                            right: 0,
+                            child: Image(
+                              image: AssetImage('assets/custom/Vector.png'),
+                              width: 30,
+                              fit: BoxFit.cover,
+                            )),
+                      ],
+                    ),
                   ),
-                ),
-                //===========================================//
-                const WorkForm(),
-                //===========================================//
+                  //===========================================//
+                  const WorkForm(),
+                  //===========================================//
 
-                const SizedBox(height: 20),
-              ],
+                  const SizedBox(height: 20),
+                ],
+              ),
             ),
           ),
-          ),],
+        ],
       ),
     );
   }
@@ -91,9 +96,124 @@ class _WorkFormState extends State<WorkForm> {
   TextEditingController controllerPhone = new TextEditingController();
   TextEditingController controllerCNIC = new TextEditingController();
 
-    final maskFormatter = MaskTextInputFormatter(mask: '+92 ### ### ####');
-    final maskCNICFormatter = MaskTextInputFormatter(mask: '#####-#######-#');
+  final maskFormatter = MaskTextInputFormatter(mask: '+92 ### ### ####');
+  final maskCNICFormatter = MaskTextInputFormatter(mask: '#####-#######-#');
 
+  Connectivity? connectivity;
+  StreamSubscription<ConnectivityResult>? subscription;
+  bool isNetwork = true;
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  final GlobalKey<AppExpansionTileState> expansionTile = new GlobalKey();
+  final GlobalKey<AppExpansionTileState> expansionTile2 = new GlobalKey();
+  final GlobalKey<AppExpansionTileState> expansionTile3 = new GlobalKey();
+  final GlobalKey<AppExpansionTileState> expansionTile4 = new GlobalKey();
+  final GlobalKey<AppExpansionTileState>? expansionTile5 = new GlobalKey();
+  final GlobalKey<AppExpansionTileState>? expansionTile6 = new GlobalKey();
+  final GlobalKey<AppExpansionTileState>? expansionTile7 = new GlobalKey();
+  final GlobalKey<AppExpansionTileState>? expansionTile8 = new GlobalKey();
+  final GlobalKey<AppExpansionTileState>? expansionTile9 = new GlobalKey();
+
+  String selectReportingTo = "Reporting To";
+  String? reportingToId;
+  // String selectRole = "Role";
+  String? selectLocation = "Location";
+  String? locationId;
+  String? selectDepartment = "Department";
+  String? selectStatus = "Status";
+  String? selectType = "Type";
+  String? selectTitle = "Designation";
+  String? selectShift = "Shift Schedule";
+  String? selectLeave = "Leave Policy";
+  String? shiftId;
+  String? leaveId;
+  String? depId;
+  String? titleId;
+  List? leaveList;
+
+  String? role;
+  String? department;
+  String? reportingTo;
+  List<String>? roles = [
+    "COO",
+    "CEO",
+    "Team Lead",
+    "Team Member",
+    "Manager",
+    "Director"
+  ];
+
+  List<String> types = [
+    "Permanent",
+    "On Contract",
+    "Team Lead",
+    "Temporary",
+    "Trainee",
+    "Inactive"
+  ];
+  List<String> empStatus = ["Active", "Terminated", "Deceased", "Resigned"];
+  String? empRole;
+  String? nickName;
+  String? workPhone;
+  String? userId;
+
+  FocusNode _empRoleFocus = new FocusNode();
+  FocusNode _nickNameFocus = new FocusNode();
+  FocusNode _workPhoneFocus = new FocusNode();
+
+  TextEditingController empRoleController = TextEditingController();
+  TextEditingController nickNameController = TextEditingController();
+  TextEditingController workPhoneController = TextEditingController();
+
+  ScrollController? con;
+  var dobFormat;
+
+  _selectDate(BuildContext context) {
+    Picker(
+        containerColor: isdarkmode.value ? Colors.transparent : Colors.white,
+        backgroundColor: isdarkmode.value ? Colors.transparent : Colors.white,
+        hideHeader: true,
+        adapter: DateTimePickerAdapter(yearEnd: DateTime.now().year),
+        title: Text(
+          "Date of Joining",
+          style: TextStyle(
+            color: Color(0xFFBF2B38),
+          ),
+        ),
+        selectedTextStyle: TextStyle(
+          color: isdarkmode.value ? Colors.white : Color(0xFFBF2B38),
+        ),
+        onConfirm: (Picker picker, List value) {
+          setState(() {
+            DateTime? dob = (picker.adapter as DateTimePickerAdapter).value;
+            dobFormat = DateFormat('dd-MMM-yyyy').format(dob!);
+          });
+        }).showDialog(context);
+  }
+
+  var exitDateFormat;
+
+  _selectExitDate(BuildContext context) {
+    Picker(
+        containerColor: isdarkmode.value ? Colors.transparent : Colors.white,
+        backgroundColor: isdarkmode.value ? Colors.transparent : Colors.white,
+        hideHeader: true,
+        adapter: DateTimePickerAdapter(yearEnd: DateTime.now().year),
+        title: Text(
+          "Date of Exit",
+          style: TextStyle(
+            color: Color(0xFFBF2B38),
+          ),
+        ),
+        selectedTextStyle: TextStyle(
+          color: isdarkmode.value ? Colors.white : Color(0xFFBF2B38),
+        ),
+        onConfirm: (Picker picker, List value) {
+          setState(() {
+            DateTime? dob = (picker.adapter as DateTimePickerAdapter).value;
+            exitDateFormat = DateFormat('dd-MMM-yyyy').format(dob!);
+          });
+        }).showDialog(context);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -105,7 +225,8 @@ class _WorkFormState extends State<WorkForm> {
             //=============Department==================//
             const SizedBox(height: 15),
             TextFormField(
-              decoration: buildMyInputDecoration(context, 'Department'),
+              textCapitalization: TextCapitalization.sentences,
+              decoration: TextFieldDecoration('Department'),
               autovalidateMode: AutovalidateMode.onUserInteraction,
               validator: (value) {
                 final pattern = ('[a-zA-Z]+([\s][a-zA-Z]+)*');
@@ -123,7 +244,8 @@ class _WorkFormState extends State<WorkForm> {
             //
             //=============Designation==================//
             TextFormField(
-              decoration: buildMyInputDecoration(context, 'Designation'),
+              textCapitalization: TextCapitalization.sentences,
+              decoration: TextFieldDecoration('Designation'),
               autovalidateMode: AutovalidateMode.onUserInteraction,
               validator: (value) {
                 final pattern = ('[a-zA-Z]+([\s][a-zA-Z]+)*');
@@ -141,7 +263,8 @@ class _WorkFormState extends State<WorkForm> {
             //
             //=============Role=================//
             TextFormField(
-              decoration: buildMyInputDecoration(context, 'Role'),
+              textCapitalization: TextCapitalization.sentences,
+              decoration: TextFieldDecoration('Role'),
               autovalidateMode: AutovalidateMode.onUserInteraction,
               validator: (value) {
                 final pattern = ('[a-zA-Z]+([\s][a-zA-Z]+)*');
@@ -159,7 +282,8 @@ class _WorkFormState extends State<WorkForm> {
             //
             //=============Reporting to=================//
             TextFormField(
-              decoration: buildMyInputDecoration(context, 'Reporting to'),
+              textCapitalization: TextCapitalization.sentences,
+              decoration: TextFieldDecoration('Reporting to'),
               autovalidateMode: AutovalidateMode.onUserInteraction,
               validator: (value) {
                 final pattern = ('[a-zA-Z]+([\s][a-zA-Z]+)*');
@@ -216,8 +340,9 @@ class _WorkFormState extends State<WorkForm> {
             //
             //===========CNIC===============//
             TextFormField(
+              textCapitalization: TextCapitalization.sentences,
               controller: controllerCNIC,
-              decoration: buildMyInputDecoration(context, 'CNIC No.'),
+              decoration: TextFieldDecoration('CNIC No.'),
               keyboardType: TextInputType.number,
               inputFormatters: [maskCNICFormatter],
               validator: (value) {
@@ -272,7 +397,8 @@ class _WorkFormState extends State<WorkForm> {
             const SizedBox(height: 15),
             //===========Phone===============//
             TextFormField(
-              decoration: buildMyInputDecoration(context, 'Phone'),
+              textCapitalization: TextCapitalization.sentences,
+              decoration: TextFieldDecoration('Phone'),
               keyboardType: TextInputType.number,
               inputFormatters: [maskFormatter],
               validator: (value) {

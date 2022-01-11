@@ -1,5 +1,6 @@
 // ignore_for_file: file_names, prefer_const_constructors_in_immutables, prefer_const_constructors, unnecessary_string_interpolations
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 final darkRed = Color(0xffbf2634);
@@ -17,10 +18,9 @@ class BirthDayCard extends StatelessWidget {
       child: Material(
         elevation: 3,
         borderRadius: BorderRadius.circular(10),
-        color: MediaQuery.of(context).platformBrightness ==
-                Brightness.light
-                ? Colors.white
-                : Color(0xff34354A),
+        color: MediaQuery.of(context).platformBrightness == Brightness.light
+            ? Colors.white
+            : Color(0xff34354A),
         child: Container(
           width: MediaQuery.of(context).size.width * 0.85,
           // height: 100,
@@ -77,7 +77,7 @@ class BirthDayCard extends StatelessWidget {
                       onPressed: () {
                         showDialog(
                           context: context,
-                          builder: (context) => AlertDialog(
+                          builder: (context) => CupertinoAlertDialog(
                             title: Text('Hamza Ali'),
                             content: Text('Happy Birthday'),
                             actions: [

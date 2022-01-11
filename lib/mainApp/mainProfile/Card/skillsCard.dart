@@ -2,13 +2,14 @@
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:hr_app/main.dart';
 import 'package:hr_app/mainApp/skills/main_skill.dart';
-import 'package:hr_app/models/listofdata.dart';
-
 import '../../../colors.dart';
 
 class SkillsCard extends StatelessWidget {
-  const SkillsCard({Key? key}) : super(key: key);
+  // ignore: prefer_typing_uninitialized_variables
+  final data;
+  const SkillsCard({Key? key, this.data}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -16,8 +17,12 @@ class SkillsCard extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
       child: Container(
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: Colors.grey.withOpacity(0.4), width: 1),
+          borderRadius: BorderRadius.circular(3),
+          border: Border.all(
+              color: isdarkmode.value == false
+                  ? Colors.grey.withOpacity(0.2)
+                  : Colors.white,
+              width: 1),
         ),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
@@ -25,35 +30,85 @@ class SkillsCard extends StatelessWidget {
             children: [
               Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
                 const Text('Skills',
-                    style:
-                        TextStyle(fontWeight: FontWeight.bold, color: darkRed)),
+                    style: TextStyle(
+                        fontWeight: FontWeight.w500,
+                        fontSize: 16,
+                        fontStyle: FontStyle.normal,
+                        color: darkRed)),
                 IconButton(
-                     onPressed: () {
-                      Navigator.push(context, MaterialPageRoute(builder: 
-                      (context)=> MainSkills()));
+                    onPressed: () {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => MainSkills(data: data)));
                     },
-                    icon: const Icon(Icons.edit_outlined, color: Colors.grey)),
+                    icon: Icon(Icons.edit_outlined,
+                        color: isdarkmode.value == false
+                            ? const Color(0xff34354A)
+                            : Colors.grey[500])),
               ]),
-              Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-                Text('Adobe Illustrator'),
-                Text('Rectangle'),
-              ]),
-              const SizedBox(height: 6),
-              Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-                Text('Adobe Photoshop'),
-                Text('Graphic Design'),
-              ]),
-              const SizedBox(height: 6),
-              Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-                Text('Page Layout'),
-                Text('Branding'),
-              ]),
-              const SizedBox(height: 6),
-              Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-                Text('Figma'),
-                Text(''),
-              ]),
-              const SizedBox(height: 15),
+              data['skills'] == null
+                  ? Center(
+                      child: Container(
+                        margin: const EdgeInsets.only(bottom: 20),
+                        child: Text(
+                          "No skills added yet",
+                          style: TextStyle(
+                              color: isdarkmode.value == false
+                                  ? Colors.grey[700]
+                                  : Colors.grey[500],
+                              fontWeight: FontWeight.w400,
+                              fontSize: 13),
+                        ),
+                      ),
+                    )
+                  : data['skills'] != null && data['skills'].length == 0
+                      ? Center(
+                          child: Text(
+                          "No skills added yet",
+                          style: TextStyle(
+                              color: isdarkmode.value == false
+                                  ? Colors.grey[700]
+                                  : Colors.grey[500],
+                              fontWeight: FontWeight.w400,
+                              fontSize: 13),
+                        ))
+                      : ListView.builder(
+                          padding: EdgeInsets.zero,
+                          itemCount: data['skills'] != null
+                              ? data['skills'].length
+                              : 0,
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          itemBuilder: (BuildContext context, int index) {
+                            return Wrap(
+                                spacing: 10.0,
+                                direction: Axis.horizontal,
+                                runSpacing: 20.0,
+                                children: [
+                                  Container(
+                                    margin: const EdgeInsets.only(bottom: 6),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.start,
+                                      children: <Widget>[
+                                        Text(
+                                          data['skills'] == null
+                                              ? "No Skills added Yet"
+                                              : data['skills'][index],
+                                          style: TextStyle(
+                                              color: isdarkmode.value == false
+                                                  ? Colors.grey[700]
+                                                  : Colors.grey[500],
+                                              fontFamily: "Sofia Pro",
+                                              fontWeight: FontWeight.w400,
+                                              fontSize: 15),
+                                        )
+                                      ],
+                                    ),
+                                  ),
+                                ]);
+                          }),
             ],
           ),
         ),

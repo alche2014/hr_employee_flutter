@@ -1,123 +1,243 @@
+import 'dart:io';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:hr_app/AppBar/appbar.dart';
+import 'package:hr_app/Dailog/loading_dailog.dart';
 import 'package:hr_app/background/background.dart';
-import 'package:hr_app/mainApp/dependent/main_dependent.dart';
-import 'package:hr_app/mainApp/skills/utility/chips.dart';
+import 'package:hr_app/colors.dart';
+import 'package:hr_app/mainApp/mainProfile/Announcemets/constants.dart';
+import 'package:flutter_typeahead/flutter_typeahead.dart';
 
 class MainSkills extends StatefulWidget {
-  const MainSkills({Key? key}) : super(key: key);
+  // ignore: prefer_typing_uninitialized_variables
+  final data;
+  const MainSkills({Key? key, this.data}) : super(key: key);
 
   @override
-  State<MainSkills> createState() => _MainSkillsState();
+  _MainSkillsState createState() => _MainSkillsState();
 }
 
 class _MainSkillsState extends State<MainSkills> {
+  late String userId;
+  late String compId;
+  List<String> skillsList = [];
+  List<String> userSkillList = [];
+  final node = FocusNode();
+
+  @override
+  void initState() {
+    super.initState();
+    userId = widget.data["uid"];
+    compId = widget.data["companyId"];
+    FirebaseFirestore.instance
+        .collection('company')
+        .doc(compId)
+        .get()
+        .then((onValue) {
+      if (onValue["skills"] != null) {
+        onValue["skills"].forEach((doc) {
+          skillsList.add(doc.toString());
+        });
+      }
+    });
+    if (widget.data["skills"] != null) {
+      for (int i = 0; i < widget.data["skills"].length; i++) {
+        userSkillList.add(widget.data["skills"][i]);
+      }
+    }
+  }
+
+  final TextEditingController _textcontroller = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
-    var dropdownValue;
     return Scaffold(
-      extendBodyBehindAppBar: true,
-      appBar: buildMyAppBar(context, 'Skills', true),
-      body: Stack(
-        children: [
-          const BackgroundCircle(),
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 20),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Column(children: [
-                  const SizedBox(height: 30),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 20, vertical: 20),
-                    child: Container(
-                      padding: EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        border: Border.all(
-                            color: Colors.grey.withOpacity(0.4), width: 1),
-                        borderRadius: BorderRadius.circular(10),
-                        // color: MediaQuery.of(context).platformBrightness ==
-                        //         Brightness.light
-                        //     ? Colors.grey[100]
-                        //     : Color(0xff34354A),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 10),
-                        child: DropdownButtonHideUnderline(
-                          child: DropdownButton<String>(
-                            value: dropdownValue,
-                            icon: const Icon(Icons.keyboard_arrow_down),
-                            elevation: 0,
-                            isExpanded: true,
-                            hint: const Text('Skills'
-                                // style: TextStyle(color: Colors.grey),
+        extendBodyBehindAppBar: true,
+        appBar: buildMyAppBar(context, 'Skills', true),
+        body: Stack(
+          children: [
+            const BackgroundCircle(),
+            SingleChildScrollView(
+              child: Container(
+                margin: Platform.isIOS
+                    ? const EdgeInsets.only(
+                        left: 15, right: 12, bottom: 50, top: 120)
+                    : const EdgeInsets.only(
+                        left: 15, right: 12, bottom: 15, top: 90),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        TypeAheadFormField(
+                          textFieldConfiguration: TextFieldConfiguration(
+                            focusNode: node,
+                            style: TextFieldTextStyle(),
+                            decoration: TextFieldDecoration('Add your Skills'),
+                            controller: _textcontroller,
+                          ),
+                          suggestionsCallback: (Pattern) => skillsList.where(
+                            (element) => element
+                                .toLowerCase()
+                                .contains(Pattern.toLowerCase()),
+                          ),
+                          getImmediateSuggestions: true,
+                          hideSuggestionsOnKeyboardHide: false,
+                          onSuggestionSelected: (value) {
+                            setState(() {
+                              if (userSkillList.contains(value)) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text('Already Selected'),
+                                  ),
+                                );
+                              } else {
+                                userSkillList.add(value.toString());
+                              }
+                            });
+                          },
+                          itemBuilder: (_, String element) {
+                            return ListTile(
+                              title: Text(element),
+                            );
+                          },
+                          noItemsFoundBuilder: (context) {
+                            return Column(
+                              children: [
+                                const ListTile(
+                                  title: Text('No Sugestion Found'),
                                 ),
-                            onChanged: (String? newValue) {
-                              setState(() {
-                                if (Chips.chipList.length <= 6) {
-                                  Chips.chipList.add(newValue.toString());
-                                }
-                                // dropdownValue = newValue;
-                              });
-                            },
-                            items: <String>[
-                              'Adobe PhotoShop',
-                              'Adobe XD',
-                              'Figma'
-                            ].map<DropdownMenuItem<String>>((String value) {
-                              return DropdownMenuItem<String>(
-                                value: value,
-                                child: Text(value),
+                                ListTile(
+                                  leading: const Icon(Icons.add),
+                                  title: const Text('Add to List'),
+                                  onTap: () {
+                                    setState(() {
+                                      userSkillList.add(_textcontroller.text);
+                                      skillsList.add(_textcontroller.text);
+                                      _textcontroller.clear();
+                                      node.unfocus();
+                                    });
+                                  },
+                                )
+                              ],
+                            );
+                          },
+                        ),
+                        const SizedBox(height: 10),
+                        if (userSkillList.isNotEmpty)
+                          Wrap(
+                            spacing: 6.0,
+                            runSpacing: 6.0,
+                            children: List<Widget>.generate(
+                                userSkillList.length, (int index) {
+                              return Chip(
+                                label: Text(userSkillList[index]),
+                                onDeleted: () {
+                                  setState(() {
+                                    userSkillList.removeAt(index);
+                                  });
+                                },
                               );
-                            }).toList(),
+                            }),
                           ),
-                        ),
-                      ),
+                      ],
                     ),
-                  ),
-                  const SizedBox(height: 20),
-                  SizedBox(
-                    height: MediaQuery.of(context).size.height * 0.15,
-                    child: Chips.chipList.isNotEmpty ? Chips() : null,
-                  ),
-                  const SizedBox(height: 20),
-                ]),
-                //===========================================//
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: SizedBox(
-                          height: 60,
-                          child: ElevatedButton(
-                            child: const Text('SAVE'), //next button
-                            style: ElevatedButton.styleFrom(
-                              padding: EdgeInsets.symmetric(vertical: 10),
-                              primary: Color(0xffC53B4B),
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10)),
-                            ),
-                            onPressed: () {
-                              Navigator.pushReplacement(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) =>
-                                          const MainDependent()));
-                            },
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
+                    const SizedBox(height: 60),
+                  ],
                 ),
-              ],
+              ),
             ),
-          ),
-        ],
-      ),
-    );
+            Align(
+              alignment: Alignment.bottomCenter,
+              child: Container(
+                margin: const EdgeInsets.only(left: 15, right: 12, bottom: 15),
+                width: MediaQuery.of(context).size.width,
+                height: 55,
+                child: ElevatedButton(
+                    child: const Text('SAVE'), //next button
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 10),
+                      primary: darkRed,
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(5)),
+                    ),
+                    onPressed: () {
+                      if (userSkillList.isNotEmpty) {
+                        validateAndSave(userSkillList);
+
+                        Navigator.pop(context);
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Add some Skills'),
+                          ),
+                        );
+                      }
+                    }),
+              ),
+            )
+          ],
+        ));
+  }
+
+  validateAndSave(skills) async {
+    showLoadingDialog(context);
+    int guest = 0;
+    showLoadingDialog(context);
+    final user = FirebaseAuth.instance.currentUser!;
+    await FirebaseFirestore.instance
+        .collection("employees")
+        .where('uid', isEqualTo: user.uid)
+        .get()
+        .then((value) {
+      guest = value.docs.length;
+    });
+    if (guest == 0) {
+      FirebaseFirestore.instance
+          .runTransaction((Transaction transaction) async {
+        DocumentReference guestReference =
+            FirebaseFirestore.instance.collection("guests").doc(user.uid);
+        await guestReference.update({"skills": userSkillList});
+      }).whenComplete(() {
+        Navigator.pop(context);
+
+        Fluttertoast.showToast(msg: "Skills is updated successfully");
+      }).catchError((e) {
+        // ignore: avoid_print
+        print('======Error====$e==== ');
+      });
+      Future.delayed(const Duration(milliseconds: 1150), () {
+        Navigator.of(context).pop();
+      });
+    } else {
+      FirebaseFirestore.instance
+          .runTransaction((Transaction transaction) async {
+        DocumentReference reference =
+            FirebaseFirestore.instance.collection("employees").doc(userId);
+
+        await reference.update({"skills": userSkillList});
+      }).whenComplete(() {
+        Navigator.pop(context);
+        Future.delayed(const Duration(milliseconds: 1150), () {
+          Navigator.of(context).pop();
+        });
+
+        Fluttertoast.showToast(msg: "Skills is updated successfully");
+      }).catchError((e) {
+        // ignore: avoid_print
+        print('======Error====$e==== ');
+      });
+    }
+  }
+
+  void showLoadingDialog(BuildContext context) {
+    Navigator.of(context).push(PageRouteBuilder(
+        opaque: false,
+        pageBuilder: (BuildContext context, _, __) => LoadingDialog()));
   }
 }

@@ -1,8 +1,12 @@
-// ignore_for_file: prefer_typing_uninitialized_variables, prefer_const_declarations, unnecessary_string_escapes, prefer_const_constructors
 
+import 'dart:io';
+import 'package:file_picker/file_picker.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
-import 'package:hr_app/mainApp/settings/main_settings.dart';
+import 'package:flutter/services.dart';
+import 'package:hr_app/mainUtility/share_preference.dart';
 import 'package:hr_app/mainUtility/text_input_design.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 
 import '../../colors.dart';
@@ -18,18 +22,69 @@ class FormTwo extends StatefulWidget {
 
 final TextEditingController textController = TextEditingController();
 
-    final maskFormatter = MaskTextInputFormatter(mask: '+92 ### ### ####');
-    final maskCNICFormatter = MaskTextInputFormatter(mask: '#####-#######-#');
+final maskFormatter = MaskTextInputFormatter(mask: '+92 ### ### ####');
+final maskCNICFormatter = MaskTextInputFormatter(mask: '#####-#######-#');
 
 class _FormTwoState extends State<FormTwo> {
+  final TextEditingController _controller1 =  TextEditingController();
+  final TextEditingController _controller2 =  TextEditingController();
+  final TextEditingController _controller3 =  TextEditingController();
+  final TextEditingController _controller =  TextEditingController();
+
   // bool value = false;
   bool checkedValue = false;
   var gender;
   var dropGenderValue;
   var dropCityValue;
+  var dropBloodGroup;
+  String? path;
+  String? fileName;
+
+    File? image;
+  String? imagePath;
+    static Reference storage = FirebaseStorage.instance.ref();
+
+
+  Future pickImage() async {
+    try {
+      final image = await ImagePicker().pickImage(source: ImageSource.gallery);
+      if (image == null) return;
+
+      
+  
+      setState(() {
+        imagePath= image.path;
+        print("ImgPath:::::::::::::${imagePath}");
+        // this.image = imageTemp;
+        // saveImage(this.image);
+      });
+      saveImage('SaveImage',image.path);
+    } on PlatformException catch (e) {
+      print('Access Rejected: $e');
+    }
+  }
+
+  Future<String> uploadUserImageToFireStorage(
+        File image, String userID) async {
+      Reference upload = storage.child("images/$userID.png");
+      UploadTask uploadTask = upload.putFile(image);
+      var downloadUrl =
+          await (await uploadTask.whenComplete(() {})).ref.getDownloadURL();
+      return downloadUrl.toString();
+    }
+  @override
+  void initState() {
+    super.initState();
+    loadImage('SaveImage').then((value) {
+      setState(() {
+        imagePath = value;
+      });
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
+         print("ImgPath:::::::::::::${imagePath}");
     return SingleChildScrollView(
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
@@ -37,32 +92,78 @@ class _FormTwoState extends State<FormTwo> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Stack(
-                    //using stack to lap edit icon over Picture
-                    children: const [
-                      ClipRRect(
-                        child: Image(
-                          height: 100,
-                          image: AssetImage('assets/user_image.png'),
+              InkWell(
+                onTap: (){
+                  showModalBottomSheet(
+                    context: context,
+                    builder: (BuildContext bc) {
+                      return Wrap(
+                        children: <Widget>[
+                           ListTile(
+                            leading: const Icon(Icons.image),
+                            title:  const Text('Gallery'),
+                            onTap: () {
+                              Navigator.pop(context);
+                              pickImage();
+                            },
+                          ),
+                        ],
+                      );
+                    });
+                },
+                child: Stack(
+                  //using stack to lap edit icon over Picture
+                  children: [
+                    imagePath != null
+                      ? CircleAvatar(
+                          radius: 50,
+                          child: ClipRRect(
+                            clipBehavior: Clip.antiAlias,
+                            borderRadius: BorderRadius.circular(100),
+                            child: Image(
+                              image: FileImage(File(imagePath!)),
+                              height: 114,
+                              width: 115,
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                        )
+                      : CircleAvatar(
+                          radius: 50,
+                          child: ClipRRect(
+                            clipBehavior: Clip.antiAlias,
+                            borderRadius: BorderRadius.circular(100),
+                            child: image != null
+                                ? Image.file(image!)
+                                : Image.asset(
+                                    "assets/user_image.png",
+                                    height: 114,
+                                    width: 115,
+                                    fit: BoxFit.cover,
+                                  ),
+                          ),
                         ),
-                      ),
-                      Positioned(
-                          bottom: 10,
-                          right: 0,
-                          child: Image(
-                            image: AssetImage('assets/custom/Vector.png'),
-                            width: 30,
-                            fit: BoxFit.cover,
-                          )),
-                    ],
-                  ),
+                    
+                    const Positioned(
+                        bottom: 10,
+                        right: 0,
+                        child: Image(
+                          image: AssetImage('assets/custom/Vector.png'),
+                          width: 30,
+                          fit: BoxFit.cover,
+                        )),
+                  ],
+                ),
+              ),
               const SizedBox(height: 35),
               //--------------name-------------------//
-              TextFormField(
+              TextFormField(textCapitalization: TextCapitalization.sentences,
+                controller: _controller1,
+                textInputAction: TextInputAction.next,
                 decoration: MyInputStyle('Name'),
                 autovalidateMode: AutovalidateMode.onUserInteraction,
                 validator: (value) {
-                  final pattern = ('[a-zA-Z]+([\s][a-zA-Z]+)*');
+                  const pattern = ('[a-zA-Z]+([\s][a-zA-Z]+)*');
                   final regExp = RegExp(pattern);
                   if (value!.isEmpty) {
                     return null;
@@ -75,7 +176,9 @@ class _FormTwoState extends State<FormTwo> {
               ),
               const SizedBox(height: 15),
               //--------------email-------------------//
-              TextFormField(
+              TextFormField(textCapitalization: TextCapitalization.sentences,
+                controller: _controller2,
+                textInputAction: TextInputAction.next,
                 decoration: MyInputStyle('Email'),
                 autovalidateMode: AutovalidateMode.onUserInteraction,
                 validator: (value) {
@@ -96,21 +199,25 @@ class _FormTwoState extends State<FormTwo> {
               ),
               const SizedBox(height: 15),
               //--------------phone-------------------//
-              TextFormField(
-                decoration: MyInputStyle('Phone'),
-                keyboardType: TextInputType.number,
-                inputFormatters: [maskFormatter],
-                validator: (value) {
-                  final regExp = RegExp('[0-9]');
-                  if (value!.isEmpty) {
-                    return null;
-                  } else if (!regExp.hasMatch(value)) {
-                    return 'Enter only number';
-                  } else {
-                    return null;
-                  }
-                },
-              ),
+
+              Text(imagePath!),
+              // TextFormField(textCapitalization: TextCapitalization.sentences,
+              //   controller: _controller3,
+              //   textInputAction: TextInputAction.next,
+              //   decoration: MyInputStyle('Phone'),
+              //   keyboardType: TextInputType.number,
+              //   inputFormatters: [maskFormatter],
+              //   validator: (value) {
+              //     final regExp = RegExp('[0-9]');
+              //     if (value!.isEmpty) {
+              //       return null;
+              //     } else if (!regExp.hasMatch(value)) {
+              //       return 'Enter only number';
+              //     } else {
+              //       return null;
+              //     }
+              //   },
+              // ),
               const SizedBox(height: 15),
               //--------------City-------------------//
               Container(
@@ -224,20 +331,48 @@ class _FormTwoState extends State<FormTwo> {
               ),
               const SizedBox(height: 15),
               //--------------blood-group-------------------//
-              TextFormField(
-                decoration: MyInputStyle('Blood Group'),
-                autovalidateMode: AutovalidateMode.onUserInteraction,
-                validator: (value) {
-                  final pattern = ('[a-zA-Z]+([\s][a-zA-Z]+)*');
-                  final regExp = RegExp(pattern);
-                  if (value!.isEmpty) {
-                    return null;
-                  } else if (!regExp.hasMatch(value)) {
-                    return 'Enter only Alphabets';
-                  } else {
-                    return null;
-                  }
-                },
+              Container(
+                height: 60,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(6),
+                  border: Border.all(
+                    color: Colors.grey.withOpacity(0.4),
+                    width: 1,
+                  ),
+                ),
+                child: DropdownButtonFormField(
+                  decoration: InputDecoration(
+                      border: const OutlineInputBorder(
+                        borderSide: BorderSide.none,
+                        borderRadius: BorderRadius.all(
+                          Radius.circular(6.0),
+                        ),
+                      ),
+                      hintStyle: TextStyle(color: Colors.grey.withOpacity(0.8)),
+                      hintText: "Blood Group",
+                      fillColor: Theme.of(context).scaffoldBackgroundColor),
+                  value: dropBloodGroup,
+                  items: <String>[
+                    'A+',
+                    'A-',
+                    'B+',
+                    'B-',
+                    'O+',
+                    'O-',
+                    'AB+',
+                    'AB-',
+                  ].map<DropdownMenuItem<String>>((String value) {
+                    return DropdownMenuItem<String>(
+                      value: value,
+                      child: Text(value),
+                    );
+                  }).toList(),
+                  onChanged: (value) {
+                    setState(() {
+                      dropBloodGroup = value;
+                    });
+                  },
+                ),
               ),
               const SizedBox(height: 15),
               //--------------CheckBox-------------------//
@@ -251,7 +386,7 @@ class _FormTwoState extends State<FormTwo> {
                     });
                   },
                 ),
-                 Text('Vaccinated against COVID'),
+               const  Text('Vaccinated against COVID'),
               ]),
               const SizedBox(height: 15),
               //--------------buttons-------------------//
@@ -259,23 +394,89 @@ class _FormTwoState extends State<FormTwo> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   ElevatedButton(
-                      style: ElevatedButton.styleFrom(primary: Colors.grey),
-                      onPressed: () {},
+                      style: ElevatedButton.styleFrom(
+                          primary: checkedValue == false
+                              ? Colors.grey
+                              : kPrimaryRed),
+                      onPressed: checkedValue == false
+                          ? null
+                          : () async {
+                            FilePickerResult? result = await FilePicker.platform.pickFiles(
+                                type: FileType.custom,
+                                allowedExtensions: ['pdf'],
+                              )
+                              .then((value){
+                                if(value == null){
+                                print('-------------------value is null so it nothing---------------------------')
+                                }else if(value != null){
+                                  setState(() {
+                                  path = value.toString();
+                                  print('---------------------value is not-null it something--------------------')
+                                })
+                                }
+                              });
+                                File file = new File(path!);
+                                fileName = file.path.split('/').last;
+                            },
                       child: const Text('BROWSE')),
                   const SizedBox(width: 25),
-                  GestureDetector(
-                      child: const Text("JPG Attachment",
-                          style: TextStyle(
-                              decoration: TextDecoration.underline,
-                              color: Colors.blue)),
-                      onTap: () {
-                        // do what you need to do when "Click here" gets clicked
-                      })
+                  if (checkedValue != false)
+                    SizedBox(
+                      height: 30,
+                      child: InkWell(
+                          child: const Text("JPG Attachment",
+                              style: TextStyle(
+                                  decoration: TextDecoration.underline,
+                                  color: Colors.blue)),
+                          onTap: () async{
+                                FilePickerResult? result = await FilePicker.platform.pickFiles(
+                                type: FileType.custom,
+                                allowedExtensions: ['jpg'],
+                              )
+                              .then((value){
+                                if(value == null){
+                                print('-------------------value is null so it nothing---------------------------')
+                                }else if(value != null){
+                                  setState(() {
+                                  path = value.toString();
+                                  print('---------------------value is not-null it something--------------------')
+                                })
+                                }
+                              });
+                              File file = new File(path!);
+                              fileName = file.path.split('/').last;
+                          }),
+                    ),
+                  if (checkedValue == true) SizedBox(),
                 ],
               ),
+              if (path != null) 
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    SizedBox(
+                      width: MediaQuery.of(context).size.width * 0.4,
+                      child: Text(fileName!,
+                      maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        softWrap: false,
+                      style: TextStyle()),
+                    ),
+                    IconButton(onPressed: (){
+                      setState(() {
+                        path = null;
+                        FilePicker.platform.clearTemporaryFiles().then((result) {
+                          }); 
+                      });
+                    }, icon: const Icon(Icons.close)),
+                  ],
+                ),
+              if(path == null)
+             const  SizedBox(),
               const SizedBox(height: 15),
               //--------------CNIC-------------------//
-              TextFormField(
+              TextFormField(textCapitalization: TextCapitalization.sentences,
+                textInputAction: TextInputAction.done,
                 controller: textController,
                 inputFormatters: [maskCNICFormatter],
                 decoration: MyInputStyle('CNIC No.'),
@@ -307,8 +508,7 @@ class _FormTwoState extends State<FormTwo> {
                               borderRadius: BorderRadius.circular(10)),
                         ),
                         onPressed: () {
-                          Navigator.of(context).push(MaterialPageRoute(
-                              builder: (context) => const MainSettings()));
+                      
                         },
                       ),
                     ),

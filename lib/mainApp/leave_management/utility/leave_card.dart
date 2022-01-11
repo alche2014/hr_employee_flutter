@@ -2,17 +2,20 @@
 
 import 'package:flutter/material.dart';
 import 'package:hr_app/mainApp/leave_management/Utility/showDialog.dart';
+import 'package:hr_app/mainApp/main_home_profile/apply_leaves.dart';
 
 import '../../../colors.dart';
-
-
 
 // ignore: must_be_immutable
 class LeaveCard extends StatelessWidget {
   //resue card but with chainging
-  String? text;
+  final text;
+  final allLeaves;
+  final joiningDate;
+
   VoidCallback? press;
-  LeaveCard({Key? key, this.text, this.press}) : super(key: key);
+  LeaveCard({Key? key, this.text, this.allLeaves, this.joiningDate, this.press})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -34,14 +37,9 @@ class LeaveCard extends StatelessWidget {
               Row(
                 children: [
                   CircleAvatar(
-                    radius: 35,
-                    backgroundColor: Colors.grey[100],
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    backgroundImage: const AssetImage(
-                        "assets/custom/round.png"), //using profilepic
-                  ),
+                      radius: 25,
+                      backgroundColor: lightPink,
+                      child: Icon(Icons.layers, color: darkRed, size: 32)),
                   SizedBox(
                     width: 20,
                   ),
@@ -49,16 +47,22 @@ class LeaveCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       SizedBox(height: 8),
-                      Text(text!),
+                      Text(text!["name"].toString(),
+                          style: TextStyle(
+                              fontSize: 15, fontWeight: FontWeight.bold)),
                       SizedBox(height: 8),
-                      Text('20 anual leaves pending',
-                          style: TextStyle(color: Colors.grey, fontSize: 10)),
+                      Text("${text!["leaveQuota"]} leaves pending",
+                          style: TextStyle(color: Colors.grey, fontSize: 13)),
                       TextButton(
                         onPressed: () {
-                          applyLeave(context);
+                          showDialog(
+                              context: context,
+                              builder: (BuildContext context) => AddLeave(
+                                    leavesData: allLeaves,
+                                    joiningDate: joiningDate,
+                                  ));
                         },
                         child: Text(
-                          //on card
                           'Apply Now',
                           style:
                               TextStyle(color: Colors.red[800], fontSize: 13),
@@ -88,12 +92,14 @@ class MyCustomCard extends StatelessWidget {
   bool? picOrName;
 
   MyCustomCard(
-      {Key? key, this.header,
+      {Key? key,
+      this.header,
       this.body,
       this.status,
       this.buttonToggle,
       this.statusToggle,
-      this.picOrName}) : super(key: key);
+      this.picOrName})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -172,7 +178,7 @@ class MyCustomCard extends StatelessWidget {
                     ),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
+                      children: const [
                         Text('Lee Williamson'),
                         Text('Designation'),
                       ],

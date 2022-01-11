@@ -48,12 +48,15 @@ dependencies:
   fluttertoast: ^8.0.8
   firebase_dynamic_links: 
   url_launcher:
+  # flutter_quill:
+  # flutter_svg:
   flutter_circular_chart: ^0.1.0
   # firebase_messaging: 10.0.8
   # cloud_functions:
   dio: ^4.0.1
   flutter_masked_text: ^0.8.0
   path_provider: ^2.0.0
+  country_code_picker:
   multi_image_picker: ^4.8.01
   http:
   timeago: ^3.1.0

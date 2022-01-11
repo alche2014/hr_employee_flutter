@@ -8,7 +8,7 @@ if (localPropertiesFile.exists()) {
 
 def flutterRoot = localProperties.getProperty('flutter.sdk')
 if (flutterRoot == null) {
-    throw new GradleException("Flutter SDK not found. Define location with flutter.sdk in the local.properties file.")
+    throw neGradleException("Flutter SDK not found. Define location with flutter.sdk in the local.properties file.")
 }
 
 def flutterVersionCode = localProperties.getProperty('flutter.versionCode')
@@ -26,7 +26,8 @@ apply plugin: 'kotlin-android'
 apply from: "$flutterRoot/packages/flutter_tools/gradle/flutter.gradle"
 
 android {
-    compileSdkVersion 30
+    compileSdkVersion 31
+    buildToolsVersion = "29.0.3"
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
@@ -43,11 +44,13 @@ android {
 
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId "com.example.hr_app"
-        minSdkVersion 16
+        applicationId "com.hr.emp.app"
+        minSdkVersion 21
         targetSdkVersion 30
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
+        multiDexEnabled = true
+
     }
 
     buildTypes {
@@ -59,10 +62,24 @@ android {
     }
 }
 
+
 flutter {
     source '../..'
 }
 
 dependencies {
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-}
+     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+     testImplementation 'junit:junit:4.12'
+     androidTestImplementation 'com.android.support.test:runner:1.0.2'
+     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
+     implementation 'com.google.android.libraries.places:places:2.0.0'
+     implementation 'com.google.firebase:firebase-core:16.0.7'
+     implementation 'com.google.firebase:firebase-database:16.0.6'
+     implementation 'com.google.firebase:firebase-firestore:21.3.0'
+    implementation 'androidx.core:core-splashscreen:1.0.0-alpha01'
+     implementation 'com.google.guava:guava:28.2-android'
+
+    // implementation "androidx.lifecycle:lifecycle-common-java8:$lifecycle_version"
+
+} 
+apply plugin: 'com.google.gms.google-services'
