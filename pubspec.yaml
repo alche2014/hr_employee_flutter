@@ -65,11 +65,6 @@ dependencies:
   flutter_offline: ^2.0.0
   # firebase_ml_vision: ^0.12.0+3
   # firebase_ml_vision: ^0.9.10
-  pigeon:
-  # camera:
-  # permission_handler: ^8.2.5
-  # google_map_location_picker:
-  # google_map_location_picker: ^3.3.4
   ext_storage: ^1.0.3
   firebase_auth:
   open_file:
@@ -109,11 +104,16 @@ dependencies:
   flutter_statusbarcolor: ^0.2.3
   simple_animations:
   cloud_functions: ^3.0.6
+  location:
+  geocoding:
   audioplayers: 
   # file_picker: ^1.13.3
   video_player:
   json_annotation: 
   intl: 0.17.0
+  instant:
+  firebase_crashlytics:
+  
   
 # dependency_overrides:
 #   intl: 0.17.0

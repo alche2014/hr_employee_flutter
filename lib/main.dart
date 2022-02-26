@@ -1,53 +1,133 @@
+import 'dart:async';
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:connectivity/connectivity.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-// import 'package:flutter_svg/flutter_svg.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:hr_app/Constants/colors.dart';
+import 'package:hr_app/UserprofileScreen.dart/first_time_form.dart';
+import 'package:hr_app/UserprofileScreen.dart/my_profile_edit.dart';
 import 'package:hr_app/mainApp/Login/auth_provider.dart';
-import 'package:hr_app/mainApp/bottom_navigation/bottom_nav_bar.dart';
-import 'package:hr_app/mainApp/forms/form_1.dart';
-import 'package:hr_app/mainApp/mainProfile/emp_profile_without_comp.dart';
-import 'package:hr_app/profile/my_profile_edit.dart';
-import 'package:hr_app/theme.dart';
+import 'package:hr_app/Constants/theme.dart';
+import 'Constants/constants.dart';
+import 'MainApp/bottom_nav_bar.dart';
 import 'mainApp/Login/auth.dart';
+import 'package:timezone/data/latest.dart' as tz;
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:timezone/timezone.dart' as tz;
 import 'mainApp/Login/google_login.dart';
-import 'mainApp/mainProfile/Announcemets/constants.dart';
-import 'mainApp/main_home_profile/main_home_profile.dart';
+import 'package:firebase_auth/firebase_auth.dart' as auth;
+
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
+
+// Toggle this to cause an async error to be thrown during initialization
+// and to test that runZonedGuarded() catches the error
+const _kShouldTestAsyncErrorOnInit = false;
+auth.User? firebaseUser = auth.FirebaseAuth.instance.currentUser;
+
+var totalemployee = 13;
+String joiningDate = '';
+var ontime = 10;
+var lates = 3;
+var absent = 0;
+late Connectivity connectivity;
+late StreamSubscription<ConnectivityResult> subscription;
+late bool isNetwork = true;
+
+late AnimationController controller;
+late String buttonText = "CHECK IN";
+late Position _currentPosition;
+double? currentLat;
+String yourAddress = "Location";
+double? currentLng;
+String? userId;
+String? locationId;
+String? shiftId;
+double? officeLat;
+double? officeLng;
+String? companyId;
+String? location;
+late int hours = 00;
+late int minutes = 00;
+late int seconds = 00;
+late Timestamp checkinTime;
+
+late String docId;
+late Timer timer;
+// ScheduleController controllers;
+late String to;
+late String from;
+late String shiftName;
+late String token;
+String empName = '';
+String empEmail = '';
+String uid = '';
+int? weekend;
+var weekendDefi;
+double _hr = 0;
+double _minute = 0;
+String lateTime = "0 hrs & 0 mins";
+late ScrollController con;
+late Stream? stream;
+String? name = '';
+String? role;
+List leaveData = [];
+List<dynamic> leaveType = [];
+late String reportingTo;
+String imagePath = '';
+File? image;
+DocumentReference? documentReference;
+bool announData = false;
+
+// Toggle this for testing Crashlytics in your app locally.
+const _kTestingCrashlytics = true;
 
 ValueNotifier<bool> isdarkmode = ValueNotifier(false);
 
 void main() async {
+  tz.initializeTimeZones();
+
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
+  await runZonedGuarded(() async {
+    FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterError;
 
-  Future.delayed(const Duration(seconds: 0), () {
-    runApp(AuthProvider(
-      auth: AuthService(),
-      child: ValueListenableBuilder(
-          valueListenable: isdarkmode,
-          builder: (context, value, _) {
-            return MaterialApp(
-              debugShowCheckedModeBanner: false,
-              theme: darkmode == false
-                  ? lightThemeData(context)
-                  : darkThemeData(context),
-              home: Splash(),
-              title: 'HR EMP',
+    Future.delayed(const Duration(seconds: 0), () {
+      runApp(AuthProvider(
+        auth: AuthService(),
+        child: ValueListenableBuilder(
+            valueListenable: isdarkmode,
+            builder: (context, value, _) {
+              return MaterialApp(
+                debugShowCheckedModeBanner: false,
+                theme: darkmode == false
+                    ? lightThemeData(context)
+                    : darkThemeData(context),
+                home: const Splash(),
+                title: 'Smart HR',
 
-              //routes of different screens
-              routes: {
-                "/login": (BuildContext context) => GoogleLogin(),
-                "/app": (BuildContext context) => NavBar(0),
-                "/firstTimeForm": (BuildContext context) =>
-                    const FirstTimeForm(),
-                // "/signininvite": (BuildContext context) => DynamicLinkScreen(),
-                "/invalidUser": (BuildContext context) =>
-                    const EmpProfileWithoutComp(),
-              },
-            );
-          }),
-    ));
+                //routes of different screens
+                routes: {
+                  "/login": (BuildContext context) => GoogleLogin(),
+                  "/app": (BuildContext context) => NavBar(0),
+                  "/firstTimeForm": (BuildContext context) =>
+                      const FirstTimeForm(),
+                  // "/signininvite": (BuildContext context) => DynamicLinkScreen(),
+                  "/invalidUser": (BuildContext context) =>
+                      const MyProfileEdit(),
+                  "/guestProfile": (BuildContext context) =>
+                      const MyProfileEdit()
+                },
+              );
+            }),
+      ));
+    });
+  }, (error, stackTrace) {
+    FirebaseCrashlytics.instance.recordError(error, stackTrace);
   });
 }
 
@@ -57,6 +137,8 @@ class MyApp extends StatefulWidget {
   @override
   _MyAppState createState() => _MyAppState();
 }
+
+// Define an async function to initialize FlutterFire
 
 class _MyAppState extends State<MyApp> {
   @override
@@ -93,6 +175,7 @@ class _SplashState extends State<Splash> {
   @override
   void initState() {
     super.initState();
+
     _navigateToHome();
   }
 
@@ -107,6 +190,27 @@ class _SplashState extends State<Splash> {
     // final User? user = await _auth.currentUser;
 
     if (_result) {
+      await FirebaseFirestore.instance
+          .collection('employees')
+          .doc(firebaseUser!.uid)
+          .snapshots()
+          .listen((onValue) {
+        locationId = onValue.data()!["locationId"];
+        shiftId = onValue.data()!["shiftId"];
+        companyId = onValue.data()!["companyId"];
+        reportingTo = onValue.data()!['reportingToId'];
+        imagePath = onValue.data()!['imagePath'];
+        empName = onValue.data()!['displayName'];
+        empEmail = onValue.data()!['email'];
+        leaveData = onValue.data()!['leaves'] ?? [];
+        joiningDate = onValue.data()!['joiningDate'] ?? "";
+
+        Future.delayed(const Duration(milliseconds: 150), () {
+          if (shiftId != null) {
+            // _getShiftSchedule();
+          }
+        });
+      });
       //  checking user exists or not
       final user = FirebaseAuth.instance.currentUser!;
       bool _com = await AuthService().userExist(user);
@@ -123,10 +227,8 @@ class _SplashState extends State<Splash> {
             Navigator.pushReplacement(context,
                 MaterialPageRoute(builder: (context) => const FirstTimeForm()));
           } else {
-            Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => const EmpProfileWithoutComp()));
+            Navigator.pushReplacement(context,
+                MaterialPageRoute(builder: (context) => const MyProfileEdit()));
           }
         }
       } else {
@@ -142,49 +244,12 @@ class _SplashState extends State<Splash> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0XFFC53B4B),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Spacer(flex: 3),
-            Image.asset(
-              'assets/mainIcon.png',
-              height: 140,
-            ),
-            const Spacer(flex: 4),
-            TweenAnimationBuilder(
-              tween: Tween(begin: 0.0, end: 1.0),
-              duration: Duration(milliseconds: _progress),
-              builder: (context, double? value, _) => Container(
-                height: 15,
-                width: 250,
-                decoration: BoxDecoration(
-                  border: Border.all(
-                    color: Colors.white,
-                    width: 4,
-                  ),
-                  borderRadius: BorderRadius.circular(10.0),
-                ),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(10.0),
-                  child: LinearProgressIndicator(
-                    value: value,
-                    backgroundColor: Colors.transparent,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(height: 20),
-            const Text(
-              ' 2021. All rights reserved',
-              style: TextStyle(fontSize: 13, color: Colors.white),
-            ),
-            Spacer(flex: 3),
-          ],
-        ),
+        body: Container(
+            decoration: const BoxDecoration(
+      image: DecorationImage(
+        image: AssetImage('assets/backimages.png'),
+        fit: BoxFit.fill,
       ),
-    );
+    )));
   }
 }

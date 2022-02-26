@@ -2,11 +2,10 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:connectivity/connectivity.dart';
 import 'package:flutter/material.dart';
-import 'package:hr_app/AppBar/appbar.dart';
-import 'package:hr_app/background/background.dart';
-import 'package:intl/intl.dart';
+import 'package:hr_app/Constants/appbar.dart';
 
-import '../colors.dart';
+import 'package:hr_app/Constants/colors.dart';
+import 'package:intl/intl.dart';
 
 /* ShowAnnoucementScreen appears when users press on notifation dialog 
    then dialog navigate to this screen and show th information  which 
@@ -85,7 +84,6 @@ class _ShowAnnouncementScreenState extends State<ShowAnnouncementScreen> {
     return Scaffold(
         extendBodyBehindAppBar: true,
         body: Stack(children: [
-          const BackgroundCircle(),
           NestedScrollView(
             headerSliverBuilder: (context, innerBoxIsScrolled) => [
               buildMyNewAppBar(context, 'Announcement', true),
@@ -119,7 +117,7 @@ class _ShowAnnouncementScreenState extends State<ShowAnnouncementScreen> {
                           Text(
                             title!,
                             style: const TextStyle(
-                              color: darkRed, //color red
+                              color: purpleDark, //color red
                               fontWeight: FontWeight.bold,
                               fontSize: 17,
                             ),
@@ -162,7 +160,7 @@ class _ShowAnnouncementScreenState extends State<ShowAnnouncementScreen> {
                                       style: const TextStyle(
                                           fontSize: 15,
                                           fontWeight: FontWeight.bold,
-                                          color: kPrimaryRed),
+                                          color: purpleLight),
                                     ),
                                   ),
                                 ),

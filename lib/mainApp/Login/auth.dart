@@ -1,8 +1,24 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:rxdart/rxdart.dart';
+
+DocumentSnapshot? currentUserSnapshot;
+//-----------------------------------------------
+Future<String> uploadingImage(image, filename, foldername) async {
+  try {
+    Reference ref =
+        FirebaseStorage.instance.ref().child(foldername).child(filename);
+    await ref.putFile(image);
+    String downloadURL = await ref.getDownloadURL();
+
+    return downloadURL;
+  } on FirebaseException catch (e) {
+    return "";
+  }
+}
 
 class AuthService {
   String? email, password;
@@ -15,6 +31,8 @@ class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _db = FirebaseFirestore.instance;
   GoogleSignInAccount? googleUser;
+
+  // It has current user data, from users collection on(Userverify screen).
 
   // Shared State for Widgets
   late Stream<User?> user; // firebase user
@@ -40,7 +58,6 @@ class AuthService {
     // updateUserData(user);
 
     loading.add(false);
-    print("signed in " + user.user!.displayName.toString());
     return user.user;
   }
 
@@ -48,9 +65,26 @@ class AuthService {
   Future<bool> userExist(User? user) async {
     DocumentReference ref = _db.collection('employees').doc(user!.uid);
     DocumentSnapshot snapshot = await ref.get();
-    // print("${snapshot.data.toString()}");
 
     if (snapshot.data() == null) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  firstTimeEmpLogin(User? user) async {
+    dynamic gender;
+    // var genderBool = true;
+    await FirebaseFirestore.instance
+        .collection("employees")
+        .doc(user!.uid)
+        .get()
+        .then((onValue) {
+      final Map<String, dynamic>? documents = onValue.data();
+      gender = documents!["gender"];
+    });
+    if (gender == null) {
       return true;
     } else {
       return false;
@@ -68,33 +102,20 @@ class AuthService {
         .then((onValue) {
       final Map<String, dynamic>? documents = onValue.data();
       gender = documents!["gender"];
-      print("Genders::::::::::::::::$gender");
     });
     if (gender == null) {
-      // print("genderBool::::::::::::::::$genderBool");
-      // genderBool = true;
       return true;
     } else {
-      // print("genderBoolss::::::::::::::::$genderBool");
-      // genderBool = false;
       return false;
     }
   }
 
 // checking for guest profie
   Future<bool> guestExist(User? user) async {
-    dynamic guestUid;
+    DocumentReference ref = _db.collection('guests').doc(user!.uid);
+    DocumentSnapshot snapshot = await ref.get();
 
-    await FirebaseFirestore.instance
-        .collection("guests")
-        .doc(user!.uid)
-        .get()
-        .then((onValue) {
-      final Map<String, dynamic>? documents = onValue.data();
-      guestUid = documents!["guestUid"];
-      print("guestUid::::::::::::::::$guestUid");
-    });
-    if (guestUid == user.uid) {
+    if (snapshot.data() == null) {
       return true;
     } else {
       return false;
@@ -119,11 +140,9 @@ class AuthService {
     for (var doc in documents) {
       domainList.addAll(doc["domain"]);
     }
-    print("domainList = $domainList");
 
     String? userEmail = user.email;
     var domainPart = userEmail!.split('@');
-    print(domainPart[1]);
 
     if (domainList.contains(domainPart[1])) {
       return true;

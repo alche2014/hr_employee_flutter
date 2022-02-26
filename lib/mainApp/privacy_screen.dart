@@ -1,11 +1,11 @@
 // ignore_for_file: sized_box_for_whitespace, prefer_const_constructors
 
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
-import 'package:hr_app/AppBar/appbar.dart';
-import 'package:hr_app/background/background.dart';
-import 'package:hr_app/mainApp/mainProfile/Announcemets/constants.dart';
+import 'package:hr_app/Constants/appbar.dart';
 
 class PrivacyApp extends StatefulWidget {
   const PrivacyApp({Key? key}) : super(key: key);
@@ -19,13 +19,13 @@ class _PrivacyAppState extends State<PrivacyApp> {
   Widget build(BuildContext context) {
     return Scaffold(
         extendBodyBehindAppBar: true,
+        appBar: buildMyAppBar(context, 'Privacy', true),
         body: Stack(children: [
-          const BackgroundCircle(),
-          NestedScrollView(
-              headerSliverBuilder: (context, innerBoxIsScrolled) => [
-                    buildMyNewAppBar(context, 'Privacy', true),
-                  ],
-              body: Builder(builder: (context) {
+          Container(
+              padding: Platform.isIOS
+                  ? const EdgeInsets.only(bottom: 50, top: 120)
+                  : const EdgeInsets.only(bottom: 15, top: 15),
+              child: Builder(builder: (context) {
                 return StreamBuilder<DocumentSnapshot>(
                     stream: FirebaseFirestore.instance
                         .collection('aboutPrivacy')
@@ -52,36 +52,36 @@ class _PrivacyAppState extends State<PrivacyApp> {
                                       const SizedBox(height: 20),
                                       //-----------------------------------------------------------//
                                       Text(snapshot.data!["header1"] ?? "",
-                                          style: TextStyle(
+                                          style: const TextStyle(
                                               fontSize: 18,
                                               color: Color(0XFFC53B4B))),
                                       SizedBox(height: 20),
                                       Text(snapshot.data!["body1"] ?? "",
-                                          style: TextStyle(
+                                          style: const TextStyle(
                                               height: 1.5,
                                               fontSize: 13,
                                               color: Color(0XFF5B5B5B))),
                                       SizedBox(height: 40),
                                       //-----------------------------------------------------------//
                                       Text(snapshot.data!["header2"] ?? "",
-                                          style: TextStyle(
+                                          style: const TextStyle(
                                               fontSize: 16,
                                               color: Color(0XFF535353))),
                                       SizedBox(height: 20),
                                       Text(snapshot.data!["body2"] ?? "",
-                                          style: TextStyle(
+                                          style: const TextStyle(
                                               height: 1.5,
                                               fontSize: 13,
                                               color: Color(0XFF5B5B5B))),
                                       //-----------------------------------------------------------//
                                       SizedBox(height: 40),
                                       Text(snapshot.data!["header3"] ?? "",
-                                          style: TextStyle(
+                                          style: const TextStyle(
                                               fontSize: 16,
                                               color: Color(0XFF535353))),
                                       SizedBox(height: 20),
                                       Text(snapshot.data!["body3"] ?? "",
-                                          style: TextStyle(
+                                          style: const TextStyle(
                                               height: 1.5,
                                               fontSize: 13,
                                               color: Color(0XFF5B5B5B))),
@@ -103,7 +103,7 @@ class _PrivacyAppState extends State<PrivacyApp> {
                                                     RichText(
                                                       text: TextSpan(
                                                         text: '• ',
-                                                        style: TextStyle(
+                                                        style: const TextStyle(
                                                             color: Color(
                                                                 0XFF5B5B5B),
                                                             fontSize: 13),
@@ -113,9 +113,10 @@ class _PrivacyAppState extends State<PrivacyApp> {
                                                                           .data![
                                                                       "bullets"]
                                                                   [ind],
-                                                              style: TextStyle(
-                                                                  fontSize:
-                                                                      13)),
+                                                              style:
+                                                                  const TextStyle(
+                                                                      fontSize:
+                                                                          13)),
                                                         ],
                                                       ),
                                                     ),
