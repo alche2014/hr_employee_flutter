@@ -365,17 +365,17 @@ class _MainHomeProfileState extends State<MainHomeProfile>
     loadFirebaseUser();
     determinePosition();
 
-    // notification5_50();
-    // notification8_50();
-    // notification9_10();
-    // notification6_10();
+    notification5_50();
+    notification8_50();
+    notification9_10();
+    notification6_10();
 
-    // timer = Timer.periodic(
-    //     const Duration(seconds: 1), (Timer t) => loadFirebaseUser());
-    // controller = AnimationController(
-    //   vsync: this,
-    //   duration: const Duration(secRonds: 32400),
-    // );
+    timer = Timer.periodic(
+        const Duration(seconds: 1), (Timer t) => loadFirebaseUser());
+    controller = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 32400),
+    );
 
     //check internet connection
     connectivity = Connectivity();
