@@ -1,0 +1,259 @@
+{
+  "project_info": {
+    "project_number": "451930265347",
+    "firebase_url": "https://alche-hr-app.firebaseio.com",
+    "project_id": "alche-hr-app",
+    "storage_bucket": "alche-hr-app.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:451930265347:android:b05f02114af81af8163b36",
+        "android_client_info": {
+          "package_name": "com.example.fcm_notifications"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "451930265347-8brop6cc2a6j21t3a6naekc5h9ph6pu7.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBLMk_0vrJ76fVzrBrNJNLjWlchFOQAUKU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "451930265347-8brop6cc2a6j21t3a6naekc5h9ph6pu7.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "451930265347-95ube2fp1eabrudi8hr5ck3m3b6pke9q.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.hrm.app"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:451930265347:android:4a8a263d413e613b163b36",
+        "android_client_info": {
+          "package_name": "com.hr.admin.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "451930265347-154u3po8su0dmn80882qrmkoorj925l7.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.hr.admin.app",
+            "certificate_hash": "cd809a008db52b04916db5b3f8c92debf8b51388"
+          }
+        },
+        {
+          "client_id": "451930265347-92npluvd5i81lh7def6ke6nd4cup54a8.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.hr.admin.app",
+            "certificate_hash": "e68da8b739df476a9d90a5758a529f13f5cba4d8"
+          }
+        },
+        {
+          "client_id": "451930265347-dth2g14037f3sqof5sel2i9gnpjqi4bc.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.hr.admin.app",
+            "certificate_hash": "de1903cd1a20fb0838c903bfcfad415362f9eb0d"
+          }
+        },
+        {
+          "client_id": "451930265347-mrm1tamr893letvbgkgee48to5u9ba8h.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.hr.admin.app",
+            "certificate_hash": "0d82dd32158c00b8d41a7cb2f4a6dc6c65c7923f"
+          }
+        },
+        {
+          "client_id": "451930265347-p6ij7aj91epq6pm4u1rmlm003d9c5h9u.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.hr.admin.app",
+            "certificate_hash": "731ca8d668f03a5644067b2a0c16d86aabc3a765"
+          }
+        },
+        {
+          "client_id": "451930265347-8brop6cc2a6j21t3a6naekc5h9ph6pu7.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBLMk_0vrJ76fVzrBrNJNLjWlchFOQAUKU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "451930265347-8brop6cc2a6j21t3a6naekc5h9ph6pu7.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "451930265347-95ube2fp1eabrudi8hr5ck3m3b6pke9q.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.hrm.app"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:451930265347:android:1cb5e814acb57b37163b36",
+        "android_client_info": {
+          "package_name": "com.hr.emp.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "451930265347-9bnmh48n66p16up5o3rr9ijl16kuoc4k.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.hr.emp.app",
+            "certificate_hash": "cd809a008db52b04916db5b3f8c92debf8b51388"
+          }
+        },
+        {
+          "client_id": "451930265347-g6q8ue910en7ktr6pjaol8onpnidgne0.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.hr.emp.app",
+            "certificate_hash": "de1903cd1a20fb0838c903bfcfad415362f9eb0d"
+          }
+        },
+        {
+          "client_id": "451930265347-pfjgboli59mimmpjaa3a3r9lcp36qlh6.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.hr.emp.app",
+            "certificate_hash": "edb5dbdbf9282f566dea2aa80c8bf5ca7a5a5220"
+          }
+        },
+        {
+          "client_id": "451930265347-u3thui9u24opo61tkuje7r7ehqpcf9gn.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.hr.emp.app",
+            "certificate_hash": "e68da8b739df476a9d90a5758a529f13f5cba4d8"
+          }
+        },
+        {
+          "client_id": "451930265347-8brop6cc2a6j21t3a6naekc5h9ph6pu7.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBLMk_0vrJ76fVzrBrNJNLjWlchFOQAUKU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "451930265347-8brop6cc2a6j21t3a6naekc5h9ph6pu7.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "451930265347-95ube2fp1eabrudi8hr5ck3m3b6pke9q.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.hrm.app"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:451930265347:android:7b9ab92b17081e27163b36",
+        "android_client_info": {
+          "package_name": "com.hrm.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "451930265347-auulvr2kf9e5d5jpie06n8o779jnt2a9.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.hrm.app",
+            "certificate_hash": "e68da8b739df476a9d90a5758a529f13f5cba4d8"
+          }
+        },
+        {
+          "client_id": "451930265347-nhe690818e5r269dgcb4h7tek4qud6io.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.hrm.app",
+            "certificate_hash": "edb5dbdbf9282f566dea2aa80c8bf5ca7a5a5220"
+          }
+        },
+        {
+          "client_id": "451930265347-thk18q9bsujlno879dh08fsapa7las4c.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.hrm.app",
+            "certificate_hash": "de1903cd1a20fb0838c903bfcfad415362f9eb0d"
+          }
+        },
+        {
+          "client_id": "451930265347-udar4fv44ta3bp5lkobob9kgbloumoao.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.hrm.app",
+            "certificate_hash": "cac99ba901caefa342a8e73dfa34487ba3861343"
+          }
+        },
+        {
+          "client_id": "451930265347-8brop6cc2a6j21t3a6naekc5h9ph6pu7.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBLMk_0vrJ76fVzrBrNJNLjWlchFOQAUKU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "451930265347-8brop6cc2a6j21t3a6naekc5h9ph6pu7.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "451930265347-95ube2fp1eabrudi8hr5ck3m3b6pke9q.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.hrm.app"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
