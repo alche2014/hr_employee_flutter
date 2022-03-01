@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:hr_app/Constants/constants.dart';
 import 'package:hr_app/UserprofileScreen.dart/Personal_Info/contact_info.dart';
 import 'package:hr_app/Constants/colors.dart';
-import 'package:hr_app/main.dart';
 
 class PersonalInfoCard extends StatefulWidget {
   // ignore: prefer_typing_uninitialized_variables

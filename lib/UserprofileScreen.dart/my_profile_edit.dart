@@ -41,38 +41,9 @@ class _MyProfileEditState extends State<MyProfileEdit> {
   var firebaseUser;
 
   String? userId;
-  Stream? stream;
   String? urlList;
 
   String? value;
-  int guest = 0;
-
-  loadData() async {
-    stream = null;
-
-    firebaseUser = await FirebaseAuth.instance.currentUser!;
-    userId = firebaseUser!.uid;
-
-    await FirebaseFirestore.instance
-        .collection("employees")
-        .where('uid', isEqualTo: firebaseUser.uid)
-        .get()
-        .then((value) {
-      guest = value.docs.length;
-    });
-    setState(() {});
-    stream = await load();
-  }
-
-  Future<Stream> load() async {
-    DocumentReference collectionReference = guest == 0
-        ? FirebaseFirestore.instance.collection('guest').doc(firebaseUser!.uid)
-        : FirebaseFirestore.instance
-            .collection('employees')
-            .doc(firebaseUser!.uid);
-    Stream<DocumentSnapshot> query = collectionReference.snapshots();
-    return query;
-  }
 
   @override
   void initState() {
@@ -93,8 +64,6 @@ class _MyProfileEditState extends State<MyProfileEdit> {
         });
       }
     });
-
-    loadData();
   }
 
   void showLoadingDialog(BuildContext context, String value) {
@@ -115,261 +84,253 @@ class _MyProfileEditState extends State<MyProfileEdit> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey.shade100,
-      body: stream == null
-          ? Center(child: CircularProgressIndicator())
-          : StreamBuilder<DocumentSnapshot>(
-              stream: guest == 0
-                  ? FirebaseFirestore.instance
-                      .collection("guests")
-                      .doc("$userId")
-                      .snapshots()
-                  : FirebaseFirestore.instance
-                      .collection("employees")
-                      .doc("$userId")
-                      .snapshots(),
-              builder: (context, AsyncSnapshot<DocumentSnapshot> snapshot) {
-                if (snapshot.hasError) {
-                  return Center(child: CircularProgressIndicator());
-                } else if (!snapshot.hasData) {
-                  return Center(child: CircularProgressIndicator());
-                }
+      body: StreamBuilder<DocumentSnapshot>(
+          stream: guest == 0
+              ? FirebaseFirestore.instance
+                  .collection("guests")
+                  .doc("$userId")
+                  .snapshots()
+              : FirebaseFirestore.instance
+                  .collection("employees")
+                  .doc("$userId")
+                  .snapshots(),
+          builder: (context, AsyncSnapshot<DocumentSnapshot> snapshot) {
+            if (snapshot.hasError) {
+              return Center(child: CircularProgressIndicator());
+            } else if (!snapshot.hasData) {
+              return Center(child: CircularProgressIndicator());
+            }
 
-                return Column(
-                  children: [
-                    UpperPortion(
-                        userId: userId, title: "Profile", showBack: true),
-                    SizedBox(
-                      width: MediaQuery.of(context).size.width - 40,
-                      height: MediaQuery.of(context).size.height - 250,
-                      child: SingleChildScrollView(
-                        child: Column(
-                          children: [
-                            ProfilePic(),
-                            Container(
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              margin: EdgeInsets.only(top: 10, bottom: 5),
-                              child: Theme(
-                                data: ThemeData(
-                                  dividerColor: Colors.transparent,
-                                ),
-                                child: ExpansionTile(
-                                    collapsedIconColor: Colors.black,
-                                    iconColor: Colors.black,
-                                    title: Row(
-                                      children: [
-                                        SizedBox(
-                                            height: 20,
-                                            child: Image.asset(
-                                                "assets/profile.png")),
-                                        Text(
-                                          "  Personal Info",
-                                          style: TextStyle(
-                                              fontSize: 16.0,
-                                              color: purpleDark,
-                                              fontWeight: FontWeight.bold),
-                                        )
-                                      ],
-                                    ),
-                                    children: [
-                                      AboutCard(data: snapshot.data!.data()),
-                                      closing(),
-                                      KinCard(data: snapshot.data!.data()),
-                                      closing(),
-                                      Padding(
-                                        padding: EdgeInsets.symmetric(
-                                            horizontal: 25, vertical: 10),
-                                        child: Column(
-                                          mainAxisSize: MainAxisSize.min,
-                                          children: [
-                                            Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment
-                                                      .spaceBetween,
-                                              children: [
-                                                Text(
-                                                  'Emergency Contact',
-                                                  style: TextStyle(
-                                                    color: kPrimaryColor,
-                                                    fontWeight: FontWeight.bold,
-                                                    fontSize: 14,
-                                                  ),
-                                                ),
-                                                InkWell(
-                                                    child: Container(
-                                                        width: 50,
-                                                        height: 30,
-                                                        alignment: Alignment
-                                                            .centerRight,
-                                                        child: const Text(
-                                                            'Edit',
-                                                            style: TextStyle(
-                                                                color:
-                                                                    kPrimaryColor,
-                                                                fontSize: 13,
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .w400))),
-                                                    onTap: () {
-                                                      Navigator.of(context).push(
-                                                          MaterialPageRoute(
-                                                              builder: (context) =>
-                                                                  Dependent(
-                                                                      dependent: snapshot
-                                                                          .data!
-                                                                          .data())));
-                                                    }),
-                                              ],
-                                            ),
-                                            //------------Body----------
-                                            dependent(snapshot.data!.data())
-                                          ],
-                                        ),
-                                      ),
-                                      closing(),
-                                      DependentsCard(
-                                          data: snapshot.data!.data()),
-                                      closing(),
-                                      PersonalInfoCard(
-                                          data: snapshot.data!.data()),
-                                    ]),
-                              ),
+            return Column(
+              children: [
+                UpperPortion(userId: userId, title: "Profile", showBack: true),
+                SizedBox(
+                  width: MediaQuery.of(context).size.width - 40,
+                  height: MediaQuery.of(context).size.height - 250,
+                  child: SingleChildScrollView(
+                    child: Column(
+                      children: [
+                        ProfilePic(),
+                        Container(
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          margin: EdgeInsets.only(top: 10, bottom: 5),
+                          child: Theme(
+                            data: ThemeData(
+                              dividerColor: Colors.transparent,
                             ),
-                            Container(
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              margin: EdgeInsets.only(top: 10, bottom: 5),
-                              child: Theme(
-                                data: ThemeData(
-                                  dividerColor: Colors.transparent,
-                                ),
-                                child: ExpansionTile(
-                                  collapsedIconColor: Colors.black,
-                                  iconColor: Colors.black,
-                                  title: Row(
-                                    children: [
-                                      SizedBox(
-                                          height: 20,
-                                          child: Image.asset(
-                                              "assets/personal.png")),
-                                      Text(
-                                        "  Profile Info",
-                                        style: TextStyle(
-                                            color: purpleDark,
-                                            fontSize: 16.0,
-                                            fontWeight: FontWeight.bold),
-                                      )
-                                    ],
-                                  ),
+                            child: ExpansionTile(
+                                collapsedIconColor: Colors.black,
+                                iconColor: Colors.black,
+                                title: Row(
                                   children: [
-                                    EducationCard(data: snapshot.data!.data()),
-                                    closing(),
-                                    ExperienceCard(data: snapshot.data!.data()),
-                                    closing(),
-                                    LicencesCard(data: snapshot.data!.data()),
-                                    closing(),
-                                    TrainingsCard(data: snapshot.data!.data()),
-                                    closing(),
-                                    SkillsCard(data: snapshot.data!.data()),
+                                    SizedBox(
+                                        height: 20,
+                                        child:
+                                            Image.asset("assets/profile.png")),
+                                    Text(
+                                      "  Personal Info",
+                                      style: TextStyle(
+                                          fontSize: 16.0,
+                                          color: purpleDark,
+                                          fontWeight: FontWeight.bold),
+                                    )
                                   ],
                                 ),
-                              ),
-                            ),
-                            Container(
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              margin: EdgeInsets.only(top: 10, bottom: 5),
-                              child: Theme(
-                                data: ThemeData(
-                                  dividerColor: Colors.transparent,
-                                ),
-                                child: ExpansionTile(
-                                    collapsedIconColor: Colors.black,
-                                    iconColor: Colors.black,
-                                    title: Row(
+                                children: [
+                                  AboutCard(data: snapshot.data!.data()),
+                                  closing(),
+                                  KinCard(data: snapshot.data!.data()),
+                                  closing(),
+                                  Padding(
+                                    padding: EdgeInsets.symmetric(
+                                        horizontal: 25, vertical: 10),
+                                    child: Column(
+                                      mainAxisSize: MainAxisSize.min,
                                       children: [
-                                        SizedBox(
-                                            height: 20,
-                                            child: Image.asset(
-                                                "assets/employment.png")),
-                                        Text(
-                                          "  Employment Info",
-                                          style: TextStyle(
-                                              color: purpleDark,
-                                              fontSize: 16.0,
-                                              fontWeight: FontWeight.bold),
-                                        )
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Text(
+                                              'Emergency Contact',
+                                              style: TextStyle(
+                                                color: kPrimaryColor,
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 14,
+                                              ),
+                                            ),
+                                            InkWell(
+                                                child: Container(
+                                                    width: 50,
+                                                    height: 30,
+                                                    alignment:
+                                                        Alignment.centerRight,
+                                                    child: const Text('Edit',
+                                                        style: TextStyle(
+                                                            color:
+                                                                kPrimaryColor,
+                                                            fontSize: 13,
+                                                            fontWeight:
+                                                                FontWeight
+                                                                    .w400))),
+                                                onTap: () {
+                                                  Navigator.of(context).push(
+                                                      MaterialPageRoute(
+                                                          builder: (context) =>
+                                                              Dependent(
+                                                                  dependent:
+                                                                      snapshot
+                                                                          .data!
+                                                                          .data())));
+                                                }),
+                                          ],
+                                        ),
+                                        //------------Body----------
+                                        dependent(snapshot.data!.data())
                                       ],
                                     ),
-                                    children: [
-                                      guest == 0
-                                          ? Container()
-                                          : WorkInfoCard(
-                                              data: snapshot.data!.data()),
-                                      closing(),
-                                      AccountInfoCard(
-                                          data: snapshot.data!.data())
-                                    ]),
-                              ),
+                                  ),
+                                  closing(),
+                                  DependentsCard(data: snapshot.data!.data()),
+                                  closing(),
+                                  PersonalInfoCard(data: snapshot.data!.data()),
+                                ]),
+                          ),
+                        ),
+                        Container(
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          margin: EdgeInsets.only(top: 10, bottom: 5),
+                          child: Theme(
+                            data: ThemeData(
+                              dividerColor: Colors.transparent,
                             ),
-                            guest != 0
-                                ? Container()
-                                : Container(
-                                    alignment: Alignment.centerLeft,
-                                    child: TextButton.icon(
-                                      onPressed: () {
-                                        showDialog(
-                                          context: context,
-                                          barrierDismissible:
-                                              false, // user must tap button for close dialog!
-                                          builder: (BuildContext context) {
-                                            return CupertinoAlertDialog(
-                                              title: Text('Quit'),
-                                              content: const Text(
-                                                  'Are you sure you want to LOGOUT?'),
-                                              actions: <Widget>[
-                                                FlatButton(
-                                                  child: const Text('No'),
-                                                  onPressed: () {
-                                                    Navigator.of(context).pop();
-                                                  },
-                                                ),
-                                                FlatButton(
-                                                  child: const Text('Yes'),
-                                                  onPressed: () {
-                                                    AuthService()
-                                                        .signOut(context);
-                                                  },
-                                                )
-                                              ],
-                                            );
-                                          },
+                            child: ExpansionTile(
+                              collapsedIconColor: Colors.black,
+                              iconColor: Colors.black,
+                              title: Row(
+                                children: [
+                                  SizedBox(
+                                      height: 20,
+                                      child:
+                                          Image.asset("assets/personal.png")),
+                                  Text(
+                                    "  Profile Info",
+                                    style: TextStyle(
+                                        color: purpleDark,
+                                        fontSize: 16.0,
+                                        fontWeight: FontWeight.bold),
+                                  )
+                                ],
+                              ),
+                              children: [
+                                EducationCard(data: snapshot.data!.data()),
+                                closing(),
+                                ExperienceCard(data: snapshot.data!.data()),
+                                closing(),
+                                LicencesCard(data: snapshot.data!.data()),
+                                closing(),
+                                TrainingsCard(data: snapshot.data!.data()),
+                                closing(),
+                                SkillsCard(data: snapshot.data!.data()),
+                              ],
+                            ),
+                          ),
+                        ),
+                        Container(
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          margin: EdgeInsets.only(top: 10, bottom: 5),
+                          child: Theme(
+                            data: ThemeData(
+                              dividerColor: Colors.transparent,
+                            ),
+                            child: ExpansionTile(
+                                collapsedIconColor: Colors.black,
+                                iconColor: Colors.black,
+                                title: Row(
+                                  children: [
+                                    SizedBox(
+                                        height: 20,
+                                        child: Image.asset(
+                                            "assets/employment.png")),
+                                    Text(
+                                      "  Employment Info",
+                                      style: TextStyle(
+                                          color: purpleDark,
+                                          fontSize: 16.0,
+                                          fontWeight: FontWeight.bold),
+                                    )
+                                  ],
+                                ),
+                                children: [
+                                  guest == 0
+                                      ? Container()
+                                      : WorkInfoCard(
+                                          data: snapshot.data!.data()),
+                                  closing(),
+                                  AccountInfoCard(data: snapshot.data!.data())
+                                ]),
+                          ),
+                        ),
+                        guest != 0
+                            ? Container()
+                            : Container(
+                                alignment: Alignment.centerLeft,
+                                child: TextButton.icon(
+                                  onPressed: () {
+                                    showDialog(
+                                      context: context,
+                                      barrierDismissible:
+                                          false, // user must tap button for close dialog!
+                                      builder: (BuildContext context) {
+                                        return CupertinoAlertDialog(
+                                          title: Text('Quit'),
+                                          content: const Text(
+                                              'Are you sure you want to LOGOUT?'),
+                                          actions: <Widget>[
+                                            FlatButton(
+                                              child: const Text('No'),
+                                              onPressed: () {
+                                                Navigator.of(context).pop();
+                                              },
+                                            ),
+                                            FlatButton(
+                                              child: const Text('Yes'),
+                                              onPressed: () {
+                                                AuthService().signOut(context);
+                                              },
+                                            )
+                                          ],
                                         );
                                       },
-                                      icon: Icon(Icons.logout,
+                                    );
+                                  },
+                                  icon: Icon(Icons.logout,
+                                      color: isdarkmode.value == false
+                                          ? const Color(0xff34354A)
+                                          : Colors.grey[500]),
+                                  label: Text('Log Out',
+                                      style: TextStyle(
                                           color: isdarkmode.value == false
                                               ? const Color(0xff34354A)
-                                              : Colors.grey[500]),
-                                      label: Text('Log Out',
-                                          style: TextStyle(
-                                              color: isdarkmode.value == false
-                                                  ? const Color(0xff34354A)
-                                                  : Colors.grey[500])),
-                                    ),
-                                  ),
-                          ],
-                        ),
-                      ),
+                                              : Colors.grey[500])),
+                                ),
+                              ),
+                      ],
                     ),
-                  ],
-                );
-              }),
+                  ),
+                ),
+              ],
+            );
+          }),
     );
   }
 

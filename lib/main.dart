@@ -11,6 +11,7 @@ import 'package:hr_app/UserprofileScreen.dart/first_time_form.dart';
 import 'package:hr_app/UserprofileScreen.dart/my_profile_edit.dart';
 import 'package:hr_app/mainApp/Login/auth_provider.dart';
 import 'package:hr_app/Constants/theme.dart';
+import 'package:pigeon/pigeon.dart';
 import 'Constants/constants.dart';
 import 'MainApp/bottom_nav_bar.dart';
 import 'mainApp/Login/auth.dart';
@@ -65,6 +66,7 @@ late String token;
 String empName = '';
 String empEmail = '';
 String? empId;
+int guest = 0;
 
 int? weekend;
 
@@ -192,30 +194,41 @@ class _SplashState extends State<Splash> {
 
     if (_result) {
       await FirebaseFirestore.instance
-          .collection('employees')
-          .doc(firebaseUser!.uid)
-          .snapshots()
-          .listen((onValue) {
-        uid = firebaseUser!.uid;
-        locationId = onValue.data()!["locationId"];
-        shiftId = onValue.data()!["shiftId"];
-        companyId = onValue.data()!["companyId"];
-        reportingTo = onValue.data()!['reportingToId'];
-        imagePath = onValue.data()!['imagePath'];
-        empName = onValue.data()!['displayName'];
-        empEmail = onValue.data()!['email'];
-        empId = onValue.data()!['empId'];
-        leaveData = onValue.data()!['leaves'] ?? [];
-        joiningDate = onValue.data()!['joiningDate'] ?? "";
-        department = onValue.data()!['department'] ?? "";
-        designation = onValue.data()!['designation'] ?? "";
+          .collection("employees")
+          .where('uid', isEqualTo: firebaseUser!.uid)
+          .get()
+          .then((value) {
+        guest = value.docs.length;
+      }).then((value) {
+        if (guest == 1) {
+          FirebaseFirestore.instance
+              .collection('employees')
+              .doc(firebaseUser!.uid)
+              .snapshots()
+              .listen((onValue) {
+            uid = firebaseUser!.uid;
+            locationId = onValue.data()!["locationId"];
+            shiftId = onValue.data()!["shiftId"];
+            companyId = onValue.data()!["companyId"];
+            reportingTo = onValue.data()!['reportingToId'];
+            imagePath = onValue.data()!['imagePath'];
+            empName = onValue.data()!['displayName'];
+            empEmail = onValue.data()!['email'];
+            empId = onValue.data()!['empId'];
+            leaveData = onValue.data()!['leaves'] ?? [];
+            joiningDate = onValue.data()!['joiningDate'] ?? "";
+            department = onValue.data()!['department'] ?? "";
+            designation = onValue.data()!['designation'] ?? "";
 
-        Future.delayed(const Duration(milliseconds: 150), () {
-          if (shiftId != null) {
-            // _getShiftSchedule();
-          }
-        });
+            Future.delayed(const Duration(milliseconds: 150), () {
+              if (shiftId != null) {
+                // _getShiftSchedule();
+              }
+            });
+          });
+        }
       });
+
       //  checking user exists or not
       final user = FirebaseAuth.instance.currentUser!;
       bool _com = await AuthService().userExist(user);

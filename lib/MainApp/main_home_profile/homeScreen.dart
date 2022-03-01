@@ -365,9 +365,9 @@ class _MainHomeProfileState extends State<MainHomeProfile>
     loadFirebaseUser();
     determinePosition();
 
-    notification5_50();
     notification8_50();
     notification9_10();
+    notification5_50();
     notification6_10();
 
     // timer = Timer.periodic(
@@ -461,10 +461,14 @@ class _MainHomeProfileState extends State<MainHomeProfile>
 
   tz.TZDateTime _nextInstanceOf8_50() {
     final tz.TZDateTime now = tz.TZDateTime.now(tz.local);
-    tz.TZDateTime scheduledDate = tz.TZDateTime(tz.local, now.year, now.month,
-        now.weekday == 6 || now.weekday == 7 ? now.day + 1 : now.day, 03, 50);
-    if (scheduledDate.isBefore(now)) {
-      scheduledDate = scheduledDate.add(const Duration(days: 1));
+    tz.TZDateTime scheduledDate = tz.TZDateTime(tz.local, now.year);
+
+    if (now.weekday != 3) {
+      scheduledDate =
+          tz.TZDateTime(tz.local, now.year, now.month, now.day, 03, 50);
+      if (scheduledDate.isBefore(now)) {
+        scheduledDate = scheduledDate.add(const Duration(days: 1));
+      }
     }
     return scheduledDate;
   }
@@ -488,10 +492,14 @@ class _MainHomeProfileState extends State<MainHomeProfile>
 
   tz.TZDateTime _nextInstanceOf9_10() {
     final tz.TZDateTime now = tz.TZDateTime.now(tz.local);
-    tz.TZDateTime scheduledDate = tz.TZDateTime(tz.local, now.year, now.month,
-        now.weekday == 6 || now.weekday == 7 ? now.day + 1 : now.day, 04, 10);
-    if (scheduledDate.isBefore(now)) {
-      scheduledDate = scheduledDate.add(const Duration(days: 1));
+    tz.TZDateTime scheduledDate = tz.TZDateTime(tz.local, now.year);
+
+    if (now.weekday == 3) {
+      scheduledDate =
+          tz.TZDateTime(tz.local, now.year, now.month, now.day, 04, 10);
+      if (scheduledDate.isBefore(now)) {
+        scheduledDate = scheduledDate.add(const Duration(days: 1));
+      }
     }
     return scheduledDate;
   }
@@ -515,10 +523,14 @@ class _MainHomeProfileState extends State<MainHomeProfile>
 
   tz.TZDateTime _nextInstanceOf5_50() {
     final tz.TZDateTime now = tz.TZDateTime.now(tz.local);
-    tz.TZDateTime scheduledDate = tz.TZDateTime(tz.local, now.year, now.month,
-        now.weekday == 6 || now.weekday == 7 ? now.day + 1 : now.day, 12, 50);
-    if (scheduledDate.isBefore(now)) {
-      scheduledDate = scheduledDate.add(const Duration(days: 1));
+    tz.TZDateTime scheduledDate = tz.TZDateTime(tz.local, now.year);
+
+    if (now.weekday == 2 || now.weekday != 3) {
+      scheduledDate =
+          tz.TZDateTime(tz.local, now.year, now.month, now.day, 12, 50);
+      if (scheduledDate.isBefore(now)) {
+        scheduledDate = scheduledDate.add(const Duration(days: 1));
+      }
     }
     return scheduledDate;
   }
@@ -542,10 +554,14 @@ class _MainHomeProfileState extends State<MainHomeProfile>
 
   tz.TZDateTime _nextInstanceOf6_10() {
     final tz.TZDateTime now = tz.TZDateTime.now(tz.local);
-    tz.TZDateTime scheduledDate = tz.TZDateTime(tz.local, now.year, now.month,
-        now.weekday == 6 || now.weekday == 7 ? now.day + 1 : now.day, 13, 10);
-    if (scheduledDate.isBefore(now)) {
-      scheduledDate = scheduledDate.add(const Duration(days: 1));
+    tz.TZDateTime scheduledDate = tz.TZDateTime(tz.local, now.year);
+
+    if (now.weekday != 2 || now.weekday == 3) {
+      scheduledDate =
+          tz.TZDateTime(tz.local, now.year, now.month, now.day, 13, 10);
+      if (scheduledDate.isBefore(now)) {
+        scheduledDate = scheduledDate.add(const Duration(days: 1));
+      }
     }
     return scheduledDate;
   }
@@ -764,9 +780,14 @@ class _MainHomeProfileState extends State<MainHomeProfile>
                           const SizedBox(height: 10),
                           InkWell(
                               onTap: () {
-                                var abc = FieldValue.serverTimestamp();
-
-                                print(abc);
+                                final tz.TZDateTime now =
+                                    tz.TZDateTime.now(tz.local);
+                                tz.TZDateTime scheduledDate = now.weekday != 2
+                                    ? tz.TZDateTime(tz.local, now.year,
+                                        now.month, now.day, 06, 27)
+                                    : tz.TZDateTime(
+                                        tz.local, now.year, now.month);
+                                print(scheduledDate.isAfter(now).toString());
                               },
                               child: Text(empName,
                                   style: const TextStyle(
@@ -1648,7 +1669,7 @@ class _MainHomeProfileState extends State<MainHomeProfile>
         trailing: show
             ? Text("")
             : TextButton(
-                onPressed: () async {
+                onPressed: () {
                   if (head == "Team Members") {
                     Navigator.push(
                         context,

@@ -7,7 +7,6 @@ import 'package:file_picker/file_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:country_code_picker/country_code_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_masked_text/flutter_masked_text.dart';
@@ -385,16 +384,12 @@ class _ContactInfoState extends State<ContactInfo> {
                                             ? _image == null
                                                 ? Image.network(
                                                     'https://via.placeholder.com/150')
-                                                : Image.file(
-                                                    _image!,
-                                                    fit: BoxFit.cover,
-                                                  )
+                                                : Image.file(_image!,
+                                                    fit: BoxFit.cover)
                                             : Image.network(imagePath!,
                                                 fit: BoxFit.cover)
-                                        : Image.file(
-                                            _image!,
-                                            fit: BoxFit.cover,
-                                          ))),
+                                        : Image.file(_image!,
+                                            fit: BoxFit.cover))),
                           ),
                           Positioned(
                             left: 80,
