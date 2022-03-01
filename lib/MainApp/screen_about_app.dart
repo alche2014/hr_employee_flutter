@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
-import 'package:hr_app/Constants/appbar.dart';
+import 'package:hr_app/UserprofileScreen.dart/appbar.dart';
 
 class AboutApp extends StatefulWidget {
   const AboutApp({Key? key}) : super(key: key);
@@ -16,8 +16,8 @@ class _AboutAppState extends State<AboutApp> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        extendBodyBehindAppBar: true,
-        appBar: buildMyAppBar(context, 'About', true),
+        backgroundColor: Colors.grey.shade100,
+        appBar: buildMyAppBar(context, 'Trainings', false),
         body: Stack(children: [
           Container(
             padding: Platform.isIOS

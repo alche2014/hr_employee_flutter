@@ -2,8 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:hr_app/Constants/appbar.dart';
-
+import 'package:hr_app/UserprofileScreen.dart/appbar.dart';
 import 'package:hr_app/main.dart';
 import 'package:hr_app/mainApp/annoucment_screen.dart';
 import 'package:hr_app/mainApp/main_home_profile/leave_approval.dart';
@@ -91,7 +90,7 @@ class _NotificationsState extends State<Notifications> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        extendBodyBehindAppBar: true,
+        backgroundColor: Colors.grey.shade100,
         appBar: buildMyAppBar(context, 'Notifications', false),
         body: Stack(children: [
           Container(
@@ -154,7 +153,6 @@ class _NotificationsState extends State<Notifications> {
                                                         horizontal: 20,
                                                         vertical: 10),
                                                 child: Material(
-                                                  elevation: 3,
                                                   borderRadius:
                                                       BorderRadius.circular(10),
                                                   color: isdarkmode.value !=

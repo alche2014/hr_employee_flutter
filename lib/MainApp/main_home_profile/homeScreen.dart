@@ -17,9 +17,9 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:hr_app/Constants/colors.dart';
+import 'package:hr_app/MainApp/HomeScreen.dart';
 import 'package:hr_app/MainApp/main_home_profile/announCard.dart';
 import 'package:hr_app/MainApp/main_home_profile/leaveCard.dart';
-import 'package:hr_app/MainApp/main_home_profile/screen_announcement.dart';
 import 'package:hr_app/main.dart';
 import 'package:hr_app/mainApp/annoucment_screen.dart';
 import 'package:hr_app/mainApp/CheckIn/team_check_in.dart';
@@ -93,7 +93,7 @@ class _MainHomeProfileState extends State<MainHomeProfile>
     with TickerProviderStateMixin {
   ///----------------Notfications End---------------//
   var totalemployee = 13;
-  String joiningDate = '';
+  // String joiningDate = '';
   var ontime = 10;
   var lates = 3;
   var absent = 0;
@@ -105,7 +105,7 @@ class _MainHomeProfileState extends State<MainHomeProfile>
   late String buttonText = "CHECK IN";
   late Position _currentPosition;
   double? currentLat;
-  String yourAddress = "Location";
+  // String yourAddress = "Location";
   double? currentLng;
   String? userId;
   String? locationId;
@@ -125,8 +125,8 @@ class _MainHomeProfileState extends State<MainHomeProfile>
   late String from;
   late String shiftName;
   late String token;
-  String empName = '';
-  String empEmail = '';
+  // String empName = '';
+  // String empEmail = '';
   String uid = '';
   int? weekend;
   var weekendDefi;
@@ -137,10 +137,10 @@ class _MainHomeProfileState extends State<MainHomeProfile>
   late Stream? stream;
   String? name = '';
   String? role;
-  List leaveData = [];
+  // List leaveData = [];
   List<dynamic> leaveType = [];
   late String reportingTo;
-  String imagePath = '';
+  // String imagePath = '';
   File? image;
   DocumentReference? documentReference;
   bool announData = false;
@@ -685,11 +685,11 @@ class _MainHomeProfileState extends State<MainHomeProfile>
       shiftId = onValue.data()!["shiftId"];
       companyId = onValue.data()!["companyId"];
       reportingTo = onValue.data()!['reportingToId'];
-      imagePath = onValue.data()!['imagePath'];
-      empName = onValue.data()!['displayName'];
-      empEmail = onValue.data()!['email'];
-      leaveData = onValue.data()!['leaves'] ?? [];
-      joiningDate = onValue.data()!['joiningDate'] ?? "";
+      // imagePath = onValue.data()!['imagePath'];
+      // empName = onValue.data()!['displayName'];
+      // empEmail = onValue.data()!['email'];
+      // leaveData = onValue.data()!['leaves'] ?? [];
+      // joiningDate = onValue.data()!['joiningDate'] ?? "";
 
       Future.delayed(const Duration(milliseconds: 150), () {
         if (shiftId != null) {
@@ -1659,7 +1659,7 @@ class _MainHomeProfileState extends State<MainHomeProfile>
                     Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => const Announcements()));
+                            builder: (context) => const HrDashboard()));
                   } else if (head == "Leaves") {
                     Navigator.push(
                         context,

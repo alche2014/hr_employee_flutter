@@ -41,9 +41,7 @@ class _MyProfileEditState extends State<MyProfileEdit> {
   var firebaseUser;
 
   String? userId;
-
   Stream? stream;
-
   String? urlList;
 
   String? value;
@@ -138,14 +136,15 @@ class _MyProfileEditState extends State<MyProfileEdit> {
 
                 return Column(
                   children: [
-                    UpperPortion(data: snapshot.data!.data(), userId: userId),
-                    Container(
+                    UpperPortion(
+                        userId: userId, title: "Profile", showBack: true),
+                    SizedBox(
                       width: MediaQuery.of(context).size.width - 40,
                       height: MediaQuery.of(context).size.height - 250,
                       child: SingleChildScrollView(
                         child: Column(
                           children: [
-                            ProfilePic(data: snapshot.data!.data()),
+                            ProfilePic(),
                             Container(
                               decoration: BoxDecoration(
                                 color: Colors.white,
@@ -160,8 +159,11 @@ class _MyProfileEditState extends State<MyProfileEdit> {
                                     collapsedIconColor: Colors.black,
                                     iconColor: Colors.black,
                                     title: Row(
-                                      children: const [
-                                        Icon(Icons.person, color: purpleDark),
+                                      children: [
+                                        SizedBox(
+                                            height: 20,
+                                            child: Image.asset(
+                                                "assets/profile.png")),
                                         Text(
                                           "  Personal Info",
                                           style: TextStyle(
@@ -246,9 +248,14 @@ class _MyProfileEditState extends State<MyProfileEdit> {
                                   dividerColor: Colors.transparent,
                                 ),
                                 child: ExpansionTile(
+                                  collapsedIconColor: Colors.black,
+                                  iconColor: Colors.black,
                                   title: Row(
-                                    children: const [
-                                      Icon(Icons.person, color: purpleDark),
+                                    children: [
+                                      SizedBox(
+                                          height: 20,
+                                          child: Image.asset(
+                                              "assets/personal.png")),
                                       Text(
                                         "  Profile Info",
                                         style: TextStyle(
@@ -283,9 +290,14 @@ class _MyProfileEditState extends State<MyProfileEdit> {
                                   dividerColor: Colors.transparent,
                                 ),
                                 child: ExpansionTile(
+                                    collapsedIconColor: Colors.black,
+                                    iconColor: Colors.black,
                                     title: Row(
-                                      children: const [
-                                        Icon(Icons.person, color: purpleDark),
+                                      children: [
+                                        SizedBox(
+                                            height: 20,
+                                            child: Image.asset(
+                                                "assets/employment.png")),
                                         Text(
                                           "  Employment Info",
                                           style: TextStyle(
@@ -478,8 +490,9 @@ class _MyProfileEditState extends State<MyProfileEdit> {
 }
 
 class UpperPortion extends StatelessWidget {
-  final data, userId;
-  const UpperPortion({Key? key, this.data, this.userId}) : super(key: key);
+  final userId, title, showBack;
+  const UpperPortion({Key? key, this.userId, this.title, this.showBack})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -501,20 +514,23 @@ class UpperPortion extends StatelessWidget {
                             Flexible(child: SizedBox(width: 20)),
                             Flexible(
                               child: Icon(Icons.arrow_back_ios_new,
-                                  color: Colors.white, size: 17),
+                                  color: showBack
+                                      ? Colors.white
+                                      : Colors.transparent,
+                                  size: 19),
                             ),
                             Flexible(
-                              flex: 2,
+                              flex: 3,
                               child: Text(
-                                "  Profile",
+                                "  $title",
                                 style: TextStyle(
                                     fontFamily: "Poppins",
                                     color: Colors.white,
-                                    fontSize: 17,
+                                    fontSize: 18,
                                     fontWeight: FontWeight.w500),
                               ),
                             ),
-                            Expanded(flex: 6, child: Text("")),
+                            Expanded(flex: 7, child: Text("")),
                             Expanded(
                               flex: 1,
                               child: InkWell(
@@ -525,7 +541,7 @@ class UpperPortion extends StatelessWidget {
                                               uid: userId, key: null)));
                                 },
                                 child: Icon(Icons.notifications,
-                                    color: Colors.white, size: 20),
+                                    color: Colors.white, size: 22),
                               ),
                             ),
                           ])),
@@ -560,14 +576,13 @@ class UpperPortion extends StatelessWidget {
                 child: Container(
                     decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        image:
-                            data['imagePath'] == null || data['imagePath'] == ""
-                                ? DecorationImage(
-                                    image: NetworkImage(
-                                        'https://via.placeholder.com/150'))
-                                : DecorationImage(
-                                    image: NetworkImage(data["imagePath"]),
-                                    fit: BoxFit.fill))),
+                        image: imagePath == null || imagePath == ""
+                            ? DecorationImage(
+                                image: NetworkImage(
+                                    'https://via.placeholder.com/150'))
+                            : DecorationImage(
+                                image: NetworkImage(imagePath),
+                                fit: BoxFit.fill))),
                 decoration:
                     BoxDecoration(shape: BoxShape.circle, color: Colors.white),
                 padding: EdgeInsets.all(4),
@@ -581,8 +596,7 @@ class UpperPortion extends StatelessWidget {
 //====================================================//
 
 class ProfilePic extends StatefulWidget {
-  final data;
-  ProfilePic({Key? key, this.data}) : super(key: key);
+  ProfilePic({Key? key}) : super(key: key);
 
   @override
   State<ProfilePic> createState() => _ProfilePicState();
@@ -604,7 +618,7 @@ class _ProfilePicState extends State<ProfilePic> {
               child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(widget.data['displayName'] ?? "Name Here",
+                    Text(empName,
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
                             fontFamily: "Poppins",
@@ -621,7 +635,7 @@ class _ProfilePicState extends State<ProfilePic> {
                                 fontWeight: FontWeight.w400,
                                 color: Colors.grey.shade600,
                                 fontSize: 14)),
-                        Text(widget.data['empId'] ?? " Nill",
+                        Text(empId ?? " Nill",
                             overflow: TextOverflow.ellipsis,
                             style: TextStyle(
                                 fontWeight: FontWeight.w400,
@@ -631,7 +645,7 @@ class _ProfilePicState extends State<ProfilePic> {
                       ],
                     ),
                     SizedBox(height: 5),
-                    Text(widget.data['department'] ?? "Department: Nill",
+                    Text(department ?? "Department: Nill",
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
                           color: Colors.grey.shade600,
@@ -640,7 +654,7 @@ class _ProfilePicState extends State<ProfilePic> {
                           fontWeight: FontWeight.w400,
                         )),
                     SizedBox(height: 5),
-                    Text(widget.data['designation'] ?? "Designation: Nill",
+                    Text(designation ?? "Designation: Nill",
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
                           color: Colors.grey.shade600,

@@ -1,10 +1,12 @@
 import 'dart:async';
+import 'dart:io';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:connectivity/connectivity.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:hr_app/Constants/colors.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:hr_app/UserprofileScreen.dart/first_time_form.dart';
 import 'package:hr_app/UserprofileScreen.dart/my_profile_edit.dart';
 import 'package:hr_app/mainApp/Login/auth_provider.dart';
@@ -13,14 +15,74 @@ import 'Constants/constants.dart';
 import 'MainApp/bottom_nav_bar.dart';
 import 'mainApp/Login/auth.dart';
 import 'package:timezone/data/latest.dart' as tz;
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:timezone/timezone.dart' as tz;
 import 'mainApp/Login/google_login.dart';
+import 'package:firebase_auth/firebase_auth.dart' as auth;
+
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 
 // Toggle this to cause an async error to be thrown during initialization
 // and to test that runZonedGuarded() catches the error
 const _kShouldTestAsyncErrorOnInit = false;
+auth.User? firebaseUser = auth.FirebaseAuth.instance.currentUser;
+
+var totalemployee = 13;
+String joiningDate = '';
+var ontime = 10;
+var lates = 3;
+var absent = 0;
+late Connectivity connectivity;
+late StreamSubscription<ConnectivityResult> subscription;
+late bool isNetwork = true;
+
+late AnimationController controller;
+late String buttonText = "CHECK IN";
+late Position _currentPosition;
+double? currentLat;
+String yourAddress = "Location";
+double? currentLng;
+String? userId;
+String? locationId;
+String? shiftId;
+double? officeLat;
+double? officeLng;
+String? companyId;
+String? location;
+String? designation;
+String? department;
+String? uid;
+late int hours = 00;
+late int minutes = 00;
+late int seconds = 00;
+late Timestamp checkinTime;
+
+late String docId;
+late Timer timer;
+// ScheduleController controllers;
+late String to;
+late String from;
+late String shiftName;
+late String token;
+String empName = '';
+String empEmail = '';
+String? empId;
+
+int? weekend;
+
+var weekendDefi;
+double _hr = 0;
+double _minute = 0;
+String lateTime = "0 hrs & 0 mins";
+late ScrollController con;
+late Stream? stream;
+String? name = '';
+String? role;
+List leaveData = [];
+List<dynamic> leaveType = [];
+late String reportingTo;
+String imagePath = '';
+File? image;
+DocumentReference? documentReference;
+bool announData = false;
 
 // Toggle this for testing Crashlytics in your app locally.
 const _kTestingCrashlytics = true;
@@ -129,6 +191,31 @@ class _SplashState extends State<Splash> {
     // final User? user = await _auth.currentUser;
 
     if (_result) {
+      await FirebaseFirestore.instance
+          .collection('employees')
+          .doc(firebaseUser!.uid)
+          .snapshots()
+          .listen((onValue) {
+        uid = firebaseUser!.uid;
+        locationId = onValue.data()!["locationId"];
+        shiftId = onValue.data()!["shiftId"];
+        companyId = onValue.data()!["companyId"];
+        reportingTo = onValue.data()!['reportingToId'];
+        imagePath = onValue.data()!['imagePath'];
+        empName = onValue.data()!['displayName'];
+        empEmail = onValue.data()!['email'];
+        empId = onValue.data()!['empId'];
+        leaveData = onValue.data()!['leaves'] ?? [];
+        joiningDate = onValue.data()!['joiningDate'] ?? "";
+        department = onValue.data()!['department'] ?? "";
+        designation = onValue.data()!['designation'] ?? "";
+
+        Future.delayed(const Duration(milliseconds: 150), () {
+          if (shiftId != null) {
+            // _getShiftSchedule();
+          }
+        });
+      });
       //  checking user exists or not
       final user = FirebaseAuth.instance.currentUser!;
       bool _com = await AuthService().userExist(user);

@@ -5,7 +5,7 @@ import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
-import 'package:hr_app/Constants/appbar.dart';
+import 'package:hr_app/UserprofileScreen.dart/appbar.dart';
 
 class PrivacyApp extends StatefulWidget {
   const PrivacyApp({Key? key}) : super(key: key);
@@ -18,8 +18,8 @@ class _PrivacyAppState extends State<PrivacyApp> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        extendBodyBehindAppBar: true,
-        appBar: buildMyAppBar(context, 'Privacy', true),
+        backgroundColor: Colors.grey.shade100,
+        appBar: buildMyAppBar(context, 'Privacy', false),
         body: Stack(children: [
           Container(
               padding: Platform.isIOS
