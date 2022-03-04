@@ -5,13 +5,13 @@ import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
-import 'package:connectivity/connectivity.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_offline/flutter_offline.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:hr_app/Constants/colors.dart';
 import 'package:hr_app/Constants/loadingDailog.dart';
+import 'package:connectivity/connectivity.dart' as conT;
 
 import 'package:hr_app/UserprofileScreen.dart/appbar.dart';
 
@@ -27,8 +27,8 @@ class LeaveApprovalScreen extends StatefulWidget {
 }
 
 class _LeaveApprovalScreenState extends State<LeaveApprovalScreen> {
-  Connectivity? connectivity;
-  StreamSubscription<ConnectivityResult>? subscription;
+  conT.Connectivity? connectivity;
+  StreamSubscription<conT.ConnectivityResult>? subscription;
   bool isNetwork = true;
   List<int> selectHalfRadioTile = [];
   List<int> selectedRadioTile = [];
@@ -48,15 +48,15 @@ class _LeaveApprovalScreenState extends State<LeaveApprovalScreen> {
   void initState() {
     super.initState();
     //check internet connection
-    connectivity = Connectivity();
-    subscription =
-        connectivity!.onConnectivityChanged.listen((ConnectivityResult result) {
-      if (result == ConnectivityResult.none) {
+    connectivity = conT.Connectivity();
+    subscription = connectivity!.onConnectivityChanged
+        .listen((conT.ConnectivityResult result) {
+      if (result == conT.ConnectivityResult.none) {
         setState(() {
           isNetwork = false;
         });
-      } else if (result == ConnectivityResult.mobile ||
-          result == ConnectivityResult.wifi) {
+      } else if (result == conT.ConnectivityResult.mobile ||
+          result == conT.ConnectivityResult.wifi) {
         setState(() {
           isNetwork = true;
         });
@@ -580,7 +580,7 @@ class _LeaveApprovalScreenState extends State<LeaveApprovalScreen> {
                                             Widget child,
                                           ) {
                                             if (connectivity2 ==
-                                                ConnectivityResult.none) {
+                                                conT.ConnectivityResult.none) {
                                               return FlatButton(
                                                 child: const Text('Yes'),
                                                 onPressed: () {

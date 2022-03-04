@@ -4,7 +4,6 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:math';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:connectivity/connectivity.dart';
 import 'package:firebase_auth/firebase_auth.dart' as auth;
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
@@ -33,6 +32,8 @@ import 'package:rxdart/rxdart.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:location/location.dart' as loc;
+import 'package:connectivity/connectivity.dart' as conT;
+import 'package:connectivity_platform_interface/src/enums.dart' as enm;
 
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
     FlutterLocalNotificationsPlugin();
@@ -97,8 +98,8 @@ class _MainHomeProfileState extends State<MainHomeProfile>
   var ontime = 10;
   var lates = 3;
   var absent = 0;
-  late Connectivity connectivity;
-  late StreamSubscription<ConnectivityResult> subscription;
+  late conT.Connectivity connectivity;
+  late StreamSubscription<conT.ConnectivityResult> subscription;
   late bool isNetwork = true;
 
   late AnimationController controller;
@@ -347,15 +348,15 @@ class _MainHomeProfileState extends State<MainHomeProfile>
     });
 
     //check internet connection
-    connectivity = Connectivity();
-    subscription =
-        connectivity.onConnectivityChanged.listen((ConnectivityResult result) {
-      if (result == ConnectivityResult.none) {
+    connectivity = conT.Connectivity();
+    subscription = connectivity.onConnectivityChanged
+        .listen((conT.ConnectivityResult result) {
+      if (result == conT.ConnectivityResult.none) {
         setState(() {
           isNetwork = false;
         });
-      } else if (result == ConnectivityResult.mobile ||
-          result == ConnectivityResult.wifi) {
+      } else if (result == conT.ConnectivityResult.mobile ||
+          result == conT.ConnectivityResult.wifi) {
         setState(() {
           isNetwork = true;
         });
@@ -378,15 +379,15 @@ class _MainHomeProfileState extends State<MainHomeProfile>
     // );
 
     //check internet connection
-    connectivity = Connectivity();
-    subscription =
-        connectivity.onConnectivityChanged.listen((ConnectivityResult result) {
-      if (result == ConnectivityResult.none) {
+    connectivity = conT.Connectivity();
+    subscription = connectivity.onConnectivityChanged
+        .listen((conT.ConnectivityResult result) {
+      if (result == conT.ConnectivityResult.none) {
         setState(() {
           isNetwork = false;
         });
-      } else if (result == ConnectivityResult.mobile ||
-          result == ConnectivityResult.wifi) {
+      } else if (result == conT.ConnectivityResult.mobile ||
+          result == conT.ConnectivityResult.wifi) {
         setState(() {
           isNetwork = true;
         });
@@ -911,9 +912,7 @@ class _MainHomeProfileState extends State<MainHomeProfile>
                                                       Navigator.of(context).push(
                                                           MaterialPageRoute(
                                                               builder: (context) =>
-                                                                  MainCheckIn(
-                                                                      uid:
-                                                                          userId)));
+                                                                  MainCheckIn()));
                                                     },
                                                     child: const Text(
                                                         'View History')),
@@ -951,7 +950,7 @@ class _MainHomeProfileState extends State<MainHomeProfile>
                                                         Widget child,
                                                       ) {
                                                         if (connectivity2 ==
-                                                            ConnectivityResult
+                                                            conT.ConnectivityResult
                                                                 .none) {
                                                           return ElevatedButton(
                                                             style:
@@ -1731,9 +1730,6 @@ class _MainHomeProfileState extends State<MainHomeProfile>
     List<Placemark> placemarks =
         await placemarkFromCoordinates(position.latitude!, position.longitude!);
     yourAddress = placemarks.first.street!;
-    // markPlace['street'] = first.street!;
-    // markPlace['sublocality'] = first.subLocality!;
-    // markPlace['locality'] = first.locality!;
 
     setState(() {});
   }
@@ -1989,7 +1985,7 @@ class _MainHomeProfileState extends State<MainHomeProfile>
               ConnectivityResult connectivity2,
               Widget child,
             ) {
-              if (connectivity2 == ConnectivityResult.none) {
+              if (connectivity2 == conT.ConnectivityResult.none) {
                 return FlatButton(
                   child: const Text('Yes'),
                   onPressed: () {

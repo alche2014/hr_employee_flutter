@@ -55,75 +55,75 @@ class _SettingsScreenState extends State<SettingsScreen> {
     return Scaffold(
         backgroundColor: Colors.grey.shade100,
         body: Column(crossAxisAlignment: CrossAxisAlignment.center, children: [
-          UpperPortion(userId: userId, title: "Settings", showBack: false),
+          UpperPortion(userId: uid, title: "Settings", showBack: false),
           SizedBox(
             width: MediaQuery.of(context).size.width - 40,
-            height: MediaQuery.of(context).size.height - 250,
+            height: MediaQuery.of(context).size.height - 270,
             child: SingleChildScrollView(
               child: Column(
                 children: [
                   ProfilePic(),
                   const SizedBox(height: 20),
-                  Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 18, vertical: 6),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(10),
-                      border: Border.all(width: 0, color: Colors.white),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Row(
-                          children: [
-                            const Icon(
-                              Icons.dark_mode,
-                              color: kPrimaryColor,
-                            ),
-                            const SizedBox(width: 10),
-                            Text(
-                              'Dark mode',
-                              style: TextStyle(
-                                  color: Colors.grey[600], fontSize: 16),
-                            ),
-                          ],
-                        ),
-                        Switch(
-                          value: darkmode,
-                          onChanged: (value) async {
-                            // SharedPreferences prefs =
-                            //     await SharedPreferences.getInstance();
-                            // Helper.savePreferenceString('darkmode', value);
+                  // Container(
+                  //   padding:
+                  //       const EdgeInsets.symmetric(horizontal: 18, vertical: 6),
+                  //   decoration: BoxDecoration(
+                  //     color: Colors.white,
+                  //     borderRadius: BorderRadius.circular(10),
+                  //     border: Border.all(width: 0, color: Colors.white),
+                  //   ),
+                  //   child: Row(
+                  //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  //     children: [
+                  //       Row(
+                  //         children: [
+                  //           const Icon(
+                  //             Icons.dark_mode,
+                  //             color: kPrimaryColor,
+                  //           ),
+                  //           const SizedBox(width: 10),
+                  //           Text(
+                  //             'Dark mode',
+                  //             style: TextStyle(
+                  //                 color: Colors.grey[600], fontSize: 16),
+                  //           ),
+                  //         ],
+                  //       ),
+                  //       Switch(
+                  //         value: darkmode,
+                  //         onChanged: (value) async {
+                  //           // SharedPreferences prefs =
+                  //           //     await SharedPreferences.getInstance();
+                  //           // Helper.savePreferenceString('darkmode', value);
 
-                            setState(() {
-                              darkmode = value;
-                              // Helper.getPreferenceBoolean('darkmode');
+                  //           setState(() {
+                  //             darkmode = value;
+                  //             // Helper.getPreferenceBoolean('darkmode');
 
-                              isdarkmode.value = value;
+                  //             isdarkmode.value = value;
 
-                              // Helper.savePreferenceString(key, value)
-                              // prefs.setBool('darkmode',
-                              //     isdarkmode.value == false ? true : false);
-                              // prefs.getBool('darkmode');
-                            });
-                          },
-                          activeTrackColor: kPrimaryColor.withOpacity(0.6),
-                          activeColor: kPrimaryColor,
-                          inactiveThumbColor: Colors.grey,
-                          inactiveTrackColor: Colors.grey[200],
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 10),
+                  //             // Helper.savePreferenceString(key, value)
+                  //             // prefs.setBool('darkmode',
+                  //             //     isdarkmode.value == false ? true : false);
+                  //             // prefs.getBool('darkmode');
+                  //           });
+                  //         },
+                  //         activeTrackColor: kPrimaryColor.withOpacity(0.6),
+                  //         activeColor: kPrimaryColor,
+                  //         inactiveThumbColor: Colors.grey,
+                  //         inactiveTrackColor: Colors.grey[200],
+                  //       ),
+                  //     ],
+                  //   ),
+                  // ),
+                  // const SizedBox(height: 10),
                   InkWell(
                     borderRadius: BorderRadius.circular(10),
                     onTap: () {
                       Navigator.of(context, rootNavigator: true).push(
                           MaterialPageRoute(
                               builder: (context) =>
-                                  Notifications(uid: userId, key: null)));
+                                  Notifications(uid: uid, key: null)));
                     },
                     child: Container(
                       padding: const EdgeInsets.symmetric(
@@ -183,7 +183,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               ),
                               const SizedBox(width: 10),
                               Text(
-                                'Privacy',
+                                'Privacy & Security',
                                 style: TextStyle(
                                     color: Colors.grey[600], fontSize: 16),
                               ),
@@ -272,6 +272,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                                   : Colors.grey[500])),
                     ),
                   ),
+                  const SizedBox(height: 10),
                 ],
               ),
             ),

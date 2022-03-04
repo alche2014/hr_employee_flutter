@@ -2,7 +2,7 @@
 import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:connectivity/connectivity.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:hr_app/Constants/loadingDailog.dart';
@@ -37,6 +37,7 @@ class _MyProfileEditState extends State<MyProfileEdit> {
   StreamSubscription<ConnectivityResult>? subscription;
 
   bool isNetwork = true;
+  int guest = 1;
 
   var firebaseUser;
 
@@ -88,11 +89,11 @@ class _MyProfileEditState extends State<MyProfileEdit> {
           stream: guest == 0
               ? FirebaseFirestore.instance
                   .collection("guests")
-                  .doc("$userId")
+                  .doc(uid)
                   .snapshots()
               : FirebaseFirestore.instance
                   .collection("employees")
-                  .doc("$userId")
+                  .doc(uid)
                   .snapshots(),
           builder: (context, AsyncSnapshot<DocumentSnapshot> snapshot) {
             if (snapshot.hasError) {
@@ -106,7 +107,7 @@ class _MyProfileEditState extends State<MyProfileEdit> {
                 UpperPortion(userId: userId, title: "Profile", showBack: true),
                 SizedBox(
                   width: MediaQuery.of(context).size.width - 40,
-                  height: MediaQuery.of(context).size.height - 250,
+                  height: MediaQuery.of(context).size.height - 270,
                   child: SingleChildScrollView(
                     child: Column(
                       children: [
@@ -122,8 +123,8 @@ class _MyProfileEditState extends State<MyProfileEdit> {
                               dividerColor: Colors.transparent,
                             ),
                             child: ExpansionTile(
-                                collapsedIconColor: Colors.black,
-                                iconColor: Colors.black,
+                                collapsedIconColor: purpleDark,
+                                iconColor: purpleDark,
                                 title: Row(
                                   children: [
                                     SizedBox(
@@ -211,8 +212,8 @@ class _MyProfileEditState extends State<MyProfileEdit> {
                               dividerColor: Colors.transparent,
                             ),
                             child: ExpansionTile(
-                              collapsedIconColor: Colors.black,
-                              iconColor: Colors.black,
+                              collapsedIconColor: purpleDark,
+                              iconColor: purpleDark,
                               title: Row(
                                 children: [
                                   SizedBox(
@@ -253,8 +254,8 @@ class _MyProfileEditState extends State<MyProfileEdit> {
                               dividerColor: Colors.transparent,
                             ),
                             child: ExpansionTile(
-                                collapsedIconColor: Colors.black,
-                                iconColor: Colors.black,
+                                collapsedIconColor: purpleDark,
+                                iconColor: purpleDark,
                                 title: Row(
                                   children: [
                                     SizedBox(
@@ -458,7 +459,7 @@ class UpperPortion extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 190,
+      height: 200,
       child: Stack(
         children: [
           Positioned(
@@ -474,35 +475,49 @@ class UpperPortion extends StatelessWidget {
                           children: [
                             Flexible(child: SizedBox(width: 20)),
                             Flexible(
-                              child: Icon(Icons.arrow_back_ios_new,
-                                  color: showBack
-                                      ? Colors.white
-                                      : Colors.transparent,
-                                  size: 19),
+                              child: showBack
+                                  ? InkWell(
+                                      onTap: () {
+                                        Navigator.pop(context);
+                                      },
+                                      child: Icon(Icons.arrow_back_ios_new,
+                                          color: Colors.white, size: 19),
+                                    )
+                                  : Text(""),
                             ),
                             Flexible(
                               flex: 3,
-                              child: Text(
-                                "  $title",
-                                style: TextStyle(
-                                    fontFamily: "Poppins",
-                                    color: Colors.white,
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.w500),
+                              child: InkWell(
+                                onTap: () {
+                                  title == "Profile"
+                                      ? Navigator.pop(context)
+                                      : print("");
+                                },
+                                child: Text(
+                                  "  $title",
+                                  style: TextStyle(
+                                      fontFamily: "Poppins",
+                                      color: Colors.white,
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.w500),
+                                ),
                               ),
                             ),
                             Expanded(flex: 7, child: Text("")),
                             Expanded(
                               flex: 1,
-                              child: InkWell(
-                                onTap: () {
-                                  Navigator.of(context, rootNavigator: true)
-                                      .push(MaterialPageRoute(
-                                          builder: (context) => Notifications(
-                                              uid: userId, key: null)));
-                                },
-                                child: Icon(Icons.notifications,
-                                    color: Colors.white, size: 22),
+                              child: Align(
+                                alignment: Alignment.topRight,
+                                child: InkWell(
+                                  onTap: () {
+                                    Navigator.of(context, rootNavigator: true)
+                                        .push(MaterialPageRoute(
+                                            builder: (context) => Notifications(
+                                                uid: userId, key: null)));
+                                  },
+                                  child: Icon(Icons.notifications,
+                                      color: Colors.white, size: 22),
+                                ),
                               ),
                             ),
                           ])),
@@ -514,7 +529,7 @@ class UpperPortion extends StatelessWidget {
                           end: Alignment(0, -13.0),
                           colors: const [purpleLight, purpleDark])))),
           Positioned(
-            top: 130,
+            top: 135,
             left: 0,
             right: 0,
             child: Container(
@@ -529,21 +544,38 @@ class UpperPortion extends StatelessWidget {
             ),
           ),
           Positioned(
-              top: 85,
+              top: 95,
               left: 35,
               child: Container(
                 height: 100,
                 width: 100,
-                child: Container(
-                    decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        image: imagePath == null || imagePath == ""
-                            ? DecorationImage(
-                                image: NetworkImage(
-                                    'https://via.placeholder.com/150'))
-                            : DecorationImage(
-                                image: NetworkImage(imagePath),
-                                fit: BoxFit.fill))),
+                child: CircleAvatar(
+                  backgroundColor: Colors.transparent,
+                  radius: 40,
+                  child: ClipRRect(
+                    clipBehavior: Clip.antiAlias,
+                    borderRadius: BorderRadius.circular(100),
+                    child: imagePath != null || imagePath != ""
+                        ? CachedNetworkImage(
+                            imageUrl: imagePath,
+                            fit: BoxFit.cover,
+                            height: 94,
+                            width: 94,
+                            progressIndicatorBuilder:
+                                (context, url, downloadProgress) =>
+                                    CircularProgressIndicator(
+                              value: downloadProgress.progress,
+                              color: Colors.white,
+                            ),
+                            errorWidget: (context, url, error) =>
+                                const Icon(Icons.error),
+                          )
+                        : Image.asset(
+                            'assets/placeholder.png',
+                            fit: BoxFit.cover,
+                          ),
+                  ),
+                ),
                 decoration:
                     BoxDecoration(shape: BoxShape.circle, color: Colors.white),
                 padding: EdgeInsets.all(4),
@@ -596,7 +628,7 @@ class _ProfilePicState extends State<ProfilePic> {
                                 fontWeight: FontWeight.w400,
                                 color: Colors.grey.shade600,
                                 fontSize: 14)),
-                        Text(empId ?? " Nill",
+                        Text(empId == "" ? " Nill" : empId,
                             overflow: TextOverflow.ellipsis,
                             style: TextStyle(
                                 fontWeight: FontWeight.w400,

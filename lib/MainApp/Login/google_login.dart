@@ -2,10 +2,13 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_signin_button/flutter_signin_button.dart';
-import 'package:connectivity/connectivity.dart';
 import 'package:flutter_offline/flutter_offline.dart';
+import 'package:flutter_signin_button/flutter_signin_button.dart';
+// import 'package:flutter_offline/flutter_offline.dart';
 import 'package:hr_app/Constants/loadingDailog.dart';
+import 'package:connectivity/connectivity.dart' as conT;
+import 'package:connectivity/connectivity.dart';
+import 'package:hr_app/main.dart';
 
 import 'auth.dart';
 
@@ -18,22 +21,22 @@ class GoogleLogin extends StatefulWidget {
 
 class _GoogleLoginState extends State<GoogleLogin> {
   // connectivity dependencies handle internet collection
-  late Connectivity connectivity;
-  late StreamSubscription<ConnectivityResult> subscription;
+  late conT.Connectivity connectivity;
+  late StreamSubscription<conT.ConnectivityResult> subscription;
   bool isNetwork = true;
 
   @override
   void initState() {
     //check internet connection
-    connectivity = Connectivity();
-    subscription =
-        connectivity.onConnectivityChanged.listen((ConnectivityResult result) {
-      if (result == ConnectivityResult.none) {
+    connectivity = conT.Connectivity();
+    subscription = connectivity.onConnectivityChanged
+        .listen((conT.ConnectivityResult result) {
+      if (result == conT.ConnectivityResult.none) {
         setState(() {
           isNetwork = false;
         });
-      } else if (result == ConnectivityResult.mobile ||
-          result == ConnectivityResult.wifi) {
+      } else if (result == conT.ConnectivityResult.mobile ||
+          result == conT.ConnectivityResult.wifi) {
         setState(() {
           isNetwork = true;
         });
@@ -110,114 +113,162 @@ class _GoogleLoginState extends State<GoogleLogin> {
  and  route or (Navigate) to screen according to the result */
 
   Widget _signInButton() {
-    return OfflineBuilder(connectivityBuilder: (
-      BuildContext context,
-      ConnectivityResult connectivity2,
-      Widget child,
-    ) {
-      if (connectivity2 == ConnectivityResult.none) {
-        return SignInButton(
-          Buttons.Google,
-          onPressed: () {
-            ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text("No Internet Connection")));
-          },
-        );
-      } else {
-        return child;
-      }
-    }, builder: (BuildContext context) {
-      return SignInButton(
-        Buttons.Google,
-        onPressed: () {
-          authService.googleSignIn().whenComplete(() async {
-            final User? user = FirebaseAuth.instance.currentUser;
+    return
+        //OfflineBuilder(connectivityBuilder: (
+        // BuildContext context,
+        // ConnectivityResult connectivity2,
+        // Widget child,
+        // )
+        // {
+        // if (connectivity2 == conT.ConnectivityResult.none) {
+        // return
+        //  SignInButton(
+        //   Buttons.Google,
+        //   onPressed: () {
+        //     ScaffoldMessenger.of(context).showSnackBar(
+        //         const SnackBar(content: Text("No Internet Connection")));
+        //   },
+        // );
+        // } else {
+        //   return child;
+        //  }
+        // }, builder: (BuildContext context) {
+        //return
+        SignInButton(
+      Buttons.Google,
+      onPressed: () {
+        authService.googleSignIn().whenComplete(() async {
+          final User? user = FirebaseAuth.instance.currentUser;
 
-            bool _result = await AuthService().userExist(user);
+          bool _result = await AuthService().userExist(user);
 
-            if (_result) {
-              showLoadingDialog(context);
+          if (_result) {
+            showLoadingDialog(context);
 
-              bool _result2 = await AuthService().guestExist(user);
+            bool _result2 = await AuthService().guestExist(user);
 
-              if (_result2) {
-                bool domainExist = await AuthService().domainExist(user!);
-                String? genderEmpstatus;
+            if (_result2) {
+              bool domainExist = await AuthService().domainExist(user!);
+              String? genderEmpstatus;
 
-                if (domainExist) {
-                  List domainList = [];
-                  String? userEmail = user.email;
-                  var domainPart = userEmail!.split('@');
-                  await FirebaseFirestore.instance
-                      .collection("company")
-                      .get()
-                      .then((onValue) {
-                    final List<DocumentSnapshot> documents = onValue.docs;
+              if (domainExist) {
+                List domainList = [];
+                String? userEmail = user.email;
+                var domainPart = userEmail!.split('@');
+                await FirebaseFirestore.instance
+                    .collection("company")
+                    .get()
+                    .then((onValue) {
+                  final List<DocumentSnapshot> documents = onValue.docs;
 
-                    for (int i = 0; i < documents.length; i++) {
-                      domainList = documents[i]["domain"];
-                      if (domainList.contains(domainPart[1])) {
-                        FirebaseFirestore.instance
-                            .collection("employees")
-                            .doc(user.uid)
-                            .set({
-                          'uid': user.uid,
-                          'email': "${user.email}",
-                          'imagePath': "${user.photoURL}",
-                          'displayName': "${user.displayName}",
-                          "companyId": documents[i].id,
-                          'timeStamp': DateTime.now(),
-                          'empId': null,
-                          "active": true,
-                          "containsId": false
-                        });
-                        break;
-                      }
+                  for (int i = 0; i < documents.length; i++) {
+                    domainList = documents[i]["domain"];
+                    if (domainList.contains(domainPart[1])) {
+                      FirebaseFirestore.instance
+                          .collection("employees")
+                          .doc(user.uid)
+                          .set({
+                        'uid': user.uid,
+                        'email': "${user.email}",
+                        'imagePath': "${user.photoURL}",
+                        'displayName': "${user.displayName}",
+                        "companyId": documents[i].id,
+                        'timeStamp': DateTime.now(),
+                        'empId': null,
+                        "active": true,
+                        "containsId": false
+                      });
+                      break;
                     }
-                  });
-                  bool firstTimeProfile =
-                      await AuthService().firstTimeEmpLogin(user);
-                  if (firstTimeProfile) {
-                    Navigator.of(context).pushNamedAndRemoveUntil(
-                        '/firstTimeForm', (Route<dynamic> route) => false);
-                  } else {
-                    Navigator.of(context).pushNamedAndRemoveUntil(
-                        '/app', (Route<dynamic> route) => false);
                   }
+                });
+                bool firstTimeProfile =
+                    await AuthService().firstTimeEmpLogin(user);
+                if (firstTimeProfile) {
+                  Navigator.of(context).pushNamedAndRemoveUntil(
+                      '/firstTimeForm', (Route<dynamic> route) => false);
                 } else {
                   FirebaseFirestore.instance
-                      .collection("guests")
+                      .collection('employees')
                       .doc(user.uid)
-                      .set({
-                    'uid': user.uid,
-                    'email': "${user.email}",
-                    'imagePath': "${user.photoURL}",
-                    'displayName': "${user.displayName}",
-                    'timeStamp': DateTime.now(),
-                    'empId': null,
-                    "containsId": false
+                      .snapshots()
+                      .listen((onValue) {
+                    setState(() {
+                      uid = user.uid;
+                      designation =
+                          onValue.data()!["designation"] ?? "Designation";
+                      department =
+                          onValue.data()!["department"] ?? "Department";
+                      locationId = onValue.data()!["locationId"];
+                      shiftId = onValue.data()!["shiftId"];
+                      companyId = onValue.data()!["companyId"];
+                      reportingTo = onValue.data()!['reportingToId'];
+                      imagePath = onValue.data()!['imagePath'];
+                      empName = onValue.data()!['displayName'];
+                      empEmail = onValue.data()!['email'];
+                      leaveData = onValue.data()!['leaves'] ?? [];
+                      joiningDate = onValue.data()!['joiningDate'] ?? "";
+                    });
                   });
-                  bool firstTimeProfile =
-                      await AuthService().firstTimeLogin(user);
-                  if (firstTimeProfile) {
-                    Navigator.of(context).pushNamedAndRemoveUntil(
-                        '/firstTimeForm', (Route<dynamic> route) => false);
-                  } else {
-                    Navigator.of(context).pushNamedAndRemoveUntil(
-                        '/invalidUser', (Route<dynamic> route) => false);
-                  }
+                  Navigator.of(context).pushNamedAndRemoveUntil(
+                      '/app', (Route<dynamic> route) => false);
                 }
               } else {
-                Navigator.of(context).pushNamedAndRemoveUntil(
-                    '/invalidUser', (Route<dynamic> route) => false);
+                FirebaseFirestore.instance
+                    .collection("guests")
+                    .doc(user.uid)
+                    .set({
+                  'uid': user.uid,
+                  'email': "${user.email}",
+                  'imagePath': "${user.photoURL}",
+                  'displayName': "${user.displayName}",
+                  'timeStamp': DateTime.now(),
+                  'empId': null,
+                  "containsId": false
+                });
+                bool firstTimeProfile =
+                    await AuthService().firstTimeLogin(user);
+                if (firstTimeProfile) {
+                  Navigator.of(context).pushNamedAndRemoveUntil(
+                      '/firstTimeForm', (Route<dynamic> route) => false);
+                } else {
+                  Navigator.of(context).pushNamedAndRemoveUntil(
+                      '/invalidUser', (Route<dynamic> route) => false);
+                }
               }
             } else {
               Navigator.of(context).pushNamedAndRemoveUntil(
-                  '/app', (Route<dynamic> route) => false);
+                  '/invalidUser', (Route<dynamic> route) => false);
             }
-          });
-        },
-      );
-    });
+          } else {
+            FirebaseFirestore.instance
+                .collection('employees')
+                .doc(user!.uid)
+                .snapshots()
+                .listen((onValue) {
+              setState(() {
+                print(
+                    "logggggggggggggggggggggggggggggggggggggggggggggeeeesinnnn");
+                uid = user.uid;
+                designation = onValue.data()!["designation"] ?? "Designation";
+                department = onValue.data()!["department"] ?? "Department";
+                locationId = onValue.data()!["locationId"];
+                shiftId = onValue.data()!["shiftId"];
+                companyId = onValue.data()!["companyId"];
+                reportingTo = onValue.data()!['reportingToId'];
+                imagePath = onValue.data()!['imagePath'];
+                empName = onValue.data()!['displayName'];
+                empEmail = onValue.data()!['email'];
+                leaveData = onValue.data()!['leaves'] ?? [];
+                joiningDate = onValue.data()!['joiningDate'] ?? "";
+              });
+              Navigator.of(context).pushNamedAndRemoveUntil(
+                  '/app', (Route<dynamic> route) => false);
+            });
+          }
+        });
+      },
+    );
+    //  });
   }
 }

@@ -1,11 +1,8 @@
-import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart';
+import 'package:hr_app/MainApp/CheckIn/main_check_in.dart';
 import 'package:hr_app/MainApp/HomeScreen.dart';
 import 'package:hr_app/MainApp/settings.dart';
-import 'package:hr_app/UserprofileScreen.dart/my_profile_edit.dart';
 import 'package:hr_app/mainApp/LeaveManagement/leave_history.dart';
-
-import 'main_home_profile/homeScreen.dart';
 
 int? count;
 String? user;
@@ -25,7 +22,7 @@ class _NavBarState extends State<NavBar> {
     // Assigning Tabs for bottom bar position Icon
     const Center(child: HrDashboard()),
     const Center(child: LeaveHistory(value: false)),
-    const Center(child: MyProfileEdit()),
+    const Center(child: MainCheckIn()),
     const Center(child: SettingsScreen()),
   ];
   @override
@@ -50,12 +47,12 @@ class _NavBarState extends State<NavBar> {
               BottomNavigationBarItem(
                   icon: Image.asset("assets/historyInactive.png", height: 25),
                   activeIcon:
-                      Image.asset("assets/historyActive.png", height: 35),
+                      Image.asset("assets/historyActive.png", height: 30),
                   label: ""),
               BottomNavigationBarItem(
                   icon: Image.asset("assets/settingsInactive.png", height: 25),
                   activeIcon:
-                      Image.asset("assets/settingsActive.png", height: 35),
+                      Image.asset("assets/settingsActive.png", height: 30),
                   label: ""),
             ],
             onTap: (index) async {

@@ -6,12 +6,12 @@ import 'package:connectivity/connectivity.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:hr_app/UserprofileScreen.dart/first_time_form.dart';
 import 'package:hr_app/UserprofileScreen.dart/my_profile_edit.dart';
 import 'package:hr_app/mainApp/Login/auth_provider.dart';
 import 'package:hr_app/Constants/theme.dart';
-import 'package:pigeon/pigeon.dart';
 import 'Constants/constants.dart';
 import 'MainApp/bottom_nav_bar.dart';
 import 'mainApp/Login/auth.dart';
@@ -41,16 +41,13 @@ late Position _currentPosition;
 double? currentLat;
 String yourAddress = "Location";
 double? currentLng;
-String? userId;
+// String? userId;
 String? locationId;
 String? shiftId;
 double? officeLat;
 double? officeLng;
 String? companyId;
 String? location;
-String? designation;
-String? department;
-String? uid;
 late int hours = 00;
 late int minutes = 00;
 late int seconds = 00;
@@ -65,11 +62,11 @@ late String shiftName;
 late String token;
 String empName = '';
 String empEmail = '';
-String? empId;
-int guest = 0;
-
+String uid = '';
 int? weekend;
-
+String empId = '';
+String? department;
+String? designation;
 var weekendDefi;
 double _hr = 0;
 double _minute = 0;
@@ -105,27 +102,40 @@ void main() async {
         child: ValueListenableBuilder(
             valueListenable: isdarkmode,
             builder: (context, value, _) {
-              return MaterialApp(
-                debugShowCheckedModeBanner: false,
-                theme: darkmode == false
-                    ? lightThemeData(context)
-                    : darkThemeData(context),
-                home: const Splash(),
-                title: 'Smart HR',
+              return ScreenUtilInit(
+                  designSize: Size(375, 812),
+                  minTextAdapt: true,
+                  splitScreenMode: true,
+                  builder: () => MaterialApp(
+                        debugShowCheckedModeBanner: false,
+                        builder: (context, widget) {
+                          ScreenUtil.setContext(context);
+                          return MediaQuery(
+                            //Setting font does not change with system font size
+                            data: MediaQuery.of(context)
+                                .copyWith(textScaleFactor: 1.0),
+                            child: widget!,
+                          );
+                        },
+                        theme: darkmode == false
+                            ? lightThemeData(context)
+                            : darkThemeData(context),
+                        home: const Splash(),
+                        title: 'Smart HR',
 
-                //routes of different screens
-                routes: {
-                  "/login": (BuildContext context) => GoogleLogin(),
-                  "/app": (BuildContext context) => NavBar(0),
-                  "/firstTimeForm": (BuildContext context) =>
-                      const FirstTimeForm(),
-                  // "/signininvite": (BuildContext context) => DynamicLinkScreen(),
-                  "/invalidUser": (BuildContext context) =>
-                      const MyProfileEdit(),
-                  "/guestProfile": (BuildContext context) =>
-                      const MyProfileEdit()
-                },
-              );
+                        //routes of different screens
+                        routes: {
+                          "/login": (BuildContext context) => GoogleLogin(),
+                          "/app": (BuildContext context) => NavBar(0),
+                          "/firstTimeForm": (BuildContext context) =>
+                              const FirstTimeForm(),
+                          // "/signininvite": (BuildContext context) => DynamicLinkScreen(),
+                          "/invalidUser": (BuildContext context) =>
+                              const MyProfileEdit(),
+                          "/guestProfile": (BuildContext context) =>
+                              const MyProfileEdit()
+                        },
+                      ));
             }),
       ));
     });
@@ -193,42 +203,29 @@ class _SplashState extends State<Splash> {
     // final User? user = await _auth.currentUser;
 
     if (_result) {
-      await FirebaseFirestore.instance
-          .collection("employees")
-          .where('uid', isEqualTo: firebaseUser!.uid)
-          .get()
-          .then((value) {
-        guest = value.docs.length;
-      }).then((value) {
-        if (guest == 1) {
-          FirebaseFirestore.instance
-              .collection('employees')
-              .doc(firebaseUser!.uid)
-              .snapshots()
-              .listen((onValue) {
-            uid = firebaseUser!.uid;
-            locationId = onValue.data()!["locationId"];
-            shiftId = onValue.data()!["shiftId"];
-            companyId = onValue.data()!["companyId"];
-            reportingTo = onValue.data()!['reportingToId'];
-            imagePath = onValue.data()!['imagePath'];
-            empName = onValue.data()!['displayName'];
-            empEmail = onValue.data()!['email'];
-            empId = onValue.data()!['empId'];
-            leaveData = onValue.data()!['leaves'] ?? [];
-            joiningDate = onValue.data()!['joiningDate'] ?? "";
-            department = onValue.data()!['department'] ?? "";
-            designation = onValue.data()!['designation'] ?? "";
-
-            Future.delayed(const Duration(milliseconds: 150), () {
-              if (shiftId != null) {
-                // _getShiftSchedule();
-              }
-            });
-          });
-        }
+      auth.User? firebaseUser = auth.FirebaseAuth.instance.currentUser;
+      FirebaseFirestore.instance
+          .collection('employees')
+          .doc(firebaseUser!.uid)
+          .snapshots()
+          .listen((onValue) {
+        setState(() {
+          print(
+              "logggggggggggggggeeeeeeeeeeedddddddddddddddiiiiiiiiiiiinnnnnnnnn");
+          uid = firebaseUser.uid;
+          designation = onValue.data()!["designation"] ?? "Designation";
+          department = onValue.data()!["department"] ?? "Department";
+          locationId = onValue.data()!["locationId"];
+          shiftId = onValue.data()!["shiftId"];
+          companyId = onValue.data()!["companyId"];
+          reportingTo = onValue.data()!['reportingToId'];
+          imagePath = onValue.data()!['imagePath'];
+          empName = onValue.data()!['displayName'];
+          empEmail = onValue.data()!['email'];
+          leaveData = onValue.data()!['leaves'] ?? [];
+          joiningDate = onValue.data()!['joiningDate'] ?? "";
+        });
       });
-
       //  checking user exists or not
       final user = FirebaseAuth.instance.currentUser!;
       bool _com = await AuthService().userExist(user);

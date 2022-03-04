@@ -53,7 +53,7 @@ class TrainingsCard extends StatelessWidget {
                   child: Container(
                     margin: const EdgeInsets.only(bottom: 15, top: 5),
                     child: Text(
-                      "No Data added yet",
+                      "Not added yet",
                       style: TextStyle(
                           color: isdarkmode.value == false
                               ? Colors.grey[700]
@@ -68,7 +68,7 @@ class TrainingsCard extends StatelessWidget {
                       child: Container(
                       margin: const EdgeInsets.only(bottom: 15, top: 5),
                       child: Text(
-                        "No Data added yet",
+                        "Not added yet",
                         style: TextStyle(
                             color: isdarkmode.value == false
                                 ? Colors.grey[700]

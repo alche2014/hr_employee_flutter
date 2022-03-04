@@ -16,7 +16,7 @@ SliverAppBar buildMyNewAppBar(BuildContext context, String name, bool turn) {
             name == "Notifications" ||
             name == "Announcement" ||
             name == "About" ||
-            name == "Privacy"
+            name == "Privacy & Security"
         ? IconButton(
             icon: const Icon(Icons.arrow_back_ios),
             color: MediaQuery.of(context).platformBrightness == Brightness.light

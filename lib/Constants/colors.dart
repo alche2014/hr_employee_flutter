@@ -10,7 +10,7 @@ const kCircleColorDark = Color(0xff652E34);
 const kDefaultPadding = 20.0;
 const lightPink = Color(0xffF8E7E9);
 const lightGreen = Color(0xffD6FBE0);
-const Color greyShade = Color(0xff6D6D6D);
+const Color greyShade = Color(0xff555555);
 const Color lightGrey = Color(0xff9B9B9B);
 // ignore: constant_identifier_names
 const COLOR_PRIMARY = 0xFF00BF6D;

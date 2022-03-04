@@ -15,99 +15,87 @@ class CheckInCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-      child: Material(
-        elevation: 3,
-        color: Colors.transparent,
-        borderRadius: BorderRadius.circular(10),
-        //========================================//
-        child: Container(
-          width: MediaQuery.of(context).size.width,
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 30),
-          decoration: BoxDecoration(
-            borderRadius: const BorderRadius.all(
-              Radius.circular(10),
+    return Column(
+      children: [
+        Row(
+          children: [
+            Expanded(
+              flex: 2,
+              child: Center(
+                child: Container(
+                  width: 43,
+                  padding: const EdgeInsets.all(5.0),
+                  decoration: BoxDecoration(border: Border.all()),
+                  child: Column(children: [
+                    Text(DateFormat('dd').format(dateTime),
+                        style: const TextStyle(
+                            fontWeight: FontWeight.bold, fontSize: 17)),
+                    const SizedBox(height: 2),
+                    Text(DateFormat('EEE').format(dateTime).toUpperCase(),
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 12,
+                            color: Colors.grey.shade800)),
+                  ]),
+                ),
+              ),
             ),
-            color: isdarkmode.value ? const Color(0xff34354A) : Colors.white,
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 10),
+            Expanded(
+                flex: 3,
                 child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(timeStatus['date'],
-                          style: const TextStyle(
-                              color: purpleDark, fontWeight: FontWeight.bold)),
-                      //--------------------------//
-                      Container(
-                          height: 40,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(10),
-                            color: lightGreen,
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.all(10.0),
-                            child: Text(
-                              timeStatus["late"] == "0 hrs & 0 mins"
-                                  ? "On Time"
-                                  : "Late",
-                              textAlign: TextAlign.center,
-                              style: const TextStyle(color: Colors.black),
-                            ),
-                          )),
-                    ]),
-              ),
-              const SizedBox(height: 20),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 10),
-                child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text('Checkin: ',
-                                style: const TextStyle(color: purpleDark)),
-                            Text(DateFormat('K:mm a dd-MMM-yy')
-                                .format(dateTime)),
-                          ],
-                        ),
-                      ),
-                      Expanded(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text('Checkout: ',
-                                style: const TextStyle(color: purpleDark)),
-                            Text(timeStatus['checkout'] == null
-                                ? "- - - - "
-                                : DateFormat('K:mm a dd-MMM-yy')
-                                    .format(dateTime2)),
-                          ],
-                        ),
-                      ),
-                    ]),
-              ),
-              const SizedBox(height: 20),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 10),
-                child: timeStatus["checkout"] == null
-                    ? Text(
-                        "Total Working Hours: ${((DateTime.now().difference(dateTime).inSeconds) / 3600).toInt()} : ${(((DateTime.now().difference(dateTime).inSeconds) % 3600) / 60).toInt()}")
-                    : Text('Total Working Hours: ${timeStatus["workHours"]}'),
-              ),
-            ],
-          ),
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    SizedBox(
+                      height: 12,
+                      width: 12,
+                      child: Image.asset("assets/Arrowdown.png"),
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      DateFormat('K:mma').format(dateTime).toLowerCase(),
+                      style: TextStyle(
+                          color: timeStatus["late"] == "0 hrs & 0 mins"
+                              ? Colors.green
+                              : Colors.red),
+                    ),
+                  ],
+                )),
+            Expanded(
+              flex: 3,
+              child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    timeStatus['checkout'] != null
+                        ? SizedBox(
+                            height: 12,
+                            width: 12,
+                            child: Image.asset("assets/Arrowup.png"),
+                          )
+                        : Container(),
+                    const SizedBox(width: 4),
+                    Text(timeStatus['checkout'] == null
+                        ? "- - - - "
+                        : DateFormat('K:mma').format(dateTime2).toLowerCase()),
+                  ]),
+            ),
+            Expanded(
+              flex: 3,
+              child: Center(
+                  child: timeStatus["checkout"] == null
+                      ? Text(
+                          "${((DateTime.now().difference(dateTime).inSeconds) / 3600).toInt()} : ${(((DateTime.now().difference(dateTime).inSeconds) % 3600) / 60).toInt()}")
+                      : Text(' ${timeStatus["workHours"]}')),
+            ),
+          ],
         ),
-      ),
+        Container(
+          margin: const EdgeInsets.only(top: 5, bottom: 5, left: 75, right: 10),
+          height: 1,
+          color: Colors.grey.shade400,
+        )
+      ],
     );
   }
 }

@@ -61,7 +61,7 @@ dependencies:
   http:
   timeago: ^3.1.0
   # linkedin_login:
-  connectivity:
+  connectivity: ^3.0.6
   flutter_offline: ^2.0.0
   # firebase_ml_vision: ^0.12.0+3
   # firebase_ml_vision: ^0.9.10
@@ -118,18 +118,18 @@ dependencies:
   json_annotation: ^4.3.0
   intl: 0.17.0
   country_code_picker:
+  flutter_screenutil: ^5.3.1
   # image_cropper: ^1.4.1
-
-
   
+
   
 # dependency_overrides:
 #   intl: 0.17.0
 dev_dependencies:
+  json_serializable:
   flutter_test:
     sdk: flutter
   build_runner: ^2.1.4
-  json_serializable: ^6.0.1
   flutter_native_splash: ^1.2.4
 
   flutter_lints: ^1.0.0
