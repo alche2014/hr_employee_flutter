@@ -22,6 +22,7 @@ class _MainCheckInTeamState extends State<MainCheckInTeam> {
   var ontime = 0;
   var lates = 0;
   var absent = 0;
+  DateTime now = DateTime.now();
   Stream? stream;
   bool wait = false;
 
@@ -64,283 +65,289 @@ class _MainCheckInTeamState extends State<MainCheckInTeam> {
         body: Stack(children: [
           Container(
             margin: EdgeInsets.only(top: 15),
-            child: (StreamBuilder<QuerySnapshot>(
-                stream: FirebaseFirestore.instance
-                    .collection("employees")
-                    .where("reportingToId", isEqualTo: widget.uid)
-                    .where("active", isEqualTo: true)
-                    .snapshots(),
-                builder: (context, AsyncSnapshot<QuerySnapshot> snapshotx) {
-                  totalemployee =
-                      snapshotx.hasData ? snapshotx.data!.docs.length : 0;
-                  if (!snapshotx.hasData) {
-                    return Text("No Records Found");
-                  } else if (snapshotx.hasData) {
-                    return snapshotx.data!.docs.isEmpty
-                        ? Text("")
-                        : SingleChildScrollView(
-                            child: Container(
-                                padding: EdgeInsets.symmetric(
-                                    horizontal: 17, vertical: 10),
-                                child: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Container(
-                                      // padding: const EdgeInsets.symmetric(
-                                      //     horizontal: 20, vertical: 10),
-                                      // decoration: BoxDecoration(
-                                      //   border: Border.all(
-                                      //     width: 0.0,
-                                      //     color: isdarkmode.value
-                                      //         ? Color(0xff34354A)
-                                      //         : Colors.grey,
-                                      //   ),
-                                      //   borderRadius: const BorderRadius.all(
-                                      //     Radius.circular(10),
-                                      //   ),
-                                      // ),
-                                      child: Column(children: [
-                                        //    SizedBox(height: 20),
-                                        // Text(
-                                        //   "Today's Detail",
-                                        //   style: TextStyle(
-                                        //       color: Colors.red[800],
-                                        //       fontWeight: FontWeight.bold),
-                                        // ),
-                                        // SizedBox(
-                                        //   height: 22,
-                                        // ),
-                                        // Row(
-                                        //   mainAxisAlignment:
-                                        //       MainAxisAlignment.spaceBetween,
-                                        //   children: const [
-                                        //     Text(
-                                        //       'Absent',
-                                        //       style: TextStyle(
-                                        //           fontWeight: FontWeight.bold),
-                                        //     ),
-                                        //     Text('On Time',
-                                        //         style: TextStyle(
-                                        //             fontWeight:
-                                        //                 FontWeight.bold)),
-                                        //     Text('Late',
-                                        //         style: TextStyle(
-                                        //             fontWeight:
-                                        //                 FontWeight.bold)),
-                                        //   ],
-                                        // ),
-                                        // SizedBox(
-                                        //   height: 10,
-                                        // ),
-                                        // StreamBuilder<QuerySnapshot>(
-                                        //     stream: FirebaseFirestore.instance
-                                        //         .collection("attendance")
-                                        //         .where("reportingToId",
-                                        //             isEqualTo: widget.uid)
-                                        //         .where("date",
-                                        //             isEqualTo: DateFormat(
-                                        //                     'MMMM dd yyyy')
-                                        //                 .format(DateTime.now())
-                                        //                 .toString())
-                                        //         .snapshots(),
-                                        //     builder: (context,
-                                        //         AsyncSnapshot<QuerySnapshot>
-                                        //             snapshots) {
-                                        //       absent = (snapshotx
-                                        //               .data!.docs.length -
-                                        //           snapshots.data!.docs.length);
-                                        //       return Row(
-                                        //         mainAxisAlignment:
-                                        //             MainAxisAlignment
-                                        //                 .spaceBetween,
-                                        //         children: [
-                                        //           Text(
-                                        //               snapshots.hasData
-                                        //                   ? (snapshotx
-                                        //                               .data!
-                                        //                               .docs
-                                        //                               .length -
-                                        //                           snapshots
-                                        //                               .data!
-                                        //                               .docs
-                                        //                               .length)
-                                        //                       .toString()
-                                        //                   : "0",
-                                        //               style: TextStyle(
-                                        //                   color: Colors.blue,
-                                        //                   fontWeight:
-                                        //                       FontWeight.bold)),
-                                        //           StreamBuilder<QuerySnapshot>(
-                                        //               stream: FirebaseFirestore
-                                        //                   .instance
-                                        //                   .collection(
-                                        //                       "attendance")
-                                        //                   .where(
-                                        //                       "reportingToId",
-                                        //                       isEqualTo:
-                                        //                           widget.uid)
-                                        //                   .where("date",
-                                        //                       isEqualTo: DateFormat(
-                                        //                               'MMMM dd yyyy')
-                                        //                           .format(
-                                        //                               DateTime
-                                        //                                   .now())
-                                        //                           .toString())
-                                        //                   .where("late",
-                                        //                       isEqualTo:
-                                        //                           "0 hrs & 0 mins")
-                                        //                   .snapshots(),
-                                        //               builder: (context,
-                                        //                   AsyncSnapshot<
-                                        //                           QuerySnapshot>
-                                        //                       onTime) {
-                                        //                 ontime = onTime
-                                        //                     .data!.docs.length;
-                                        //                 lates = totalemployee -
-                                        //                     (onTime.data!.docs
-                                        //                             .length +
-                                        //                         absent);
-                                        //                 return Text(
-                                        //                     onTime.hasData
-                                        //                         ? ontime
-                                        //                             .toString()
-                                        //                         : "0",
-                                        //                     style: TextStyle(
-                                        //                         color: Colors
-                                        //                             .green,
-                                        //                         fontWeight:
-                                        //                             FontWeight
-                                        //                                 .bold));
-                                        //               }),
-                                        //           Text(
-                                        //               snapshots.hasData
-                                        //                   ? lates.toString()
-                                        //                   : "0",
-                                        //               style: TextStyle(
-                                        //                   color:
-                                        //                       Colors.red[800],
-                                        //                   fontWeight:
-                                        //                       FontWeight.bold)),
-                                        //         ],
-                                        //       );
-                                        //     }),
-                                        // SizedBox(
-                                        //   height: 25,
-                                        // ),
-                                        //----------------------------Bar----------------------------------//
+            child: now.weekday == 6 || now.weekday == 7
+                ? Center(child: Text("Today is not a working day"))
+                : (StreamBuilder<QuerySnapshot>(
+                    stream: FirebaseFirestore.instance
+                        .collection("employees")
+                        .where("reportingToId", isEqualTo: widget.uid)
+                        .where("active", isEqualTo: true)
+                        .snapshots(),
+                    builder: (context, AsyncSnapshot<QuerySnapshot> snapshotx) {
+                      totalemployee =
+                          snapshotx.hasData ? snapshotx.data!.docs.length : 0;
+                      if (!snapshotx.hasData) {
+                        return Text("");
+                      } else if (snapshotx.hasData) {
+                        return snapshotx.data!.docs.isEmpty
+                            ? Text("")
+                            : SingleChildScrollView(
+                                child: Container(
+                                    padding: EdgeInsets.symmetric(
+                                        horizontal: 17, vertical: 10),
+                                    child: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Container(
+                                          // padding: const EdgeInsets.symmetric(
+                                          //     horizontal: 20, vertical: 10),
+                                          // decoration: BoxDecoration(
+                                          //   border: Border.all(
+                                          //     width: 0.0,
+                                          //     color: isdarkmode.value
+                                          //         ? Color(0xff34354A)
+                                          //         : Colors.grey,
+                                          //   ),
+                                          //   borderRadius: const BorderRadius.all(
+                                          //     Radius.circular(10),
+                                          //   ),
+                                          // ),
+                                          child: Column(children: [
+                                            //    SizedBox(height: 20),
+                                            // Text(
+                                            //   "Today's Detail",
+                                            //   style: TextStyle(
+                                            //       color: Colors.red[800],
+                                            //       fontWeight: FontWeight.bold),
+                                            // ),
+                                            // SizedBox(
+                                            //   height: 22,
+                                            // ),
+                                            // Row(
+                                            //   mainAxisAlignment:
+                                            //       MainAxisAlignment.spaceBetween,
+                                            //   children: const [
+                                            //     Text(
+                                            //       'Absent',
+                                            //       style: TextStyle(
+                                            //           fontWeight: FontWeight.bold),
+                                            //     ),
+                                            //     Text('On Time',
+                                            //         style: TextStyle(
+                                            //             fontWeight:
+                                            //                 FontWeight.bold)),
+                                            //     Text('Late',
+                                            //         style: TextStyle(
+                                            //             fontWeight:
+                                            //                 FontWeight.bold)),
+                                            //   ],
+                                            // ),
+                                            // SizedBox(
+                                            //   height: 10,
+                                            // ),
+                                            // StreamBuilder<QuerySnapshot>(
+                                            //     stream: FirebaseFirestore.instance
+                                            //         .collection("attendance")
+                                            //         .where("reportingToId",
+                                            //             isEqualTo: widget.uid)
+                                            //         .where("date",
+                                            //             isEqualTo: DateFormat(
+                                            //                     'MMMM dd yyyy')
+                                            //                 .format(DateTime.now())
+                                            //                 .toString())
+                                            //         .snapshots(),
+                                            //     builder: (context,
+                                            //         AsyncSnapshot<QuerySnapshot>
+                                            //             snapshots) {
+                                            //       absent = (snapshotx
+                                            //               .data!.docs.length -
+                                            //           snapshots.data!.docs.length);
+                                            //       return Row(
+                                            //         mainAxisAlignment:
+                                            //             MainAxisAlignment
+                                            //                 .spaceBetween,
+                                            //         children: [
+                                            //           Text(
+                                            //               snapshots.hasData
+                                            //                   ? (snapshotx
+                                            //                               .data!
+                                            //                               .docs
+                                            //                               .length -
+                                            //                           snapshots
+                                            //                               .data!
+                                            //                               .docs
+                                            //                               .length)
+                                            //                       .toString()
+                                            //                   : "0",
+                                            //               style: TextStyle(
+                                            //                   color: Colors.blue,
+                                            //                   fontWeight:
+                                            //                       FontWeight.bold)),
+                                            //           StreamBuilder<QuerySnapshot>(
+                                            //               stream: FirebaseFirestore
+                                            //                   .instance
+                                            //                   .collection(
+                                            //                       "attendance")
+                                            //                   .where(
+                                            //                       "reportingToId",
+                                            //                       isEqualTo:
+                                            //                           widget.uid)
+                                            //                   .where("date",
+                                            //                       isEqualTo: DateFormat(
+                                            //                               'MMMM dd yyyy')
+                                            //                           .format(
+                                            //                               DateTime
+                                            //                                   .now())
+                                            //                           .toString())
+                                            //                   .where("late",
+                                            //                       isEqualTo:
+                                            //                           "0 hrs & 0 mins")
+                                            //                   .snapshots(),
+                                            //               builder: (context,
+                                            //                   AsyncSnapshot<
+                                            //                           QuerySnapshot>
+                                            //                       onTime) {
+                                            //                 ontime = onTime
+                                            //                     .data!.docs.length;
+                                            //                 lates = totalemployee -
+                                            //                     (onTime.data!.docs
+                                            //                             .length +
+                                            //                         absent);
+                                            //                 return Text(
+                                            //                     onTime.hasData
+                                            //                         ? ontime
+                                            //                             .toString()
+                                            //                         : "0",
+                                            //                     style: TextStyle(
+                                            //                         color: Colors
+                                            //                             .green,
+                                            //                         fontWeight:
+                                            //                             FontWeight
+                                            //                                 .bold));
+                                            //               }),
+                                            //           Text(
+                                            //               snapshots.hasData
+                                            //                   ? lates.toString()
+                                            //                   : "0",
+                                            //               style: TextStyle(
+                                            //                   color:
+                                            //                       Colors.red[800],
+                                            //                   fontWeight:
+                                            //                       FontWeight.bold)),
+                                            //         ],
+                                            //       );
+                                            //     }),
+                                            // SizedBox(
+                                            //   height: 25,
+                                            // ),
+                                            //----------------------------Bar----------------------------------//
 
-                                        // FittedBox(
-                                        //   child: Container(
-                                        //     clipBehavior: Clip.antiAlias,
-                                        //     decoration: BoxDecoration(
-                                        //       borderRadius:
-                                        //           BorderRadius.circular(50),
-                                        //       color: Colors.grey[300],
-                                        //     ),
-                                        //     height: 15,
-                                        //     width: MediaQuery.of(context)
-                                        //         .size
-                                        //         .width,
-                                        //     child: !snapshotx.hasData
-                                        //         ? Container()
-                                        //         : Row(
-                                        //             children: [
-                                        //               Container(
-                                        //                 height: 15,
-                                        //                 width: totalemployee ==
-                                        //                         0
-                                        //                     ? 0
-                                        //                     : MediaQuery.of(
-                                        //                                 context)
-                                        //                             .size
-                                        //                             .width *
-                                        //                         ((absent /
-                                        //                                 totalemployee *
-                                        //                                 100) /
-                                        //                             100),
-                                        //                 color: Colors.blue,
-                                        //               ),
-                                        //               Container(
-                                        //                 height: 15,
-                                        //                 width: totalemployee ==
-                                        //                         0
-                                        //                     ? 0
-                                        //                     : MediaQuery.of(
-                                        //                                 context)
-                                        //                             .size
-                                        //                             .width *
-                                        //                         ((ontime /
-                                        //                                 totalemployee *
-                                        //                                 100) /
-                                        //                             100),
-                                        //                 color: Colors.green,
-                                        //               ),
-                                        //               Container(
-                                        //                 height: 15,
-                                        //                 width: totalemployee ==
-                                        //                         0
-                                        //                     ? 0
-                                        //                     : MediaQuery.of(
-                                        //                                 context)
-                                        //                             .size
-                                        //                             .width *
-                                        //                         ((lates /
-                                        //                                 totalemployee *
-                                        //                                 100) /
-                                        //                             100),
-                                        //                 color: Colors.red,
-                                        //               )
-                                        //             ],
-                                        //           ),
-                                        //   ),
-                                        // ),
-                                        // const SizedBox(
-                                        //   height: 15,
-                                        // )
-                                      ]),
-                                    ),
-                                    !snapshotx.hasData
-                                        ? Container()
-                                        : ListView.builder(
-                                            padding: EdgeInsets.all(0),
-                                            shrinkWrap: true,
-                                            physics:
-                                                NeverScrollableScrollPhysics(),
-                                            itemCount:
-                                                snapshotx.data!.docs.length,
-                                            itemBuilder: (context, index) {
-                                              return StreamBuilder<
-                                                      DocumentSnapshot>(
-                                                  stream: FirebaseFirestore
-                                                      .instance
-                                                      .collection("employees")
-                                                      .doc(snapshotx.data!
-                                                          .docs[index]["uid"])
-                                                      .snapshots(),
-                                                  builder: (context,
-                                                      AsyncSnapshot<
-                                                              DocumentSnapshot>
-                                                          snapshotxx) {
-                                                    if (!snapshotxx.hasData) {
-                                                      return Text("");
-                                                    } else if (snapshotxx
-                                                        .hasData) {
-                                                      return EmpCheckIn(
-                                                          snapshotxx.data!);
-                                                    } else {
-                                                      return _shimmer();
-                                                    }
-                                                  });
-                                            }),
-                                  ],
-                                )));
-                  } else if (snapshotx.hasError) {
-                    return Text("Error");
-                  } else {
-                    return _shimmer();
-                  }
-                })),
+                                            // FittedBox(
+                                            //   child: Container(
+                                            //     clipBehavior: Clip.antiAlias,
+                                            //     decoration: BoxDecoration(
+                                            //       borderRadius:
+                                            //           BorderRadius.circular(50),
+                                            //       color: Colors.grey[300],
+                                            //     ),
+                                            //     height: 15,
+                                            //     width: MediaQuery.of(context)
+                                            //         .size
+                                            //         .width,
+                                            //     child: !snapshotx.hasData
+                                            //         ? Container()
+                                            //         : Row(
+                                            //             children: [
+                                            //               Container(
+                                            //                 height: 15,
+                                            //                 width: totalemployee ==
+                                            //                         0
+                                            //                     ? 0
+                                            //                     : MediaQuery.of(
+                                            //                                 context)
+                                            //                             .size
+                                            //                             .width *
+                                            //                         ((absent /
+                                            //                                 totalemployee *
+                                            //                                 100) /
+                                            //                             100),
+                                            //                 color: Colors.blue,
+                                            //               ),
+                                            //               Container(
+                                            //                 height: 15,
+                                            //                 width: totalemployee ==
+                                            //                         0
+                                            //                     ? 0
+                                            //                     : MediaQuery.of(
+                                            //                                 context)
+                                            //                             .size
+                                            //                             .width *
+                                            //                         ((ontime /
+                                            //                                 totalemployee *
+                                            //                                 100) /
+                                            //                             100),
+                                            //                 color: Colors.green,
+                                            //               ),
+                                            //               Container(
+                                            //                 height: 15,
+                                            //                 width: totalemployee ==
+                                            //                         0
+                                            //                     ? 0
+                                            //                     : MediaQuery.of(
+                                            //                                 context)
+                                            //                             .size
+                                            //                             .width *
+                                            //                         ((lates /
+                                            //                                 totalemployee *
+                                            //                                 100) /
+                                            //                             100),
+                                            //                 color: Colors.red,
+                                            //               )
+                                            //             ],
+                                            //           ),
+                                            //   ),
+                                            // ),
+                                            // const SizedBox(
+                                            //   height: 15,
+                                            // )
+                                          ]),
+                                        ),
+                                        !snapshotx.hasData
+                                            ? Container()
+                                            : ListView.builder(
+                                                padding: EdgeInsets.all(0),
+                                                shrinkWrap: true,
+                                                physics:
+                                                    NeverScrollableScrollPhysics(),
+                                                itemCount:
+                                                    snapshotx.data!.docs.length,
+                                                itemBuilder: (context, index) {
+                                                  return StreamBuilder<
+                                                          DocumentSnapshot>(
+                                                      stream: FirebaseFirestore
+                                                          .instance
+                                                          .collection(
+                                                              "employees")
+                                                          .doc(snapshotx.data!
+                                                                  .docs[index]
+                                                              ["uid"])
+                                                          .snapshots(),
+                                                      builder: (context,
+                                                          AsyncSnapshot<
+                                                                  DocumentSnapshot>
+                                                              snapshotxx) {
+                                                        if (!snapshotxx
+                                                            .hasData) {
+                                                          return Text("");
+                                                        } else if (snapshotxx
+                                                            .hasData) {
+                                                          return EmpCheckIn(
+                                                              snapshotxx.data!);
+                                                        } else {
+                                                          return _shimmer();
+                                                        }
+                                                      });
+                                                }),
+                                      ],
+                                    )));
+                      } else if (snapshotx.hasError) {
+                        return Text("Error");
+                      } else {
+                        return _shimmer();
+                      }
+                    })),
           )
         ]));
   }

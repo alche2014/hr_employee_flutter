@@ -38,12 +38,8 @@ class _MyProfileEditState extends State<MyProfileEdit> {
 
   bool isNetwork = true;
   int guest = 1;
-
-  var firebaseUser;
-
   String? userId;
   String? urlList;
-
   String? value;
 
   @override
@@ -107,7 +103,7 @@ class _MyProfileEditState extends State<MyProfileEdit> {
                 UpperPortion(userId: userId, title: "Profile", showBack: true),
                 SizedBox(
                   width: MediaQuery.of(context).size.width - 40,
-                  height: MediaQuery.of(context).size.height - 270,
+                  height: MediaQuery.of(context).size.height - 200,
                   child: SingleChildScrollView(
                     child: Column(
                       children: [
@@ -494,7 +490,7 @@ class UpperPortion extends StatelessWidget {
                                       : print("");
                                 },
                                 child: Text(
-                                  "  $title",
+                                  " $title",
                                   style: TextStyle(
                                       fontFamily: "Poppins",
                                       color: Colors.white,
@@ -503,7 +499,7 @@ class UpperPortion extends StatelessWidget {
                                 ),
                               ),
                             ),
-                            Expanded(flex: 7, child: Text("")),
+                            Expanded(flex: 6, child: Text("")),
                             Expanded(
                               flex: 1,
                               child: Align(

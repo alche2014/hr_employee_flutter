@@ -48,17 +48,11 @@ double? officeLat;
 double? officeLng;
 String? companyId;
 String? location;
-late int hours = 00;
-late int minutes = 00;
-late int seconds = 00;
-late Timestamp checkinTime;
 
 late String docId;
 late Timer timer;
 // ScheduleController controllers;
-late String to;
-late String from;
-late String shiftName;
+
 late String token;
 String empName = '';
 String empEmail = '';
@@ -67,12 +61,7 @@ int? weekend;
 String empId = '';
 String? department;
 String? designation;
-var weekendDefi;
-double _hr = 0;
-double _minute = 0;
-String lateTime = "0 hrs & 0 mins";
-late ScrollController con;
-late Stream? stream;
+
 String? name = '';
 String? role;
 List leaveData = [];
@@ -80,8 +69,6 @@ List<dynamic> leaveType = [];
 late String reportingTo;
 String imagePath = '';
 File? image;
-DocumentReference? documentReference;
-bool announData = false;
 
 // Toggle this for testing Crashlytics in your app locally.
 const _kTestingCrashlytics = true;

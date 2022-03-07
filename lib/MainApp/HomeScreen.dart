@@ -109,8 +109,8 @@ class _HrDashboardState extends State<HrDashboard>
   double? currentLat;
   // String yourAddress = "Location";
   double? currentLng;
-  String? locationId;
-  String? shiftId;
+  // String? locationId;
+  // String? shiftId;
   double? officeLat;
   double? officeLng;
   String? location;
@@ -142,8 +142,8 @@ class _HrDashboardState extends State<HrDashboard>
   String? name = '';
   String? role;
   // List leaveData = [];
-  List<dynamic> leaveType = [];
-  late String reportingTo;
+  // List<dynamic> leaveType = [];
+  // late String reportingTo;
   // String imagePath = '';
   File? image;
   DocumentReference? documentReference;
@@ -181,7 +181,7 @@ class _HrDashboardState extends State<HrDashboard>
       }
       selectedNotificationPayload = payload;
     });
-    await fbm.requestPermission();
+    fbm.requestPermission();
 
     fbm.subscribeToTopic('all');
     FirebaseMessaging.onMessage.listen(
@@ -360,12 +360,20 @@ class _HrDashboardState extends State<HrDashboard>
         });
       } else if (result == conT.ConnectivityResult.mobile ||
           result == conT.ConnectivityResult.wifi) {
-        setState(() {
-          isNetwork = true;
-        });
+        if (mounted) {
+          setState(() {
+            isNetwork = true;
+          });
+        }
       }
     });
     load();
+    if (shiftId != null) {
+      _getShiftSchedule();
+    }
+    if (locationId != null) {
+      _getOfficeLocation();
+    }
     loadFirebaseUser();
     determinePosition();
 
@@ -391,9 +399,11 @@ class _HrDashboardState extends State<HrDashboard>
         });
       } else if (result == conT.ConnectivityResult.mobile ||
           result == conT.ConnectivityResult.wifi) {
-        setState(() {
-          isNetwork = true;
-        });
+        if (mounted) {
+          setState(() {
+            isNetwork = true;
+          });
+        }
       }
     });
 
@@ -441,16 +451,17 @@ class _HrDashboardState extends State<HrDashboard>
         setState(() {});
       } else if (con.offset <= con.position.minScrollExtent &&
           !con.position.outOfRange) {
-        setState(() {});
+        if (mounted) {
+          setState(() {});
+        }
       } else {
-        setState(() {});
+        if (mounted) {
+          setState(() {});
+        }
       }
     });
-    stream = null;
     _configureDidReceiveLocalNotificationSubject();
     firebaseMessaging.getToken().then((tempToken) {
-      // loadData(tempToken);
-
       FirebaseFirestore.instance
           .collection('employees')
           .doc(uid)
@@ -467,7 +478,7 @@ class _HrDashboardState extends State<HrDashboard>
     final tz.TZDateTime now = tz.TZDateTime.now(tz.local);
     tz.TZDateTime scheduledDate = tz.TZDateTime(tz.local, now.year);
 
-    if (now.weekday != 3) {
+    if (now.weekday != 6 && now.weekday != 7) {
       scheduledDate =
           tz.TZDateTime(tz.local, now.year, now.month, now.day, 03, 50);
       if (scheduledDate.isBefore(now)) {
@@ -491,14 +502,14 @@ class _HrDashboardState extends State<HrDashboard>
         androidAllowWhileIdle: true,
         uiLocalNotificationDateInterpretation:
             UILocalNotificationDateInterpretation.absoluteTime,
-        matchDateTimeComponents: DateTimeComponents.time);
+        matchDateTimeComponents: DateTimeComponents.dateAndTime);
   }
 
   tz.TZDateTime _nextInstanceOf9_10() {
     final tz.TZDateTime now = tz.TZDateTime.now(tz.local);
     tz.TZDateTime scheduledDate = tz.TZDateTime(tz.local, now.year);
 
-    if (now.weekday == 3) {
+    if (now.weekday != 6 && now.weekday != 7) {
       scheduledDate =
           tz.TZDateTime(tz.local, now.year, now.month, now.day, 04, 10);
       if (scheduledDate.isBefore(now)) {
@@ -529,7 +540,7 @@ class _HrDashboardState extends State<HrDashboard>
     final tz.TZDateTime now = tz.TZDateTime.now(tz.local);
     tz.TZDateTime scheduledDate = tz.TZDateTime(tz.local, now.year);
 
-    if (now.weekday == 2 || now.weekday != 3) {
+    if (now.weekday != 6 && now.weekday != 7) {
       scheduledDate =
           tz.TZDateTime(tz.local, now.year, now.month, now.day, 12, 50);
       if (scheduledDate.isBefore(now)) {
@@ -553,14 +564,14 @@ class _HrDashboardState extends State<HrDashboard>
         androidAllowWhileIdle: true,
         uiLocalNotificationDateInterpretation:
             UILocalNotificationDateInterpretation.absoluteTime,
-        matchDateTimeComponents: DateTimeComponents.time);
+        matchDateTimeComponents: DateTimeComponents.dateAndTime);
   }
 
   tz.TZDateTime _nextInstanceOf6_10() {
     final tz.TZDateTime now = tz.TZDateTime.now(tz.local);
     tz.TZDateTime scheduledDate = tz.TZDateTime(tz.local, now.year);
 
-    if (now.weekday != 2 || now.weekday == 3) {
+    if (now.weekday != 6 && now.weekday != 7) {
       scheduledDate =
           tz.TZDateTime(tz.local, now.year, now.month, now.day, 13, 10);
       if (scheduledDate.isBefore(now)) {
@@ -584,7 +595,7 @@ class _HrDashboardState extends State<HrDashboard>
         androidAllowWhileIdle: true,
         uiLocalNotificationDateInterpretation:
             UILocalNotificationDateInterpretation.absoluteTime,
-        matchDateTimeComponents: DateTimeComponents.time);
+        matchDateTimeComponents: DateTimeComponents.dateAndTime);
   }
 
   FirebaseMessaging firebaseMessaging = FirebaseMessaging.instance;
@@ -637,14 +648,8 @@ class _HrDashboardState extends State<HrDashboard>
     }
   }
 
-  Future<Stream> load() async {
-    auth.User? firebaseUser = auth.FirebaseAuth.instance.currentUser;
-    DocumentReference collectionReference = FirebaseFirestore.instance
-        .collection('employees')
-        .doc(firebaseUser!.uid);
+  load() {
     firebaseMessaging.getToken().then((tempToken) {
-      // loadData(tempToken);
-
       FirebaseFirestore.instance
           .collection('employees')
           .doc(uid)
@@ -653,9 +658,6 @@ class _HrDashboardState extends State<HrDashboard>
         token = tempToken!;
       });
     });
-    Stream<DocumentSnapshot> query = collectionReference.snapshots();
-    documentReference!.update({"deviceToken": token});
-    return query;
   }
 
   AndroidInitializationSettings initializationSettingsAndroid =
@@ -713,21 +715,6 @@ class _HrDashboardState extends State<HrDashboard>
           buttonText = "CLOCK OUT";
         });
       }
-    });
-    await FirebaseFirestore.instance
-        .collection('employees')
-        .doc(uid)
-        .snapshots()
-        .listen((onValue) {
-      locationId = onValue.data()!["locationId"];
-      shiftId = onValue.data()!["shiftId"];
-      reportingTo = onValue.data()!['reportingToId'];
-
-      Future.delayed(const Duration(milliseconds: 150), () {
-        if (shiftId != null) {
-          _getShiftSchedule();
-        }
-      });
     });
   }
 
@@ -791,26 +778,215 @@ class _HrDashboardState extends State<HrDashboard>
               ),
             ),
             const SizedBox(height: 18),
-            OfflineBuilder(connectivityBuilder: (
-              BuildContext context,
-              ConnectivityResult connectivity2,
-              Widget child,
-            ) {
-              if (connectivity2 == conT.ConnectivityResult.none) {
-                return Container(
-                  height: 150,
-                  width: 150,
-                  decoration: const BoxDecoration(
-                      gradient: LinearGradient(
-                          tileMode: TileMode.clamp,
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                          colors: [purpleLight, purpleDark]),
-                      shape: BoxShape.circle),
-                  child: InkWell(
+            // OfflineBuilder(connectivityBuilder: (
+            //   BuildContext context,
+            //   ConnectivityResult connectivity2,
+            //   Widget child,
+            // ) {
+            //   if (connectivity2 == conT.ConnectivityResult.none) {
+            //     return Container(
+            //       height: 150,
+            //       width: 150,
+            //       decoration: const BoxDecoration(
+            //           gradient: LinearGradient(
+            //               tileMode: TileMode.clamp,
+            //               begin: Alignment.topCenter,
+            //               end: Alignment.bottomCenter,
+            //               colors: [purpleLight, purpleDark]),
+            //           shape: BoxShape.circle),
+            //       child: InkWell(
+            //         onTap: () {
+            //           ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+            //               content: Text("No Internet Connection")));
+            //         },
+            //         child: Column(
+            //           mainAxisAlignment: MainAxisAlignment.center,
+            //           crossAxisAlignment: CrossAxisAlignment.center,
+            //           children: [
+            //             Image.asset(
+            //               'assets/Group.png',
+            //               height: 50,
+            //               width: 50,
+            //             ),
+            //             const SizedBox(height: 15),
+            //             Text(buttonText,
+            //                 style: const TextStyle(
+            //                     color: Colors.white, fontSize: 15)),
+            //           ],
+            //         ),
+            //       ),
+            //     );
+            //   } else {
+            //     return child;
+            //   }
+            // }, builder: (BuildContext context) {
+            //   return Container(
+            //       height: 150,
+            //       width: 150,
+            //       decoration: const BoxDecoration(
+            //           gradient: LinearGradient(
+            //               tileMode: TileMode.clamp,
+            //               begin: Alignment.topCenter,
+            //               end: Alignment.bottomCenter,
+            //               colors: [purpleLight, purpleDark]),
+            //           shape: BoxShape.circle),
+            //       child: InkWell(
+            //           onTap: () {
+            //             if (buttonText == "CLOCK OUT") {
+            //               if (locationId != null) {
+            //                 _getOfficeLocation();
+            //                 determinePosition();
+            //                 setState(() {
+            //                   Future.delayed(const Duration(milliseconds: 150),
+            //                       () {
+            //                     location == "ON"
+            //                         ? _calculations()
+            //                         : noLocationCheckin();
+            //                   });
+            //                 });
+            //               } else {
+            //                 noLocationCheckin();
+            //               }
+            //             } else if (shiftId != null) {
+            //               // if (weekend == 1) {
+            //               if (weekendDefi.contains(
+            //                       "${DateFormat('EEE').format(DateTime.now())}${DateFormat("M").format(DateTime.now())}") ||
+            //                   weekendDefi.contains(
+            //                       "${DateFormat('EEE').format(DateTime.now())}0")) {
+            //                 Fluttertoast.showToast(
+            //                     msg: "Today is not a working day");
+            //               } else {
+            //                 if (locationId != null) {
+            //                   _getOfficeLocation();
+            //                   determinePosition();
+            //                   setState(() {
+            //                     Future.delayed(
+            //                         const Duration(milliseconds: 150), () {
+            //                       location == "ON"
+            //                           ? _calculations()
+            //                           : noLocationCheckin();
+            //                     });
+            //                   });
+            //                 } else {
+            //                   noLocationCheckin();
+            //                 }
+            //               }
+            //             } else {
+            //               if (DateFormat('EEEE').format(DateTime.now()) !=
+            //                       "Saturday" ||
+            //                   DateFormat('EEEE').format(DateTime.now()) !=
+            //                       "Sunday") {
+            //                 if (locationId != null) {
+            //                   _getOfficeLocation();
+            //                   determinePosition();
+            //                   setState(() {
+            //                     Future.delayed(
+            //                         const Duration(milliseconds: 150), () {
+            //                       location == "ON"
+            //                           ? _calculations()
+            //                           : noLocationCheckin();
+            //                     });
+            //                   });
+            //                 } else {
+            //                   noLocationCheckin();
+            //                 }
+            //               } else {
+            //                 Fluttertoast.showToast(
+            //                     msg: "Today is not a working day");
+            //               }
+            //             }
+            //           },
+            //           child: Column(
+            //             mainAxisAlignment: MainAxisAlignment.center,
+            //             crossAxisAlignment: CrossAxisAlignment.center,
+            //             children: [
+            //               Image.asset(
+            //                 'assets/Group.png',
+            //                 height: 50,
+            //                 width: 50,
+            //               ),
+            //               const SizedBox(height: 15),
+            //               Text(buttonText,
+            //                   style: const TextStyle(
+            //                       color: Colors.white, fontSize: 15)),
+            //             ],
+            //           )));
+            // }),
+
+            Container(
+                height: 150,
+                width: 150,
+                decoration: const BoxDecoration(
+                    gradient: LinearGradient(
+                        tileMode: TileMode.clamp,
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [purpleLight, purpleDark]),
+                    shape: BoxShape.circle),
+                child: InkWell(
                     onTap: () {
-                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                          content: Text("No Internet Connection")));
+                      if (buttonText == "CLOCK OUT") {
+                        if (locationId != null) {
+                          _getOfficeLocation();
+                          determinePosition();
+                          setState(() {
+                            Future.delayed(const Duration(milliseconds: 150),
+                                () {
+                              location == "ON"
+                                  ? _calculations()
+                                  : noLocationCheckin();
+                            });
+                          });
+                        } else {
+                          noLocationCheckin();
+                        }
+                      } else if (shiftId != null) {
+                        if (weekendDefi.contains(
+                                "${DateFormat('EEE').format(DateTime.now())}${DateFormat("M").format(DateTime.now())}") ||
+                            weekendDefi.contains(
+                                "${DateFormat('EEE').format(DateTime.now())}0")) {
+                          Fluttertoast.showToast(
+                              msg: "Today is not a working day");
+                        } else {
+                          if (locationId != null) {
+                            _getOfficeLocation();
+                            determinePosition();
+                            setState(() {
+                              Future.delayed(const Duration(milliseconds: 150),
+                                  () {
+                                location == "ON"
+                                    ? _calculations()
+                                    : noLocationCheckin();
+                              });
+                            });
+                          } else {
+                            noLocationCheckin();
+                          }
+                        }
+                      } else {
+                        if (DateFormat('EEEE').format(DateTime.now()) !=
+                                "Saturday" ||
+                            DateFormat('EEEE').format(DateTime.now()) !=
+                                "Sunday") {
+                          if (locationId != null) {
+                            _getOfficeLocation();
+                            determinePosition();
+                            setState(() {
+                              Future.delayed(const Duration(milliseconds: 150),
+                                  () {
+                                location == "ON"
+                                    ? _calculations()
+                                    : noLocationCheckin();
+                              });
+                            });
+                          } else {
+                            noLocationCheckin();
+                          }
+                        } else {
+                          Fluttertoast.showToast(
+                              msg: "Today is not a working day");
+                        }
+                      }
                     },
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -826,105 +1002,8 @@ class _HrDashboardState extends State<HrDashboard>
                             style: const TextStyle(
                                 color: Colors.white, fontSize: 15)),
                       ],
-                    ),
-                  ),
-                );
-              } else {
-                return child;
-              }
-            }, builder: (BuildContext context) {
-              return Container(
-                  height: 150,
-                  width: 150,
-                  decoration: const BoxDecoration(
-                      gradient: LinearGradient(
-                          tileMode: TileMode.clamp,
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                          colors: [purpleLight, purpleDark]),
-                      shape: BoxShape.circle),
-                  child: InkWell(
-                      onTap: () {
-                        if (buttonText == "CLOCK OUT") {
-                          if (locationId != null) {
-                            _getOfficeLocation();
-                            determinePosition();
-                            setState(() {
-                              Future.delayed(const Duration(milliseconds: 150),
-                                  () {
-                                location == "ON"
-                                    ? _calculations()
-                                    : noLocationCheckin();
-                              });
-                            });
-                          } else {
-                            noLocationCheckin();
-                          }
-                        } else if (shiftId != null) {
-                          // if (weekend == 1) {
-                          if (weekendDefi.contains(
-                                  "${DateFormat('EEE').format(DateTime.now())}${DateFormat("M").format(DateTime.now())}") ||
-                              weekendDefi.contains(
-                                  "${DateFormat('EEE').format(DateTime.now())}0")) {
-                            Fluttertoast.showToast(
-                                msg: "Today is not a working day");
-                          } else {
-                            if (locationId != null) {
-                              _getOfficeLocation();
-                              determinePosition();
-                              setState(() {
-                                Future.delayed(
-                                    const Duration(milliseconds: 150), () {
-                                  location == "ON"
-                                      ? _calculations()
-                                      : noLocationCheckin();
-                                });
-                              });
-                            } else {
-                              noLocationCheckin();
-                            }
-                          }
-                        } else {
-                          if (DateFormat('EEEE').format(DateTime.now()) !=
-                                  "Saturday" ||
-                              DateFormat('EEEE').format(DateTime.now()) !=
-                                  "Sunday") {
-                            if (locationId != null) {
-                              _getOfficeLocation();
-                              determinePosition();
-                              setState(() {
-                                Future.delayed(
-                                    const Duration(milliseconds: 150), () {
-                                  location == "ON"
-                                      ? _calculations()
-                                      : noLocationCheckin();
-                                });
-                              });
-                            } else {
-                              noLocationCheckin();
-                            }
-                          } else {
-                            Fluttertoast.showToast(
-                                msg: "Today is not a working day");
-                          }
-                        }
-                      },
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Image.asset(
-                            'assets/Group.png',
-                            height: 50,
-                            width: 50,
-                          ),
-                          const SizedBox(height: 15),
-                          Text(buttonText,
-                              style: const TextStyle(
-                                  color: Colors.white, fontSize: 15)),
-                        ],
-                      )));
-            }),
+                    ))),
+
             const SizedBox(height: 25),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -958,20 +1037,24 @@ class _HrDashboardState extends State<HrDashboard>
                       Container(
                         margin: const EdgeInsets.only(top: 5),
                         child: Text(
-                          buttonText == "CLOCK OUT"
-                              ? DateFormat('K:mm a')
-                                  .format(checkinTime.toDate())
-                                  .toString()
-                              : buttonText == "CLOCK IN"
-                                  ? todaysAttendance == "yes"
-                                      ? todayIn == null
-                                          ? DateFormat('K:mm a')
-                                              .format(checkinTime.toDate())
-                                              .toString()
-                                          : DateFormat('K:mm a')
-                                              .format(todayIn.toDate())
-                                              .toString()
-                                      : "-- : --"
+                          buttonText == "CLOCK IN"
+                              ? todaysAttendance == "yes"
+                                  ? todayIn == null
+                                      ? DateFormat('K:mm a')
+                                          .format(checkinTime.toDate())
+                                          .toString()
+                                      : DateFormat('K:mm a')
+                                          .format(todayIn.toDate())
+                                          .toString()
+                                  : "-- : --"
+                              : buttonText == "CLOCK OUT"
+                                  ? todayhrs == null
+                                      ? DateFormat('K:mm a')
+                                          .format(checkinTime.toDate())
+                                          .toString()
+                                      : DateFormat('K:mm a')
+                                          .format(todayIn.toDate())
+                                          .toString()
                                   : "-- : --",
                           style: const TextStyle(
                               fontFamily: "Poppins",
@@ -1221,7 +1304,7 @@ class _HrDashboardState extends State<HrDashboard>
   }
 
 //checkin
-  checkin() {
+  checkin() async {
     setState(() {
       buttonText = "CLOCK OUT";
     });
@@ -1255,23 +1338,23 @@ class _HrDashboardState extends State<HrDashboard>
     _hr = _timeDiff.truncateToDouble() < 0 || _timeDiff.truncateToDouble() == -0
         ? 0
         : _timeDiff.truncateToDouble();
-    FirebaseFirestore.instance
+    await FirebaseFirestore.instance
         .collection('attendance')
         .where("empId", isEqualTo: "$uid")
         .where("date",
             isEqualTo: DateFormat('MMMM dd yyyy').format(DateTime.now()))
         .get()
-        .then((onValue) {
-      if (onValue.docs.isNotEmpty) {
-        FirebaseFirestore.instance
+        .then((onValue) async {
+      if (onValue.docs.length != 0) {
+        await FirebaseFirestore.instance
             .collection('attendance')
             .doc(onValue.docs[0].id)
             .snapshots()
             .listen((value) {
           setState(() {});
-          hours = value.data()!['workHours'].split(":")[0];
-          minutes = value.data()!['workHours'].split(":")[1];
-          seconds = value.data()!['workHours'].split(":")[2];
+          hours = int.parse(value.data()!['workHours'].split(":")[0]);
+          minutes = int.parse(value.data()!['workHours'].split(":")[1]);
+          seconds = int.parse(value.data()!['workHours'].split(":")[2]);
         });
         FirebaseFirestore.instance
             .runTransaction((Transaction transaction) async {
@@ -1281,6 +1364,7 @@ class _HrDashboardState extends State<HrDashboard>
           await reference.update({"checkout": null});
         });
       } else {
+        print("docccccccccccc==$reportingTo");
         FirebaseFirestore.instance
             .runTransaction((Transaction transaction) async {
               DocumentReference reference =
@@ -1289,7 +1373,7 @@ class _HrDashboardState extends State<HrDashboard>
                 "date": DateFormat('MMMM dd yyyy').format(DateTime.now()),
                 "reportingToId": reportingTo,
                 "checkin": FieldValue.serverTimestamp(),
-                "empId": "$uid",
+                "empId": uid,
                 "late":
                     "${_hr.toStringAsFixed(0)} hrs & ${_minute.toStringAsFixed(0)} mins",
                 "companyId": "$companyId",
@@ -1449,9 +1533,8 @@ class UpperPortion extends StatelessWidget {
                               padding: const EdgeInsets.only(top: 70.0),
                               child: InkWell(
                                 onTap: () {
-                                  Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
+                                  Navigator.of(context, rootNavigator: true)
+                                      .push(MaterialPageRoute(
                                           builder: (BuildContext context) =>
                                               const MyProfileEdit()));
                                 },
@@ -1490,8 +1573,7 @@ class UpperPortion extends StatelessWidget {
                             flex: 2,
                             child: InkWell(
                               onTap: () {
-                                Navigator.push(
-                                    context,
+                                Navigator.of(context, rootNavigator: true).push(
                                     MaterialPageRoute(
                                         builder: (BuildContext context) =>
                                             const MyProfileEdit()));

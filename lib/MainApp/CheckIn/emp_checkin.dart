@@ -8,6 +8,7 @@ import 'package:intl/intl.dart';
 class EmpCheckIn extends StatefulWidget {
   // ignore: prefer_typing_uninitialized_variables
   final timeStatus;
+
   const EmpCheckIn(this.timeStatus, {Key? key}) : super(key: key);
 
   @override
