@@ -1305,11 +1305,7 @@ class _MainHomeProfileState extends State<MainHomeProfile>
                                                     context: context,
                                                     builder: (BuildContext
                                                             context) =>
-                                                        AddLeave(
-                                                          leavesData: leaveData,
-                                                          joiningDate:
-                                                              joiningDate,
-                                                        ));
+                                                        AddLeave());
                                               },
                                               child: const Text('Apply Leaves',
                                                   style: TextStyle(
@@ -1673,8 +1669,7 @@ class _MainHomeProfileState extends State<MainHomeProfile>
                     Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) =>
-                                MainCheckInTeam(uid: userId)));
+                            builder: (context) => MainCheckInTeam()));
                   } else if (head == "Announcements") {
                     Navigator.push(
                         context,

@@ -525,7 +525,7 @@ packages:
     source: hosted
     version: "3.3.0"
   flutter_circular_chart:
-    dependency: "direct main"
+    dependency: "direct dev"
     description:
       name: flutter_circular_chart
       url: "https://pub.dartlang.org"

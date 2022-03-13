@@ -5,13 +5,14 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:connectivity/connectivity.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:hr_app/Constants/loadingDailog.dart';
 
 import 'package:hr_app/Constants/colors.dart';
+import 'package:hr_app/UserprofileScreen.dart/appbar.dart';
+import 'package:hr_app/main.dart';
 import 'package:hr_app/widgets/ExpansionPanel.dart';
 import 'package:intl/intl.dart';
 
@@ -29,9 +30,7 @@ class Item {
 }
 
 class AddLeave extends StatefulWidget {
-  final leavesData, joiningDate;
-  const AddLeave({this.leavesData, this.joiningDate, Key? key})
-      : super(key: key);
+  const AddLeave({Key? key}) : super(key: key);
   @override
   _AddLeaveState createState() => _AddLeaveState();
 }
@@ -45,20 +44,15 @@ class _AddLeaveState extends State<AddLeave>
 
   final GlobalKey<AppExpansionTileState> expansionTile = GlobalKey();
   final _scaffoldKey = GlobalKey<ScaffoldState>();
-  String reportingToId = "not assigned";
   bool sandwich = true;
-  String? name;
   String? managerToken;
-  List leaves = [];
   VoidCallback? _showPersBottomSheetCallBack;
   List<String> _selectedDayType = [];
   List<int> selectHalfRadioTile = [];
   List<int> selectedRadioTile = [];
   List days = [];
-  late String userId;
   double total = 0;
   late String leaveReason;
-  String? compId;
   String selectleave = "Select Leave";
   int minDays = 0;
   FocusNode _leaveReasonFocus = FocusNode();
@@ -99,13 +93,9 @@ class _AddLeaveState extends State<AddLeave>
     }
   }
 
-  User? firebaseUser;
-  String? uid;
-
   @override
   void initState() {
     super.initState();
-    print(widget.leavesData);
     //check internet connection
     connectivity = Connectivity();
     subscription =
@@ -121,7 +111,7 @@ class _AddLeaveState extends State<AddLeave>
         });
       }
     });
-    loadFIrebaseUser();
+    reportingTo == null ? print("not assigned") : loadManagerToken();
   }
 
   @override
@@ -130,42 +120,11 @@ class _AddLeaveState extends State<AddLeave>
     super.dispose();
   }
 
-// loading employee data
-  loadFIrebaseUser() async {
-    firebaseUser = FirebaseAuth.instance.currentUser!;
-    uid = firebaseUser!.uid;
-
-    setState(() {
-      FirebaseFirestore.instance
-          .collection('employees')
-          .doc(uid)
-          .snapshots()
-          .listen((onValue) {
-        setState(() {
-          reportingToId =
-              onValue["reportingToId"] == "" || onValue["reportingToId"] == null
-                  ? "not assigned"
-                  : onValue["reportingToId"];
-          name = onValue["displayName"];
-          leaves = onValue['leaves'];
-          compId = onValue['companyId'];
-          userId = onValue['uid'];
-        });
-      });
-
-      Future.delayed(const Duration(milliseconds: 500), () {
-        setState(() {
-          loadManagerToken();
-        });
-      });
-    });
-  }
-
 //loading managers token
   loadManagerToken() {
     FirebaseFirestore.instance
         .collection('employees')
-        .doc(reportingToId)
+        .doc(reportingTo)
         .snapshots()
         .listen((onValue) {
       setState(() {
@@ -176,92 +135,116 @@ class _AddLeaveState extends State<AddLeave>
 
   @override
   Widget build(BuildContext context) {
-    return AlertDialog(
-      // backgroundColor: Colors.red,
-      content: SizedBox(
-        height: 400.0,
-        width: 450.0,
-        child: Form(
-          key: _formKey,
+    return Scaffold(
+      backgroundColor: Colors.grey.shade100,
+      appBar: buildMyAppBar(context, 'Apply For Leave', false),
+      body: Form(
+        key: _formKey,
+        child: Container(
+          margin: const EdgeInsets.all(20),
           child: SingleChildScrollView(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text(
-                      'Apply Leave',
-                      style: TextStyle(
-                          color: purpleLight,
-                          fontWeight: FontWeight.w600,
-                          fontSize: 17),
-                    ),
-                    IconButton(
-                        onPressed: () {
-                          Navigator.of(context).pop();
-                        },
-                        icon: const Icon(Icons.close)),
-                  ],
+                Text(
+                  'Choose Leave Type',
+                  style: TextStyle(
+                      color: Colors.grey.shade400,
+                      fontWeight: FontWeight.w400,
+                      fontSize: 14),
                 ),
-                const SizedBox(height: 20),
-                Container(child: _buildPanel()),
                 const SizedBox(height: 10),
+                Container(child: _buildPanel()),
+                const SizedBox(height: 15),
                 Row(
                   children: <Widget>[
                     Expanded(
-                      child: InkWell(
-                        onTap: () {
-                          _selectFromDate(context);
-                        },
-                        child: Container(
-                          height: 60,
-                          decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(2),
-                              border: Border.all(
-                                  color: Colors.grey.withOpacity(0.2),
-                                  width: 1)),
-                          child: Center(
-                            child: Text(
-                              DateFormat("dd MMM, yyyy").format(fromDate),
-                              style: const TextStyle(
-                                  color: Colors.black,
-                                  fontSize: 14,
-                                  fontFamily: "Roboto",
-                                  fontWeight: FontWeight.normal),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Start Date',
+                            style: TextStyle(
+                                color: Colors.grey.shade400,
+                                fontWeight: FontWeight.w400,
+                                fontSize: 14),
+                          ),
+                          const SizedBox(height: 10),
+                          InkWell(
+                            onTap: () {
+                              _selectFromDate(context);
+                            },
+                            child: Container(
+                              height: 55,
+                              decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(10),
+                                  border: Border.all(
+                                      color: Colors.white, width: 0)),
+                              child: Center(
+                                child: Text(
+                                  DateFormat("dd MMM, yyyy").format(fromDate),
+                                  style: const TextStyle(
+                                      color: Colors.black,
+                                      fontSize: 14,
+                                      fontFamily: "Roboto",
+                                      fontWeight: FontWeight.normal),
+                                ),
+                              ),
                             ),
                           ),
-                        ),
+                        ],
                       ),
                     ),
-                    const SizedBox(width: 5),
+                    const SizedBox(width: 15),
                     Expanded(
-                      child: InkWell(
-                        onTap: () {
-                          _selectDate(context);
-                        },
-                        child: Container(
-                          height: 60,
-                          padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(2),
-                              border: Border.all(
-                                  color: Colors.grey.withOpacity(0.2),
-                                  width: 1)),
-                          child: Center(
-                            child: Text(
-                              DateFormat("dd MMM, yyyy").format(toDate),
-                              style: const TextStyle(
-                                  color: Colors.black,
-                                  fontSize: 14,
-                                  fontFamily: "Roboto",
-                                  fontWeight: FontWeight.normal),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'End Date',
+                            style: TextStyle(
+                                color: Colors.grey.shade400,
+                                fontWeight: FontWeight.w400,
+                                fontSize: 14),
+                          ),
+                          const SizedBox(height: 10),
+                          InkWell(
+                            onTap: () {
+                              _selectDate(context);
+                            },
+                            child: Container(
+                              height: 55,
+                              padding: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(10),
+                                  border: Border.all(
+                                      color: Colors.white, width: 0)),
+                              child: Center(
+                                child: Text(
+                                  DateFormat("dd MMM, yyyy").format(toDate),
+                                  style: const TextStyle(
+                                      color: Colors.black,
+                                      fontSize: 14,
+                                      fontFamily: "Roboto",
+                                      fontWeight: FontWeight.normal),
+                                ),
+                              ),
                             ),
                           ),
-                        ),
+                        ],
                       ),
                     ),
                   ],
+                ),
+                const SizedBox(height: 15),
+                Text(
+                  'Reason',
+                  style: TextStyle(
+                      color: Colors.grey.shade400,
+                      fontWeight: FontWeight.w400,
+                      fontSize: 14),
                 ),
                 const SizedBox(height: 10),
                 TextField(
@@ -271,32 +254,33 @@ class _AddLeaveState extends State<AddLeave>
                     hintText: "Reason for Leave",
                     hintStyle: const TextStyle(color: Colors.grey),
                     border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(2),
+                      borderRadius: BorderRadius.circular(10),
                       borderSide: const BorderSide(
-                        color: Colors.transparent,
+                        color: Colors.white,
                       ),
                     ),
+                    filled: true,
+                    fillColor: Colors.white,
                     enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(2),
-                      borderSide: BorderSide(
-                        color: Colors.grey.withOpacity(0.2),
-                      ),
+                      borderRadius: BorderRadius.circular(10),
+                      borderSide: const BorderSide(color: Colors.white),
                     ),
                   ),
                 ),
-                ElevatedButton(
-                    onPressed: () {
-                      validateAndSave();
-                    },
-                    style: ElevatedButton.styleFrom(
-                        //button used in dialog
-                        primary: Colors.red[800],
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(7))),
-                    child: const Text(
-                      'Apply Now',
-                      style: TextStyle(color: Colors.white),
-                    ))
+                const SizedBox(height: 15),
+                SizedBox(
+                    height: 55,
+                    width: MediaQuery.of(context).size.width,
+                    child: ElevatedButton(
+                        child: const Text('SUBMIT FOR APPROVAL'), //next button
+                        style: ElevatedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(vertical: 10),
+                            primary: purpleDark,
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10))),
+                        onPressed: () {
+                          validateAndSave();
+                        }))
               ],
             ),
           ),
@@ -308,7 +292,7 @@ class _AddLeaveState extends State<AddLeave>
   validateAndSave() {
     final form = _formKey.currentState;
     if (form!.validate()) {
-      if (reportingToId == "not assigned") {
+      if (reportingTo == null) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content:
@@ -374,22 +358,22 @@ class _AddLeaveState extends State<AddLeave>
                             "leaveType": selectleave,
                             "leavesDays": days,
                             "leaveStatus": "pending",
-                            "managerId": reportingToId,
-                            "empId": userId,
+                            "managerId": reportingTo,
+                            "empId": uid,
                             "from-to-date":
                                 "${DateFormat('dd MMM yyyy').format(fromDate)} - ${DateFormat('dd MMM yyyy').format(toDate)}",
                             "timeStamp": DateTime.now(),
                             "reason": leaveReasonController.text,
-                            "compId": compId,
+                            "compId": companyId,
                             "days": days.length
                           }).then((value) {
                             var note = FirebaseFunctions.instance
                                 .httpsCallable('sendSpecificFcm');
                             note.call({
                               "fcmToken": "$managerToken",
-                              "employeeId": userId,
-                              "managerId": reportingToId,
-                              "receiverId": reportingToId,
+                              "employeeId": uid,
+                              "managerId": reportingTo,
+                              "receiverId": reportingTo,
                               "timeStamp": "${DateTime.now()}",
                               "docId": reference.id,
                               "employeeName": "$name",
@@ -404,8 +388,8 @@ class _AddLeaveState extends State<AddLeave>
                                 },
                                 "data": {
                                   "docId": reference.id,
-                                  "employeeId": userId,
-                                  "managerId": reportingToId,
+                                  "employeeId": uid,
+                                  "managerId": reportingTo,
                                   "title": "Leave Request",
                                   "days": "${days.length}"
                                 }
@@ -483,22 +467,22 @@ class _AddLeaveState extends State<AddLeave>
                             "leaveType": selectleave,
                             "leavesDays": days,
                             "leaveStatus": "pending",
-                            "managerId": reportingToId,
-                            "empId": userId,
+                            "managerId": reportingTo,
+                            "empId": uid,
                             "from-to-date":
                                 "${DateFormat('dd MMM yyyy').format(fromDate)} - ${DateFormat('dd MMM yyyy').format(toDate)}",
                             "timeStamp": DateTime.now(),
                             "reason": leaveReasonController.text,
-                            "compId": compId,
+                            "compId": companyId,
                             "days": days.length
                           }).then((value) {
                             var note = FirebaseFunctions.instance
                                 .httpsCallable('sendSpecificFcm');
                             note.call({
                               "fcmToken": "$managerToken",
-                              "employeeId": userId,
-                              "managerId": reportingToId,
-                              "receiverId": reportingToId,
+                              "employeeId": uid,
+                              "managerId": reportingTo,
+                              "receiverId": reportingTo,
                               "timeStamp": "${DateTime.now()}",
                               "docId": reference.id,
                               "employeeName": "$name",
@@ -513,8 +497,8 @@ class _AddLeaveState extends State<AddLeave>
                                 },
                                 "data": {
                                   "docId": reference.id,
-                                  "employeeId": userId,
-                                  "managerId": reportingToId,
+                                  "employeeId": uid,
+                                  "managerId": reportingTo,
                                   "title": "Leave Request",
                                   "days": "${days.length + 1}"
                                 }
@@ -556,92 +540,78 @@ class _AddLeaveState extends State<AddLeave>
   }
 
   Widget _buildPanel() {
-    return Column(
-      children: <Widget>[
-        Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(2),
-            border: Border.all(
-              color: Colors.grey.withOpacity(0.2),
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: Colors.white),
+      ),
+      child: ListView(
+        shrinkWrap: true,
+        children: <Widget>[
+          AppExpansionTile(
+            key: expansionTile,
+            trailing: const Icon(
+              Icons.expand_more,
             ),
-          ),
-          child: ListView(
-            shrinkWrap: true,
+            title: SizedBox(
+              width: MediaQuery.of(context).size.width / 1.8,
+              child: Text(selectleave,
+                  style: const TextStyle(
+                      fontSize: 15, fontWeight: FontWeight.w400),
+                  overflow: TextOverflow.ellipsis),
+            ),
             children: <Widget>[
-              AppExpansionTile(
-                key: expansionTile,
-                trailing: const Icon(Icons.expand_more),
-                title: SizedBox(
-                  width: MediaQuery.of(context).size.width / 1.8,
-                  child: Text(selectleave,
-                      style: const TextStyle(
-                          fontSize: 15, fontWeight: FontWeight.w400),
-                      overflow: TextOverflow.ellipsis),
-                ),
-                backgroundColor:
-                    Theme.of(context).accentColor.withOpacity(0.025),
-                children: <Widget>[
-                  ListView.builder(
-                      padding: const EdgeInsets.all(0),
-                      itemCount: widget.leavesData == null
-                          ? 0
-                          : widget.leavesData.length,
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemBuilder: (BuildContext context, int index) {
-                        return widget.leavesData[index]["status"] == true &&
-                                widget.leavesData[index]["active"] == true &&
-                                int.parse(widget.leavesData[index]
-                                        ["minExpDays"]) <
-                                    (widget.joiningDate == ""
-                                        ? 0
-                                        : DateTime.now()
-                                            .difference(
-                                                DateFormat('dd-MMM-yyyy')
-                                                    .parse(widget.joiningDate))
-                                            .inDays)
-                            ? ListTile(
-                                onTap: () {
-                                  setState(() {
-                                    selectleave =
-                                        widget.leavesData[index]["name"];
-                                    sandwich =
-                                        widget.leavesData[index]["sandwich"];
-                                    minDays = int.parse(
-                                        widget.leavesData[index]["minApply"]);
-                                    expansionTile.currentState!.collapse();
-                                    setState(() {});
-                                    days.clear();
-                                    total = 0.0;
-                                    availableDays = widget.leavesData[index]
-                                                ["leaveQuota"]
-                                            .toDouble() -
-                                        widget.leavesData[index]["taken"]
-                                            .toDouble();
-                                  });
-                                },
-                                title: Text(
-                                  widget.leavesData[index]["name"],
-                                  style: TextStyle(
-                                      fontWeight: selectleave ==
-                                              widget.leavesData[index]["name"]
+              ListView.builder(
+                  padding: const EdgeInsets.all(0),
+                  itemCount: leaveData == null ? 0 : leaveData.length,
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemBuilder: (BuildContext context, int index) {
+                    return leaveData[index]["status"] == true &&
+                            leaveData[index]["active"] == true &&
+                            int.parse(leaveData[index]["minExpDays"]) <
+                                (joiningDate == ""
+                                    ? 0
+                                    : DateTime.now()
+                                        .difference(DateFormat('dd-MMM-yyyy')
+                                            .parse(joiningDate))
+                                        .inDays)
+                        ? ListTile(
+                            onTap: () {
+                              setState(() {
+                                selectleave = leaveData[index]["name"];
+                                sandwich = leaveData[index]["sandwich"];
+                                minDays =
+                                    int.parse(leaveData[index]["minApply"]);
+                                expansionTile.currentState!.collapse();
+                                setState(() {});
+                                days.clear();
+                                total = 0.0;
+                                availableDays =
+                                    leaveData[index]["leaveQuota"].toDouble() -
+                                        leaveData[index]["taken"].toDouble();
+                              });
+                            },
+                            title: Text(
+                              leaveData[index]["name"],
+                              style: TextStyle(
+                                  fontWeight:
+                                      selectleave == leaveData[index]["name"]
                                           ? FontWeight.w700
                                           : FontWeight.w400),
-                                ))
-                            : Container();
-                      }),
-                ],
-              )
+                            ))
+                        : Container();
+                  }),
             ],
-          ),
-        ),
-      ],
+          )
+        ],
+      ),
     );
   }
 
   _showBottomSheet(int i) {
-    availableDays =
-        widget.leavesData[i]["leaveQuota"] - widget.leavesData[i]["taken"];
+    availableDays = leaveData[i]["leaveQuota"] - leaveData[i]["taken"];
     setState(() {
       _showPersBottomSheetCallBack = null;
     });
@@ -665,7 +635,7 @@ class _AddLeaveState extends State<AddLeave>
                         alignment: Alignment.center,
                         margin: const EdgeInsets.only(top: 8, left: 30),
                         child: Text(
-                            '${widget.leavesData[i]["leaveQuota"] - widget.leavesData[i]["taken"]}')),
+                            '${leaveData[i]["leaveQuota"] - leaveData[i]["taken"]}')),
                   ),
                 ],
               ));

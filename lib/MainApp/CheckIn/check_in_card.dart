@@ -25,7 +25,11 @@ class CheckInCard extends StatelessWidget {
                 child: Container(
                   width: 43,
                   padding: const EdgeInsets.all(5.0),
-                  decoration: BoxDecoration(border: Border.all()),
+                  decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(5),
+                      border:
+                          Border.all(color: Colors.grey.shade300, width: 1)),
                   child: Column(children: [
                     Text(DateFormat('dd').format(dateTime),
                         style: const TextStyle(
@@ -35,7 +39,7 @@ class CheckInCard extends StatelessWidget {
                         style: TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 12,
-                            color: Colors.grey.shade800)),
+                            color: Colors.grey.shade700)),
                   ]),
                 ),
               ),
@@ -93,7 +97,7 @@ class CheckInCard extends StatelessWidget {
         Container(
           margin: const EdgeInsets.only(top: 5, bottom: 5, left: 75, right: 10),
           height: 1,
-          color: Colors.grey.shade400,
+          color: Colors.grey.shade300,
         )
       ],
     );

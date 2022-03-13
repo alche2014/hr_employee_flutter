@@ -102,31 +102,25 @@ class _HrDashboardState extends State<HrDashboard>
   late conT.Connectivity connectivity;
   late StreamSubscription<conT.ConnectivityResult> subscription;
   late bool isNetwork = true;
-
+  int team = 0;
   late AnimationController controller;
   late String buttonText = "CLOCK IN";
   late Position _currentPosition;
   double? currentLat;
-  // String yourAddress = "Location";
   double? currentLng;
-  // String? locationId;
-  // String? shiftId;
   double? officeLat;
   double? officeLng;
   String? location;
   late int hours = 00;
   late int minutes = 00;
   late int seconds = 00;
-  late Timestamp checkinTime = Timestamp.fromDate(DateTime.now());
+  Timestamp checkinTime = Timestamp.fromDate(DateTime.now());
   late String docId;
-  // late Timer timer;
-  // ScheduleController controllers;
   late String to;
   late String from;
   late String shiftName;
   late String token;
-  // String empName = '';
-  // String empEmail = '';
+  late Timer timer;
   int? weekend;
   var weekendDefi;
   String todaysAttendance = "no";
@@ -141,10 +135,6 @@ class _HrDashboardState extends State<HrDashboard>
   late Stream? stream;
   String? name = '';
   String? role;
-  // List leaveData = [];
-  // List<dynamic> leaveType = [];
-  // late String reportingTo;
-  // String imagePath = '';
   File? image;
   DocumentReference? documentReference;
   bool announData = false;
@@ -375,19 +365,21 @@ class _HrDashboardState extends State<HrDashboard>
       _getOfficeLocation();
     }
     loadFirebaseUser();
+    loadcheckout();
     determinePosition();
+    loadTeam();
 
     notification8_50();
     notification9_10();
     notification5_50();
     notification6_10();
 
-    // timer = Timer.periodic(
-    //     const Duration(seconds: 1), (Timer t) => loadFirebaseUser());
-    // controller = AnimationController(
-    //   vsync: this,
-    //   duration: const Duration(seconds: 32400),
-    // );
+    timer = Timer.periodic(
+        const Duration(seconds: 60), (Timer t) => loadFirebaseUser());
+    controller = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 32400),
+    );
 
     //check internet connection
     connectivity = conT.Connectivity();
@@ -440,6 +432,13 @@ class _HrDashboardState extends State<HrDashboard>
           );
     }
 
+    timer = Timer.periodic(
+        const Duration(seconds: 1), (Timer t) => loadFirebaseUser());
+    controller = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 32400),
+    );
+
     super.initState();
     setupmessaging();
     _requestPermissions();
@@ -479,10 +478,14 @@ class _HrDashboardState extends State<HrDashboard>
     tz.TZDateTime scheduledDate = tz.TZDateTime(tz.local, now.year);
 
     if (now.weekday != 6 && now.weekday != 7) {
-      scheduledDate =
-          tz.TZDateTime(tz.local, now.year, now.month, now.day, 03, 50);
-      if (scheduledDate.isBefore(now)) {
-        scheduledDate = scheduledDate.add(const Duration(days: 1));
+      print(buttonText + "before");
+
+      if (buttonText == "CHECK IN") {
+        scheduledDate =
+            tz.TZDateTime(tz.local, now.year, now.month, now.day, 13, 57);
+        if (scheduledDate.isBefore(now)) {
+          scheduledDate = scheduledDate.add(const Duration(days: 1));
+        }
       }
     }
     return scheduledDate;
@@ -491,7 +494,7 @@ class _HrDashboardState extends State<HrDashboard>
   Future<void> notification8_50() async {
     await flutterLocalNotificationsPlugin.zonedSchedule(
         0,
-        'Check In Reminder!',
+        'Check In z!',
         'Don’t Forget to Check In your attendance 9:00 AM',
         _nextInstanceOf8_50(),
         const NotificationDetails(
@@ -510,10 +513,14 @@ class _HrDashboardState extends State<HrDashboard>
     tz.TZDateTime scheduledDate = tz.TZDateTime(tz.local, now.year);
 
     if (now.weekday != 6 && now.weekday != 7) {
-      scheduledDate =
-          tz.TZDateTime(tz.local, now.year, now.month, now.day, 04, 10);
-      if (scheduledDate.isBefore(now)) {
-        scheduledDate = scheduledDate.add(const Duration(days: 1));
+      print(buttonText + "after");
+
+      if (buttonText == "CHECK IN") {
+        scheduledDate =
+            tz.TZDateTime(tz.local, now.year, now.month, now.day, 13, 58);
+        if (scheduledDate.isBefore(now)) {
+          scheduledDate = scheduledDate.add(const Duration(days: 1));
+        }
       }
     }
     return scheduledDate;
@@ -541,10 +548,13 @@ class _HrDashboardState extends State<HrDashboard>
     tz.TZDateTime scheduledDate = tz.TZDateTime(tz.local, now.year);
 
     if (now.weekday != 6 && now.weekday != 7) {
-      scheduledDate =
-          tz.TZDateTime(tz.local, now.year, now.month, now.day, 12, 50);
-      if (scheduledDate.isBefore(now)) {
-        scheduledDate = scheduledDate.add(const Duration(days: 1));
+      print(buttonText + "before");
+      if (buttonText == "CLOCK OUT") {
+        scheduledDate =
+            tz.TZDateTime(tz.local, now.year, now.month, now.day, 13, 59);
+        if (scheduledDate.isBefore(now)) {
+          scheduledDate = scheduledDate.add(const Duration(days: 1));
+        }
       }
     }
     return scheduledDate;
@@ -552,7 +562,7 @@ class _HrDashboardState extends State<HrDashboard>
 
   Future<void> notification5_50() async {
     await flutterLocalNotificationsPlugin.zonedSchedule(
-        2,
+        8,
         'Check Out Reminder!',
         'Don’t Forget to Check Out at 6:00 PM',
         _nextInstanceOf5_50(),
@@ -572,10 +582,14 @@ class _HrDashboardState extends State<HrDashboard>
     tz.TZDateTime scheduledDate = tz.TZDateTime(tz.local, now.year);
 
     if (now.weekday != 6 && now.weekday != 7) {
-      scheduledDate =
-          tz.TZDateTime(tz.local, now.year, now.month, now.day, 13, 10);
-      if (scheduledDate.isBefore(now)) {
-        scheduledDate = scheduledDate.add(const Duration(days: 1));
+      print(buttonText + "after");
+
+      if (buttonText == "CLOCK OUT") {
+        scheduledDate =
+            tz.TZDateTime(tz.local, now.year, now.month, now.day, 14, 00);
+        if (scheduledDate.isBefore(now)) {
+          scheduledDate = scheduledDate.add(const Duration(days: 1));
+        }
       }
     }
     return scheduledDate;
@@ -661,7 +675,7 @@ class _HrDashboardState extends State<HrDashboard>
   }
 
   AndroidInitializationSettings initializationSettingsAndroid =
-      AndroidInitializationSettings('@mipmap/ic_launcher');
+      const AndroidInitializationSettings('@mipmap/ic_launcher');
 
 //getting current user data
   loadFirebaseUser() async {
@@ -673,18 +687,25 @@ class _HrDashboardState extends State<HrDashboard>
         .get()
         .then((onValue) {
       if (onValue.docs.isEmpty) {
-        setState(() {
-          todaysAttendance = "no";
-        });
+        if (mounted) {
+          setState(() {
+            todaysAttendance = "no";
+          });
+        }
       } else if (onValue.docs.isNotEmpty) {
-        setState(() {
-          todayIn = onValue.docs.first.data()["checkin"];
-          todayOut = onValue.docs.first.data()["checkout"];
-          todayhrs = onValue.docs.first.data()["workHours"];
-          todaysAttendance = "yes";
-        });
+        if (mounted) {
+          setState(() {
+            todayIn = onValue.docs.first.data()["checkin"];
+            todayOut = onValue.docs.first.data()["checkout"];
+            todayhrs = onValue.docs.first.data()["workHours"];
+            todaysAttendance = "yes";
+          });
+        }
       }
     });
+  }
+
+  loadcheckout() async {
     await FirebaseFirestore.instance
         .collection('attendance')
         .where("empId", isEqualTo: uid)
@@ -694,27 +715,50 @@ class _HrDashboardState extends State<HrDashboard>
       if (onValue.docs.isEmpty) {
         setState(() {
           buttonText = "CLOCK IN";
+          notification8_50();
+          notification9_10();
+          notification5_50();
+          notification6_10();
         });
       } else if (onValue.docs.isNotEmpty) {
-        checkinTime = onValue.docs.first.data()["checkin"];
-        docId = onValue.docs.first.data()["docId"];
-        lateTime = onValue.docs.first.data()["late"];
-        DateTime lastTime = DateTime.now();
-        String difference =
-            "${lastTime.difference(checkinTime.toDate()).inSeconds}";
-
-        int weekendDef = int.parse(difference);
-
-        double hoursD = weekendDef / 3600;
-        double minutesD = (weekendDef % 3600) / 60;
-        double secondsD = (weekendDef % 60) / 1;
-        hours = hoursD.toInt();
-        minutes = minutesD.toInt();
-        seconds = secondsD.toInt();
         setState(() {
+          checkinTime = onValue.docs.first.data()["checkin"];
+          docId = onValue.docs.first.data()["docId"];
+          lateTime = onValue.docs.first.data()["late"];
+          DateTime lastTime = DateTime.now();
+          String difference = onValue.docs.first.data()["checkin"] == null
+              ? "0"
+              : "${lastTime.difference(checkinTime.toDate()).inSeconds}";
+
+          int weekendDef = int.parse(difference);
+
+          double hoursD = weekendDef / 3600;
+          double minutesD = (weekendDef % 3600) / 60;
+          double secondsD = (weekendDef % 60);
+          hours = hoursD.toInt();
+          minutes = minutesD.toInt();
+          seconds = secondsD.toInt();
           buttonText = "CLOCK OUT";
+
+          notification8_50();
+          notification9_10();
+          notification5_50();
+          notification6_10();
         });
       }
+    });
+  }
+
+  loadTeam() {
+    FirebaseFirestore.instance
+        .collection('employees')
+        .where("reportingToId", isEqualTo: uid)
+        .where("active", isEqualTo: true)
+        .snapshots()
+        .listen((onValue) async {
+      setState(() {
+        team = onValue.docs.length;
+      });
     });
   }
 
@@ -736,7 +780,7 @@ class _HrDashboardState extends State<HrDashboard>
 
   @override
   void dispose() {
-    // timer.cancel();
+    timer.cancel();
     subscription.cancel();
     super.dispose();
   }
@@ -1039,23 +1083,58 @@ class _HrDashboardState extends State<HrDashboard>
                         child: Text(
                           buttonText == "CLOCK IN"
                               ? todaysAttendance == "yes"
-                                  ? todayIn == null
+                                  ? todayIn != null
                                       ? DateFormat('K:mm a')
-                                          .format(checkinTime.toDate())
-                                          .toString()
-                                      : DateFormat('K:mm a')
                                           .format(todayIn.toDate())
                                           .toString()
-                                  : "-- : --"
-                              : buttonText == "CLOCK OUT"
-                                  ? todayhrs == null
-                                      ? DateFormat('K:mm a')
+                                      : DateFormat('K:mm a')
                                           .format(checkinTime.toDate())
                                           .toString()
-                                      : DateFormat('K:mm a')
+                                  : " -- : --"
+                              : todaysAttendance == "yes"
+                                  ? todayIn != null
+                                      ? DateFormat('K:mm a')
                                           .format(todayIn.toDate())
                                           .toString()
-                                  : "-- : --",
+                                      : DateFormat('K:mm a')
+                                          .format(checkinTime.toDate())
+                                          .toString()
+                                  : DateFormat('K:mm a')
+                                      .format(checkinTime.toDate())
+                                      .toString(),
+                          // buttonText == "CLOCK IN"
+                          //     ? todaysAttendance == "yes"
+                          //         ? todayIn == null
+                          //             ? checkinTime == null
+                          //                 ? DateFormat('K:mm a')
+                          //                     .format(DateTime.now())
+                          //                     .toString()
+                          //                 : DateFormat('K:mm a')
+                          //                     .format(checkinTime.toDate())
+                          //                     .toString()
+                          //             : DateFormat('K:mm a')
+                          //                 .format(todayIn.toDate())
+                          //                 .toString()
+                          //         : "-- : --"
+                          //     : buttonText == "CLOCK OUT"
+                          //         ? checkinTime.toString()
+                          //         //  DateFormat('K:mm a')
+                          //         //     .format(checkinTime.toDate())
+                          //         //     .toString()
+                          //         // ? todayhrs == null
+                          //         // ? checkinTime == null
+                          //         // ?
+                          //         // // DateFormat('K:mm a')
+                          //         // //     .format(DateTime.now())
+                          //         // //     .toString()
+                          //         // : "hgfdsyuytrertjkffdghjhgfddfg"
+                          //         //  DateFormat('K:mm a')
+                          //         //     .format(checkinTime.toDate())
+                          //         //     .toString()
+                          //         // : DateFormat('K:mm a')
+                          //         //     .format(todayIn.toDate())
+                          //         //     .toString()
+                          //         : "-- : --",
                           style: const TextStyle(
                               fontFamily: "Poppins",
                               color: Colors.black,
@@ -1307,6 +1386,10 @@ class _HrDashboardState extends State<HrDashboard>
   checkin() async {
     setState(() {
       buttonText = "CLOCK OUT";
+      notification8_50();
+      notification9_10();
+      notification5_50();
+      notification6_10();
     });
     var a;
     var b;
@@ -1351,10 +1434,12 @@ class _HrDashboardState extends State<HrDashboard>
             .doc(onValue.docs[0].id)
             .snapshots()
             .listen((value) {
-          setState(() {});
-          hours = int.parse(value.data()!['workHours'].split(":")[0]);
-          minutes = int.parse(value.data()!['workHours'].split(":")[1]);
-          seconds = int.parse(value.data()!['workHours'].split(":")[2]);
+          if (mounted) {
+            setState(() {});
+            hours = int.parse(value.data()!['workHours'].split(":")[0]);
+            minutes = int.parse(value.data()!['workHours'].split(":")[1]);
+            seconds = int.parse(value.data()!['workHours'].split(":")[2]);
+          }
         });
         FirebaseFirestore.instance
             .runTransaction((Transaction transaction) async {
@@ -1398,19 +1483,15 @@ class _HrDashboardState extends State<HrDashboard>
       builder: (BuildContext context) {
         return CupertinoAlertDialog(
           title: const Text('CLOCK OUT'),
-          content: const Text('Are you sure you want to want to checkout?'),
+          content: const Text('Are you sure you want to want to Clock Out?'),
           actions: <Widget>[
             FlatButton(
-              child: const Text('No'),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-            OfflineBuilder(connectivityBuilder: (
-              BuildContext context,
-              ConnectivityResult connectivity2,
-              Widget child,
-            ) {
+                child: const Text('No'),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                }),
+            OfflineBuilder(connectivityBuilder: (BuildContext context,
+                ConnectivityResult connectivity2, Widget child) {
               if (connectivity2 == conT.ConnectivityResult.none) {
                 return FlatButton(
                   child: const Text('Yes'),
@@ -1431,6 +1512,10 @@ class _HrDashboardState extends State<HrDashboard>
                 onPressed: () {
                   setState(() {
                     buttonText = "CLOCK IN";
+                    notification8_50();
+                    notification9_10();
+                    notification5_50();
+                    notification6_10();
                   });
 
                   FirebaseFirestore.instance
@@ -1458,10 +1543,14 @@ class _HrDashboardState extends State<HrDashboard>
     return InkWell(
       onTap: () {
         if (title == "My Team") {
-          Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (context) => MainCheckInTeam(uid: uid)));
+          if (team == 0) {
+            Fluttertoast.showToast(msg: "You are not the team lead");
+          } else {
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => const MainCheckInTeam()));
+          }
         } else if (title == "Announcements") {
           Navigator.push(context,
               MaterialPageRoute(builder: (context) => const Announcements()));

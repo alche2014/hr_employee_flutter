@@ -94,9 +94,7 @@ class _NotificationsState extends State<Notifications> {
         appBar: buildMyAppBar(context, 'Notifications', false),
         body: Stack(children: [
           Container(
-            padding: Platform.isIOS
-                ? const EdgeInsets.only(bottom: 50, top: 120)
-                : const EdgeInsets.only(bottom: 15, top: 15),
+            margin: const EdgeInsets.only(bottom: 15, top: 15),
             child: SizedBox(
               height: MediaQuery.of(context).size.height,
               child: isNetwork

@@ -1,8 +1,8 @@
 import 'package:country_code_picker/country_code_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:hr_app/Constants/colors.dart';
-// import 'package:hr_app/Utils/helpers.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
+import 'package:shimmer/shimmer.dart';
 
 const kPrimaryColor = Color(0xff583b6c);
 const kSecondaryColor = Color(0xFFFE9901);
@@ -87,6 +87,7 @@ TextStyle TextFieldHeadingStyle() => const TextStyle(
     fontWeight: FontWeight.w500,
     fontFamily: "Poppins",
     fontSize: 13);
+
 Widget saveButton(context, onpress) {
   return SizedBox(
     height: 55,
@@ -99,6 +100,76 @@ Widget saveButton(context, onpress) {
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
       onPressed: onpress,
+    ),
+  );
+}
+
+Widget shimmer(context) {
+  return Container(
+    width: double.infinity,
+    padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
+    child: Shimmer.fromColors(
+      baseColor: const Color(0xFFE0E0E0),
+      highlightColor: const Color(0xFFF5F5F5),
+      child: Column(
+        children: [0]
+            .map((_) => Padding(
+                padding: const EdgeInsets.only(bottom: 8.0),
+                child: Container(
+                  padding: const EdgeInsets.all(10.0),
+                  decoration: BoxDecoration(
+                      color: Colors.white24,
+                      borderRadius: BorderRadius.circular(4.0)),
+                  height: 100,
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.only(top: 30, left: 30),
+                        width: 48.0,
+                        height: 48.0,
+                        decoration: BoxDecoration(
+                            color: Colors.green,
+                            border: Border.all(),
+                            borderRadius: BorderRadius.circular(50.0)),
+                      ),
+                      const Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 8.0),
+                      ),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Container(
+                              margin: const EdgeInsets.only(top: 4.0),
+                              color: Colors.white,
+                              width: double.infinity,
+                              height: 8.0,
+                            ),
+                            const Padding(
+                              padding: EdgeInsets.symmetric(vertical: 2.0),
+                            ),
+                            Container(
+                              width: double.infinity,
+                              height: 8.0,
+                              color: Colors.white,
+                            ),
+                            const Padding(
+                              padding: EdgeInsets.symmetric(vertical: 2.0),
+                            ),
+                            Container(
+                              width: 40.0,
+                              height: 8.0,
+                              color: Colors.white,
+                            ),
+                          ],
+                        ),
+                      )
+                    ],
+                  ),
+                )))
+            .toList(),
+      ),
     ),
   );
 }

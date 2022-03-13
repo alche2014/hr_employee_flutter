@@ -51,7 +51,6 @@ dependencies:
   fluttertoast: ^8.0.8
   firebase_dynamic_links: 
   url_launcher: ^6.0.12
-  flutter_circular_chart: ^0.1.0
   # firebase_messaging: 10.0.8
   # cloud_functions:
   dio: ^4.0.1
@@ -127,6 +126,8 @@ dependencies:
 #   intl: 0.17.0
 dev_dependencies:
   json_serializable:
+  flutter_circular_chart: ^0.1.0
+
   flutter_test:
     sdk: flutter
   build_runner: ^2.1.4

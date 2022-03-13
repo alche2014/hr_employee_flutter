@@ -197,8 +197,6 @@ class _SplashState extends State<Splash> {
           .snapshots()
           .listen((onValue) {
         setState(() {
-          print(
-              "logggggggggggggggeeeeeeeeeeedddddddddddddddiiiiiiiiiiiinnnnnnnnn");
           uid = firebaseUser.uid;
           designation = onValue.data()!["designation"] ?? "Designation";
           department = onValue.data()!["department"] ?? "Department";
