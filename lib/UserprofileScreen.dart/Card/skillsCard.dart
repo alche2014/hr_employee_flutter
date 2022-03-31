@@ -8,8 +8,8 @@ import '../main_skill.dart';
 
 class SkillsCard extends StatelessWidget {
   // ignore: prefer_typing_uninitialized_variables
-  final data;
-  const SkillsCard({Key? key, this.data}) : super(key: key);
+  final data, teamEdit;
+  const SkillsCard({Key? key, this.data, this.teamEdit}) : super(key: key);
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -20,23 +20,25 @@ class SkillsCard extends StatelessWidget {
             const Text('Skills',
                 style:
                     TextStyle(fontWeight: FontWeight.bold, color: purpleDark)),
-            InkWell(
-                onTap: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => MainSkills(data: data)));
-                },
-                child: Container(
-                  width: 50,
-                  height: 30,
-                  alignment: Alignment.centerRight,
-                  child: const Text('Edit',
-                      style: TextStyle(
-                          color: kPrimaryColor,
-                          fontSize: 13,
-                          fontWeight: FontWeight.w400)),
-                )),
+            teamEdit
+                ? InkWell(
+                    onTap: () {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => MainSkills(data: data)));
+                    },
+                    child: Container(
+                      width: 50,
+                      height: 30,
+                      alignment: Alignment.centerRight,
+                      child: const Text('Edit',
+                          style: TextStyle(
+                              color: kPrimaryColor,
+                              fontSize: 13,
+                              fontWeight: FontWeight.w400)),
+                    ))
+                : Container(),
           ]),
           data['skills'] == null
               ? Center(

@@ -7,8 +7,8 @@ import 'package:hr_app/Constants/constants.dart';
 
 class DependentsCard extends StatelessWidget {
   // ignore: prefer_typing_uninitialized_variables
-  final data;
-  const DependentsCard({Key? key, this.data}) : super(key: key);
+  final data, teamEdit;
+  const DependentsCard({Key? key, this.data, this.teamEdit}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -27,26 +27,28 @@ class DependentsCard extends StatelessWidget {
                 )),
             Expanded(
               flex: 2,
-              child: InkWell(
-                onTap: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => MainDependents(
-                                dependentsInfo: data,
-                              )));
-                },
-                child: Container(
-                  width: 50,
-                  height: 30,
-                  alignment: Alignment.centerRight,
-                  child: const Text('Edit',
-                      style: TextStyle(
-                          color: kPrimaryColor,
-                          fontSize: 13,
-                          fontWeight: FontWeight.w400)),
-                ),
-              ),
+              child: teamEdit
+                  ? InkWell(
+                      onTap: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => MainDependents(
+                                      dependentsInfo: data,
+                                    )));
+                      },
+                      child: Container(
+                        width: 50,
+                        height: 30,
+                        alignment: Alignment.centerRight,
+                        child: const Text('Edit',
+                            style: TextStyle(
+                                color: kPrimaryColor,
+                                fontSize: 13,
+                                fontWeight: FontWeight.w400)),
+                      ),
+                    )
+                  : Text(""),
             ),
           ]),
           dependentsInfo == null

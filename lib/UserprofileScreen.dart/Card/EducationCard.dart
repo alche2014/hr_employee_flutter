@@ -8,8 +8,8 @@ import 'package:hr_app/main.dart';
 
 class EducationCard extends StatefulWidget {
   // ignore: prefer_typing_uninitialized_variables
-  final data;
-  const EducationCard({Key? key, this.data}) : super(key: key);
+  final data, teamEdit;
+  const EducationCard({Key? key, this.data, this.teamEdit}) : super(key: key);
 
   @override
   _EducationCardState createState() => _EducationCardState();
@@ -30,26 +30,28 @@ class _EducationCardState extends State<EducationCard> {
                     TextStyle(fontWeight: FontWeight.bold, color: purpleDark)),
             Expanded(
               flex: 2,
-              child: InkWell(
-                onTap: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => MainEducationCard(
-                                mainEdu: widget.data,
-                              )));
-                },
-                child: Container(
-                  width: 50,
-                  height: 30,
-                  alignment: Alignment.centerRight,
-                  child: const Text('Edit',
-                      style: TextStyle(
-                          color: kPrimaryColor,
-                          fontSize: 13,
-                          fontWeight: FontWeight.w400)),
-                ),
-              ),
+              child: widget.teamEdit
+                  ? InkWell(
+                      onTap: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => MainEducationCard(
+                                      mainEdu: widget.data,
+                                    )));
+                      },
+                      child: Container(
+                        width: 50,
+                        height: 30,
+                        alignment: Alignment.centerRight,
+                        child: const Text('Edit',
+                            style: TextStyle(
+                                color: kPrimaryColor,
+                                fontSize: 13,
+                                fontWeight: FontWeight.w400)),
+                      ),
+                    )
+                  : const Text(""),
             ),
           ]),
           education(widget.data),

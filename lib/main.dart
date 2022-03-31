@@ -10,13 +10,13 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:hr_app/UserprofileScreen.dart/first_time_form.dart';
 import 'package:hr_app/UserprofileScreen.dart/my_profile_edit.dart';
-import 'package:hr_app/mainApp/Login/auth_provider.dart';
+import 'package:hr_app/MainApp/Login/auth_provider.dart';
 import 'package:hr_app/Constants/theme.dart';
 import 'Constants/constants.dart';
 import 'MainApp/bottom_nav_bar.dart';
-import 'mainApp/Login/auth.dart';
+import 'MainApp/Login/auth.dart';
 import 'package:timezone/data/latest.dart' as tz;
-import 'mainApp/Login/google_login.dart';
+import 'MainApp/Login/google_login.dart';
 import 'package:firebase_auth/firebase_auth.dart' as auth;
 
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
@@ -118,9 +118,9 @@ void main() async {
                               const FirstTimeForm(),
                           // "/signininvite": (BuildContext context) => DynamicLinkScreen(),
                           "/invalidUser": (BuildContext context) =>
-                              const MyProfileEdit(),
+                              const MyProfileEdit(teamId: ""),
                           "/guestProfile": (BuildContext context) =>
-                              const MyProfileEdit()
+                              const MyProfileEdit(teamId: "")
                         },
                       ));
             }),
@@ -196,20 +196,22 @@ class _SplashState extends State<Splash> {
           .doc(firebaseUser!.uid)
           .snapshots()
           .listen((onValue) {
-        setState(() {
-          uid = firebaseUser.uid;
-          designation = onValue.data()!["designation"] ?? "Designation";
-          department = onValue.data()!["department"] ?? "Department";
-          locationId = onValue.data()!["locationId"];
-          shiftId = onValue.data()!["shiftId"];
-          companyId = onValue.data()!["companyId"];
-          reportingTo = onValue.data()!['reportingToId'];
-          imagePath = onValue.data()!['imagePath'];
-          empName = onValue.data()!['displayName'];
-          empEmail = onValue.data()!['email'];
-          leaveData = onValue.data()!['leaves'] ?? [];
-          joiningDate = onValue.data()!['joiningDate'] ?? "";
-        });
+        if (mounted) {
+          setState(() {
+            uid = firebaseUser.uid;
+            designation = onValue.data()!["designation"] ?? "Designation";
+            department = onValue.data()!["department"] ?? "Department";
+            locationId = onValue.data()!["locationId"];
+            shiftId = onValue.data()!["shiftId"];
+            companyId = onValue.data()!["companyId"];
+            reportingTo = onValue.data()!['reportingToId'];
+            imagePath = onValue.data()!['imagePath'];
+            empName = onValue.data()!['displayName'];
+            empEmail = onValue.data()!['email'];
+            leaveData = onValue.data()!['leaves'] ?? [];
+            joiningDate = onValue.data()!['joiningDate'] ?? "";
+          });
+        }
       });
       //  checking user exists or not
       final user = FirebaseAuth.instance.currentUser!;
@@ -227,8 +229,10 @@ class _SplashState extends State<Splash> {
             Navigator.pushReplacement(context,
                 MaterialPageRoute(builder: (context) => const FirstTimeForm()));
           } else {
-            Navigator.pushReplacement(context,
-                MaterialPageRoute(builder: (context) => const MyProfileEdit()));
+            Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => const MyProfileEdit(teamId: "")));
           }
         }
       } else {

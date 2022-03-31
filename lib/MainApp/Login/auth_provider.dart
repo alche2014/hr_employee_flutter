@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:hr_app/mainApp/Login/auth.dart';
+import 'package:hr_app/MainApp/Login/auth.dart';
 
 // import 'auth.dart';
 

@@ -4,8 +4,8 @@ import 'package:hr_app/Constants/colors.dart';
 import 'package:hr_app/main.dart';
 
 class WorkInfoCard extends StatefulWidget {
-  final data;
-  const WorkInfoCard({Key? key, this.data}) : super(key: key);
+  final data, teamEdit;
+  const WorkInfoCard({Key? key, this.data, this.teamEdit}) : super(key: key);
 
   @override
   _WorkInfoCardState createState() => _WorkInfoCardState();

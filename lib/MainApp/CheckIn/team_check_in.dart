@@ -3,10 +3,10 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:hr_app/Constants/colors.dart';
 import 'package:hr_app/Constants/constants.dart';
 import 'package:hr_app/MainApp/CheckIn/team_reports.dart';
+import 'package:hr_app/MainApp/main_home_profile/teamInfo.dart';
 import 'package:hr_app/UserprofileScreen.dart/appbar.dart';
 import 'package:hr_app/main.dart';
 import 'package:intl/intl.dart';
@@ -82,6 +82,10 @@ class _MainCheckInTeamState extends State<MainCheckInTeam> {
                         .difference(avg)
                         .inMinutes
                         .toString());
+                avgCheckin.add(onValues.docs.first['checkin']
+                    .toDate()
+                    .difference(avg)
+                    .inMinutes);
                 if (onValues.docs.first['checkout'] != null) {
                   avgOut = avgOut +
                       int.parse(onValues.docs.first['checkout']
@@ -94,10 +98,6 @@ class _MainCheckInTeamState extends State<MainCheckInTeam> {
                       .difference(avg)
                       .inMinutes);
                 }
-                avgCheckin.add(onValues.docs.first['checkin']
-                    .toDate()
-                    .difference(avg)
-                    .inMinutes);
               }
             });
           });
@@ -261,138 +261,147 @@ class _MainCheckInTeamState extends State<MainCheckInTeam> {
                               itemBuilder: (context, index) {
                                 return Column(
                                   children: [
-                                    ListTile(
-                                      leading: CircleAvatar(
-                                        backgroundColor: Colors.transparent,
-                                        radius: 20,
-                                        child: ClipRRect(
-                                          clipBehavior: Clip.antiAlias,
-                                          borderRadius:
-                                              BorderRadius.circular(100),
-                                          child: empAtten[index]["image"]
-                                                      .toString() !=
-                                                  null
-                                              ? CachedNetworkImage(
-                                                  imageUrl: empAtten[index]
-                                                          ["image"]
-                                                      .toString(),
-                                                  fit: BoxFit.cover,
-                                                  height: 40,
-                                                  width: 40,
-                                                  progressIndicatorBuilder: (context,
-                                                          url,
-                                                          downloadProgress) =>
-                                                      CircularProgressIndicator(
-                                                    value: downloadProgress
-                                                        .progress,
-                                                    color: Colors.white,
-                                                  ),
-                                                  errorWidget: (context, url,
-                                                          error) =>
-                                                      const Icon(Icons.error),
-                                                )
-                                              : Image.asset(
-                                                  'assets/placeholder.png',
-                                                  fit: BoxFit.cover,
-                                                ),
-                                        ),
-                                      ),
-                                      title: Text(
-                                        empAtten[index]["name"].toString(),
-                                        style: TextStyle(
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.bold),
-                                      ),
-                                      subtitle: Text(
-                                        empAtten[index]["desig"].toString(),
-                                        style: TextStyle(fontSize: 11),
-                                      ),
-                                      trailing: SizedBox(
-                                          width: 150,
-                                          child: empAtten[index]["absent"]
-                                                      .toString() ==
-                                                  "true"
-                                              ? Container(
-                                                  width: 70,
-                                                  height: 30,
-                                                  alignment: Alignment.center,
-                                                  margin:
-                                                      EdgeInsets.only(left: 80),
-                                                  padding: EdgeInsets.all(8.0),
-                                                  decoration: BoxDecoration(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            10),
-                                                    color: Colors.red.shade600,
-                                                  ),
-                                                  child: Text(
-                                                    "Absent",
-                                                    textAlign: TextAlign.center,
-                                                    style: TextStyle(
-                                                        color: Colors.white),
-                                                  ))
-                                              : Row(
-                                                  children: [
-                                                    Expanded(
-                                                        child: Row(children: [
-                                                      SizedBox(
-                                                        height: 15,
-                                                        width: 15,
-                                                        child: Image.asset(
-                                                            "assets/Arrowdown.png"),
-                                                      ),
-                                                      Text(
-                                                          DateFormat('K:mma')
-                                                              .format(empAtten[
-                                                                          index]
-                                                                      [
-                                                                      "checkin"]
-                                                                  .toDate())
-                                                              .toLowerCase(),
-                                                          style: TextStyle(
-                                                              color: empAtten[index]
-                                                                              [
-                                                                              "late"]
-                                                                          .toString() ==
-                                                                      "0 hrs & 0 mins"
-                                                                  ? Colors.green
-                                                                  : Colors.red))
-                                                    ])),
-                                                    SizedBox(width: 10),
-                                                    Expanded(
-                                                      child: Row(
-                                                        children: [
-                                                          SizedBox(
-                                                            height: 15,
-                                                            width: 15,
-                                                            child: Image.asset(
-                                                                "assets/Arrowup.png"),
-                                                          ),
-                                                          Text(
-                                                              empAtten[index][
-                                                                          'checkout'] ==
-                                                                      null
-                                                                  ? "  -- : --"
-                                                                  : DateFormat(
-                                                                          'K:mma')
-                                                                      .format(empAtten[
-                                                                              index]
-                                                                          [
-                                                                          'checkout']),
-                                                              style: TextStyle(
-                                                                  color: empAtten[index]
-                                                                              [
-                                                                              'checkout'] ==
-                                                                          null
-                                                                      ? Colors
-                                                                          .black
-                                                                      : Colors
-                                                                          .green)),
-                                                        ],
-                                                      ),
+                                    InkWell(
+                                      onTap: () {
+                                        Navigator.of(context,
+                                                rootNavigator: true)
+                                            .push(MaterialPageRoute(
+                                                builder: (BuildContext
+                                                        context) =>
+                                                    TeamMemberInfo(
+                                                        teamId:
+                                                            "${empAtten[index]['id']}")));
+                                      },
+                                      child: ListTile(
+                                        leading: CircleAvatar(
+                                          backgroundColor: Colors.transparent,
+                                          radius: 20,
+                                          child: ClipRRect(
+                                            clipBehavior: Clip.antiAlias,
+                                            borderRadius:
+                                                BorderRadius.circular(100),
+                                            child: empAtten[index]["image"]
+                                                        .toString() !=
+                                                    null
+                                                ? CachedNetworkImage(
+                                                    imageUrl: empAtten[index]
+                                                            ["image"]
+                                                        .toString(),
+                                                    fit: BoxFit.cover,
+                                                    height: 40,
+                                                    width: 40,
+                                                    progressIndicatorBuilder: (context,
+                                                            url,
+                                                            downloadProgress) =>
+                                                        CircularProgressIndicator(
+                                                      value: downloadProgress
+                                                          .progress,
+                                                      color: Colors.white,
                                                     ),
-                                                  ],
-                                                )),
+                                                    errorWidget: (context, url,
+                                                            error) =>
+                                                        const Icon(Icons.error),
+                                                  )
+                                                : Image.asset(
+                                                    'assets/placeholder.png',
+                                                    fit: BoxFit.cover,
+                                                  ),
+                                          ),
+                                        ),
+                                        title: Text(
+                                          empAtten[index]["name"].toString(),
+                                          style: TextStyle(
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.bold),
+                                        ),
+                                        subtitle: Text(
+                                          empAtten[index]["desig"].toString(),
+                                          style: TextStyle(fontSize: 11),
+                                        ),
+                                        trailing: SizedBox(
+                                            width: 150,
+                                            child:
+                                                empAtten[index]["absent"]
+                                                            .toString() ==
+                                                        "true"
+                                                    ? Container(
+                                                        width: 70,
+                                                        height: 30,
+                                                        alignment:
+                                                            Alignment.center,
+                                                        margin: EdgeInsets.only(
+                                                            left: 80),
+                                                        padding:
+                                                            EdgeInsets.all(8.0),
+                                                        decoration:
+                                                            BoxDecoration(
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(10),
+                                                          color: Colors
+                                                              .red.shade600,
+                                                        ),
+                                                        child: Text(
+                                                          "Absent",
+                                                          textAlign:
+                                                              TextAlign.center,
+                                                          style: TextStyle(
+                                                              color:
+                                                                  Colors.white),
+                                                        ))
+                                                    : Row(
+                                                        children: [
+                                                          Expanded(
+                                                              child: Row(
+                                                                  children: [
+                                                                SizedBox(
+                                                                  height: 15,
+                                                                  width: 15,
+                                                                  child: Image
+                                                                      .asset(
+                                                                          "assets/Arrowdown.png"),
+                                                                ),
+                                                                Text(
+                                                                    DateFormat(
+                                                                            'K:mma')
+                                                                        .format(empAtten[index]["checkin"]
+                                                                            .toDate())
+                                                                        .toLowerCase(),
+                                                                    style: TextStyle(
+                                                                        color: empAtten[index]["late"].toString() ==
+                                                                                "0 hrs & 0 mins"
+                                                                            ? Colors.green
+                                                                            : Colors.red))
+                                                              ])),
+                                                          SizedBox(width: 10),
+                                                          Expanded(
+                                                            child: Row(
+                                                              children: [
+                                                                SizedBox(
+                                                                  height: 15,
+                                                                  width: 15,
+                                                                  child: Image
+                                                                      .asset(
+                                                                          "assets/Arrowup.png"),
+                                                                ),
+                                                                Text(
+                                                                    empAtten[index]['checkout'] ==
+                                                                            null
+                                                                        ? "  -- : --"
+                                                                        : DateFormat('K:mma').format(empAtten[index]
+                                                                            [
+                                                                            'checkout']),
+                                                                    style: TextStyle(
+                                                                        color: empAtten[index]['checkout'] ==
+                                                                                null
+                                                                            ? Colors.black
+                                                                            : Colors.green)),
+                                                              ],
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      )),
+                                      ),
                                     ),
                                     Container(
                                       margin:
@@ -675,13 +684,13 @@ class _MainCheckInTeamState extends State<MainCheckInTeam> {
   Widget miniCards(image, title) {
     return InkWell(
       onTap: () {
-        Fluttertoast.showToast(msg: "In Progress");
+        // Fluttertoast.showToast(msg: "In Progress");
 
         // if (title == "Team Reports") {
-        //   Fluttertoast.showToast(msg: "You are not the team lead");
+        // Fluttertoast.showToast(msg: "You are not the team lead");
 
-        //   // Navigator.push(
-        //   //     context, MaterialPageRoute(builder: (context) => TeamReports()));
+        Navigator.push(
+            context, MaterialPageRoute(builder: (context) => TeamReports()));
         // } else if (title == "Announcements") {
         //   // Navigator.push(context,
         //   //     MaterialPageRoute(builder: (context) => const Announcements()));

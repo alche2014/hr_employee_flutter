@@ -8,8 +8,8 @@ import 'package:hr_app/main.dart';
 import '../AddAbout.dart';
 
 class AboutCard extends StatefulWidget {
-  final data;
-  const AboutCard({Key? key, this.data}) : super(key: key);
+  final data, teamEdit;
+  const AboutCard({Key? key, this.data, this.teamEdit}) : super(key: key);
 
   @override
   _AboutCardState createState() => _AboutCardState();
@@ -26,25 +26,26 @@ class _AboutCardState extends State<AboutCard> {
             const Text('About Me',
                 style:
                     TextStyle(fontWeight: FontWeight.bold, color: purpleDark)),
-            InkWell(
-                onTap: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => AddAboutScreen(
-                                title: widget.data,
-                              )));
-                },
-                child: Container(
-                  width: 50,
-                  height: 30,
-                  alignment: Alignment.centerRight,
-                  child: const Text('Edit',
-                      style: TextStyle(
-                          color: kPrimaryColor,
-                          fontSize: 13,
-                          fontWeight: FontWeight.w400)),
-                )),
+            widget.teamEdit
+                ? InkWell(
+                    onTap: () {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) =>
+                                  AddAboutScreen(title: widget.data)));
+                    },
+                    child: Container(
+                      width: 50,
+                      height: 30,
+                      alignment: Alignment.centerRight,
+                      child: const Text('Edit',
+                          style: TextStyle(
+                              color: kPrimaryColor,
+                              fontSize: 13,
+                              fontWeight: FontWeight.w400)),
+                    ))
+                : Container(),
           ]),
           Container(
             margin: const EdgeInsets.only(right: 15, top: 10),

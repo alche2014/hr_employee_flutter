@@ -16,7 +16,7 @@ import 'package:hr_app/UserprofileScreen.dart/screen_dependent.dart';
 import 'package:hr_app/UserprofileScreen.dart/TrainingsCard.dart';
 import 'package:hr_app/Constants/colors.dart';
 import 'package:hr_app/main.dart';
-import 'package:hr_app/mainApp/Login/auth.dart';
+import 'package:hr_app/MainApp/Login/auth.dart';
 import 'package:hr_app/Constants/constants.dart';
 import 'Card/AccountInfoCard.dart';
 import 'Card/EducationCard.dart';
@@ -24,8 +24,10 @@ import 'Card/ExperienceCard.dart';
 import 'Card/Personal_Info_Card.dart';
 import 'Card/skillsCard.dart';
 
+// ignore: must_be_immutable
 class MyProfileEdit extends StatefulWidget {
-  const MyProfileEdit({Key? key}) : super(key: key);
+  final teamId;
+  const MyProfileEdit({Key? key, this.teamId}) : super(key: key);
 
   @override
   _MyProfileEditState createState() => _MyProfileEditState();
@@ -33,12 +35,9 @@ class MyProfileEdit extends StatefulWidget {
 
 class _MyProfileEditState extends State<MyProfileEdit> {
   Connectivity? connectivity;
-
   StreamSubscription<ConnectivityResult>? subscription;
-
   bool isNetwork = true;
   int guest = 1;
-  String? userId;
   String? urlList;
   String? value;
 
@@ -82,14 +81,19 @@ class _MyProfileEditState extends State<MyProfileEdit> {
     return Scaffold(
       backgroundColor: Colors.grey.shade100,
       body: StreamBuilder<DocumentSnapshot>(
-          stream: guest == 0
-              ? FirebaseFirestore.instance
-                  .collection("guests")
-                  .doc(uid)
-                  .snapshots()
+          stream: widget.teamId == ""
+              ? guest == 0
+                  ? FirebaseFirestore.instance
+                      .collection("guests")
+                      .doc(uid)
+                      .snapshots()
+                  : FirebaseFirestore.instance
+                      .collection("employees")
+                      .doc(uid)
+                      .snapshots()
               : FirebaseFirestore.instance
                   .collection("employees")
-                  .doc(uid)
+                  .doc(widget.teamId)
                   .snapshots(),
           builder: (context, AsyncSnapshot<DocumentSnapshot> snapshot) {
             if (snapshot.hasError) {
@@ -100,14 +104,24 @@ class _MyProfileEditState extends State<MyProfileEdit> {
 
             return Column(
               children: [
-                UpperPortion(userId: userId, title: "Profile", showBack: true),
+                widget.teamId == ""
+                    ? UpperPortion(
+                        userId: widget.teamId == "" ? uid : widget.teamId,
+                        title: "Profile",
+                        showBack: true)
+                    : TeamUpperPortion(
+                        data: snapshot.data!.data(),
+                        title: "Profile",
+                      ),
                 SizedBox(
                   width: MediaQuery.of(context).size.width - 40,
                   height: MediaQuery.of(context).size.height - 200,
                   child: SingleChildScrollView(
                     child: Column(
                       children: [
-                        ProfilePic(),
+                        widget.teamId == ""
+                            ? ProfilePic()
+                            : TeamProfile(data: snapshot.data!.data()),
                         Container(
                           decoration: BoxDecoration(
                             color: Colors.white,
@@ -137,9 +151,15 @@ class _MyProfileEditState extends State<MyProfileEdit> {
                                   ],
                                 ),
                                 children: [
-                                  AboutCard(data: snapshot.data!.data()),
+                                  AboutCard(
+                                      data: snapshot.data!.data(),
+                                      teamEdit:
+                                          widget.teamId == "" ? true : false),
                                   closing(),
-                                  KinCard(data: snapshot.data!.data()),
+                                  KinCard(
+                                      data: snapshot.data!.data(),
+                                      teamEdit:
+                                          widget.teamId == "" ? true : false),
                                   closing(),
                                   Padding(
                                     padding: EdgeInsets.symmetric(
@@ -159,30 +179,32 @@ class _MyProfileEditState extends State<MyProfileEdit> {
                                                 fontSize: 14,
                                               ),
                                             ),
-                                            InkWell(
-                                                child: Container(
-                                                    width: 50,
-                                                    height: 30,
-                                                    alignment:
-                                                        Alignment.centerRight,
-                                                    child: const Text('Edit',
-                                                        style: TextStyle(
-                                                            color:
-                                                                kPrimaryColor,
-                                                            fontSize: 13,
-                                                            fontWeight:
-                                                                FontWeight
-                                                                    .w400))),
-                                                onTap: () {
-                                                  Navigator.of(context).push(
-                                                      MaterialPageRoute(
-                                                          builder: (context) =>
-                                                              Dependent(
-                                                                  dependent:
-                                                                      snapshot
+                                            widget.teamId == ""
+                                                ? InkWell(
+                                                    child: Container(
+                                                        width: 50,
+                                                        height: 30,
+                                                        alignment: Alignment
+                                                            .centerRight,
+                                                        child: const Text(
+                                                            'Edit',
+                                                            style: TextStyle(
+                                                                color:
+                                                                    kPrimaryColor,
+                                                                fontSize: 13,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .w400))),
+                                                    onTap: () {
+                                                      Navigator.of(context).push(
+                                                          MaterialPageRoute(
+                                                              builder: (context) =>
+                                                                  Dependent(
+                                                                      dependent: snapshot
                                                                           .data!
                                                                           .data())));
-                                                }),
+                                                    })
+                                                : Container(),
                                           ],
                                         ),
                                         //------------Body----------
@@ -191,9 +213,15 @@ class _MyProfileEditState extends State<MyProfileEdit> {
                                     ),
                                   ),
                                   closing(),
-                                  DependentsCard(data: snapshot.data!.data()),
+                                  DependentsCard(
+                                      data: snapshot.data!.data(),
+                                      teamEdit:
+                                          widget.teamId == "" ? true : false),
                                   closing(),
-                                  PersonalInfoCard(data: snapshot.data!.data()),
+                                  PersonalInfoCard(
+                                      data: snapshot.data!.data(),
+                                      teamEdit:
+                                          widget.teamId == "" ? true : false),
                                 ]),
                           ),
                         ),
@@ -226,15 +254,30 @@ class _MyProfileEditState extends State<MyProfileEdit> {
                                 ],
                               ),
                               children: [
-                                EducationCard(data: snapshot.data!.data()),
+                                EducationCard(
+                                    data: snapshot.data!.data(),
+                                    teamEdit:
+                                        widget.teamId == "" ? true : false),
                                 closing(),
-                                ExperienceCard(data: snapshot.data!.data()),
+                                ExperienceCard(
+                                    data: snapshot.data!.data(),
+                                    teamEdit:
+                                        widget.teamId == "" ? true : false),
                                 closing(),
-                                LicencesCard(data: snapshot.data!.data()),
+                                LicencesCard(
+                                    data: snapshot.data!.data(),
+                                    teamEdit:
+                                        widget.teamId == "" ? true : false),
                                 closing(),
-                                TrainingsCard(data: snapshot.data!.data()),
+                                TrainingsCard(
+                                    data: snapshot.data!.data(),
+                                    teamEdit:
+                                        widget.teamId == "" ? true : false),
                                 closing(),
-                                SkillsCard(data: snapshot.data!.data()),
+                                SkillsCard(
+                                    data: snapshot.data!.data(),
+                                    teamEdit:
+                                        widget.teamId == "" ? true : false),
                               ],
                             ),
                           ),
@@ -271,9 +314,15 @@ class _MyProfileEditState extends State<MyProfileEdit> {
                                   guest == 0
                                       ? Container()
                                       : WorkInfoCard(
-                                          data: snapshot.data!.data()),
+                                          data: snapshot.data!.data(),
+                                          teamEdit: widget.teamId == ""
+                                              ? true
+                                              : false),
                                   closing(),
-                                  AccountInfoCard(data: snapshot.data!.data())
+                                  AccountInfoCard(
+                                      data: snapshot.data!.data(),
+                                      teamEdit:
+                                          widget.teamId == "" ? true : false)
                                 ]),
                           ),
                         ),
@@ -321,6 +370,7 @@ class _MyProfileEditState extends State<MyProfileEdit> {
                                               : Colors.grey[500])),
                                 ),
                               ),
+                        SizedBox(height: 20)
                       ],
                     ),
                   ),
@@ -463,60 +513,40 @@ class UpperPortion extends StatelessWidget {
               left: 0,
               right: 0,
               child: Container(
-                  child: Padding(
-                      padding: const EdgeInsets.only(top: 52.0),
-                      child: Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                  padding: EdgeInsets.only(top: 35),
+                  child: ListTile(
+                      title: InkWell(
+                        onTap: () {
+                          Navigator.pop(context);
+                        },
+                        child: Row(
                           children: [
-                            Flexible(child: SizedBox(width: 20)),
-                            Flexible(
-                              child: showBack
-                                  ? InkWell(
-                                      onTap: () {
-                                        Navigator.pop(context);
-                                      },
-                                      child: Icon(Icons.arrow_back_ios_new,
-                                          color: Colors.white, size: 19),
-                                    )
-                                  : Text(""),
+                            showBack
+                                ? Icon(Icons.arrow_back_ios_new,
+                                    color: Colors.white, size: 19)
+                                : Text(""),
+                            SizedBox(width: 20),
+                            Text(
+                              title,
+                              style: TextStyle(
+                                  fontFamily: "Poppins",
+                                  color: Colors.white,
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.w500),
                             ),
-                            Flexible(
-                              flex: 3,
-                              child: InkWell(
-                                onTap: () {
-                                  title == "Profile"
-                                      ? Navigator.pop(context)
-                                      : print("");
-                                },
-                                child: Text(
-                                  " $title",
-                                  style: TextStyle(
-                                      fontFamily: "Poppins",
-                                      color: Colors.white,
-                                      fontSize: 20,
-                                      fontWeight: FontWeight.w500),
-                                ),
-                              ),
-                            ),
-                            Expanded(flex: 6, child: Text("")),
-                            Expanded(
-                              flex: 1,
-                              child: Align(
-                                alignment: Alignment.topRight,
-                                child: InkWell(
-                                  onTap: () {
-                                    Navigator.of(context, rootNavigator: true)
-                                        .push(MaterialPageRoute(
-                                            builder: (context) => Notifications(
-                                                uid: userId, key: null)));
-                                  },
-                                  child: Icon(Icons.notifications,
-                                      color: Colors.white, size: 22),
-                                ),
-                              ),
-                            ),
-                          ])),
+                          ],
+                        ),
+                      ),
+                      trailing: InkWell(
+                        onTap: () {
+                          Navigator.of(context, rootNavigator: true).push(
+                              MaterialPageRoute(
+                                  builder: (context) =>
+                                      Notifications(uid: uid, key: null)));
+                        },
+                        child: Icon(Icons.notifications,
+                            color: Colors.white, size: 22),
+                      )),
                   height: 180,
                   decoration: BoxDecoration(
                       gradient: LinearGradient(
@@ -583,6 +613,109 @@ class UpperPortion extends StatelessWidget {
 }
 
 //====================================================//
+
+class TeamUpperPortion extends StatelessWidget {
+  final data, title;
+  const TeamUpperPortion({Key? key, this.title, this.data}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 200,
+      child: Stack(
+        children: [
+          Positioned(
+              top: 0,
+              left: 0,
+              right: 0,
+              child: Container(
+                  padding: EdgeInsets.only(top: 35),
+                  child: ListTile(
+                    title: InkWell(
+                      onTap: () {
+                        Navigator.pop(context);
+                      },
+                      child: Row(
+                        children: [
+                          Icon(Icons.arrow_back_ios_new,
+                              color: Colors.white, size: 19),
+                          SizedBox(width: 20),
+                          Text(
+                            title,
+                            style: TextStyle(
+                                fontFamily: "Poppins",
+                                color: Colors.white,
+                                fontSize: 20,
+                                fontWeight: FontWeight.w500),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  height: 180,
+                  decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                          tileMode: TileMode.clamp,
+                          begin: Alignment.topCenter,
+                          end: Alignment(0, -13.0),
+                          colors: const [purpleLight, purpleDark])))),
+          Positioned(
+            top: 135,
+            left: 0,
+            right: 0,
+            child: Container(
+              height: 60,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(35),
+                  topRight: Radius.circular(35),
+                ),
+                color: Colors.grey.shade100,
+              ),
+            ),
+          ),
+          Positioned(
+              top: 95,
+              left: 35,
+              child: Container(
+                height: 100,
+                width: 100,
+                child: CircleAvatar(
+                  backgroundColor: Colors.transparent,
+                  radius: 40,
+                  child: ClipRRect(
+                    clipBehavior: Clip.antiAlias,
+                    borderRadius: BorderRadius.circular(100),
+                    child: data['imagePath'] != null || data['imagePath'] != ""
+                        ? CachedNetworkImage(
+                            imageUrl: data['imagePath'],
+                            fit: BoxFit.cover,
+                            height: 94,
+                            width: 94,
+                            progressIndicatorBuilder:
+                                (context, url, downloadProgress) =>
+                                    CircularProgressIndicator(
+                              value: downloadProgress.progress,
+                              color: Colors.white,
+                            ),
+                            errorWidget: (context, url, error) =>
+                                const Icon(Icons.error),
+                          )
+                        : Image.asset(
+                            'assets/placeholder.png',
+                            fit: BoxFit.cover,
+                          ),
+                  ),
+                ),
+                decoration:
+                    BoxDecoration(shape: BoxShape.circle, color: Colors.white),
+                padding: EdgeInsets.all(4),
+              ))
+        ],
+      ),
+    );
+  }
+}
 
 class ProfilePic extends StatefulWidget {
   ProfilePic({Key? key}) : super(key: key);
@@ -654,13 +787,83 @@ class _ProfilePicState extends State<ProfilePic> {
                   ]),
             ),
           ),
-          // Expanded(
-          //   flex: 1,
-          //   child: Icon(
-          //     Icons.edit,
-          //     color: purpleDark,
-          //   ),
-          // )
+        ],
+      ),
+    );
+  }
+}
+
+class TeamProfile extends StatefulWidget {
+  final data;
+  const TeamProfile({this.data, Key? key}) : super(key: key);
+
+  @override
+  State<TeamProfile> createState() => _TeamProfileState();
+}
+
+class _TeamProfileState extends State<TeamProfile> {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 15),
+      margin: EdgeInsets.only(top: 5, bottom: 5),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+            flex: 9,
+            child: Container(
+              child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(widget.data['displayName'],
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                            fontFamily: "Poppins",
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black)),
+                    SizedBox(height: 5),
+                    Row(
+                      children: [
+                        Text("Employee Id: ",
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                                fontFamily: "Poppins",
+                                fontWeight: FontWeight.w400,
+                                color: Colors.grey.shade600,
+                                fontSize: 14)),
+                        Text(empId == "" ? " Nill" : empId,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                                fontWeight: FontWeight.w400,
+                                fontFamily: "Poppins",
+                                color: Colors.grey.shade600,
+                                fontSize: 14)),
+                      ],
+                    ),
+                    SizedBox(height: 5),
+                    Text(widget.data['department'] ?? "Department: Nill",
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          color: Colors.grey.shade600,
+                          fontSize: 14,
+                          fontFamily: "Poppins",
+                          fontWeight: FontWeight.w400,
+                        )),
+                    SizedBox(height: 5),
+                    Text(widget.data['designation'] ?? "Designation: Nill",
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          color: Colors.grey.shade600,
+                          fontFamily: "Poppins",
+                          fontSize: 14,
+                          fontWeight: FontWeight.w400,
+                        )),
+                  ]),
+            ),
+          ),
         ],
       ),
     );

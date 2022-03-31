@@ -1,14 +1,15 @@
 // ignore_for_file: file_names
 import 'package:flutter/material.dart';
 import 'package:hr_app/Constants/constants.dart';
+import 'package:hr_app/MainApp/CheckIn/team_reports.dart';
 import 'package:hr_app/UserprofileScreen.dart/main_experience.dart';
 import 'package:hr_app/Constants/colors.dart';
 import 'package:hr_app/main.dart';
 
 class ExperienceCard extends StatelessWidget {
   // ignore: prefer_typing_uninitialized_variables
-  final data;
-  const ExperienceCard({Key? key, this.data}) : super(key: key);
+  final data, teamEdit;
+  const ExperienceCard({Key? key, this.data, this.teamEdit}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -24,25 +25,27 @@ class ExperienceCard extends StatelessWidget {
                     TextStyle(fontWeight: FontWeight.bold, color: purpleDark)),
             Expanded(
               flex: 2,
-              child: InkWell(
-                onTap: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) =>
-                              MainExperiences(workexp: data)));
-                },
-                child: Container(
-                  width: 50,
-                  height: 30,
-                  alignment: Alignment.centerRight,
-                  child: const Text('Edit',
-                      style: TextStyle(
-                          color: kPrimaryColor,
-                          fontSize: 13,
-                          fontWeight: FontWeight.w400)),
-                ),
-              ),
+              child: teamEdit
+                  ? InkWell(
+                      onTap: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) =>
+                                    MainExperiences(workexp: data)));
+                      },
+                      child: Container(
+                        width: 50,
+                        height: 30,
+                        alignment: Alignment.centerRight,
+                        child: const Text('Edit',
+                            style: TextStyle(
+                                color: kPrimaryColor,
+                                fontSize: 13,
+                                fontWeight: FontWeight.w400)),
+                      ),
+                    )
+                  : Text(""),
             ),
           ]),
           workexp == null

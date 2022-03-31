@@ -279,7 +279,14 @@ class _AddLeaveState extends State<AddLeave>
                             shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(10))),
                         onPressed: () {
-                          validateAndSave();
+                          if (selectleave == "Select Leave") {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                  content: Text("Kindly Select Leave Type")),
+                            );
+                          } else {
+                            validateAndSave();
+                          }
                         }))
               ],
             ),

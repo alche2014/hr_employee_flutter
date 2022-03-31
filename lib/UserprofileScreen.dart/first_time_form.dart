@@ -521,8 +521,8 @@ class _FirstTimeFormState extends State<FirstTimeForm> {
     }).catchError((e) {});
 
     Future.delayed(const Duration(milliseconds: 1150), () {
-      Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (context) => const MyProfileEdit()));
+      Navigator.of(context).pushReplacement(MaterialPageRoute(
+          builder: (context) => const MyProfileEdit(teamId: "")));
     });
   }
 }

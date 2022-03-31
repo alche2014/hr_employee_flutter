@@ -3,6 +3,7 @@
 import 'dart:async';
 import 'dart:io';
 import 'dart:math';
+import 'package:cron/cron.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart' as auth;
@@ -22,11 +23,11 @@ import 'package:hr_app/MainApp/main_home_profile/screen_announcement.dart';
 import 'package:hr_app/MainApp/screen_notification.dart';
 import 'package:hr_app/UserprofileScreen.dart/my_profile_edit.dart';
 import 'package:hr_app/main.dart';
-import 'package:hr_app/mainApp/annoucment_screen.dart';
-import 'package:hr_app/mainApp/CheckIn/team_check_in.dart';
-import 'package:hr_app/mainApp/CheckIn/main_check_in.dart';
-import 'package:hr_app/mainApp/LeaveManagement/leave_management.dart';
-import 'package:hr_app/mainApp/main_home_profile/leave_approval.dart';
+import 'package:hr_app/MainApp/annoucment_screen.dart';
+import 'package:hr_app/MainApp/CheckIn/team_check_in.dart';
+import 'package:hr_app/MainApp/CheckIn/main_check_in.dart';
+import 'package:hr_app/MainApp/LeaveManagement/leave_management.dart';
+import 'package:hr_app/MainApp/main_home_profile/leave_approval.dart';
 import 'package:intl/intl.dart';
 import 'package:location/location.dart';
 import 'package:rxdart/rxdart.dart';
@@ -93,6 +94,8 @@ class HrDashboard extends StatefulWidget {
 
 class _HrDashboardState extends State<HrDashboard>
     with TickerProviderStateMixin {
+  var cron = new Cron();
+
   ///----------------Notfications End---------------//
   var totalemployee = 13;
   // String joiningDate = '';
@@ -478,11 +481,9 @@ class _HrDashboardState extends State<HrDashboard>
     tz.TZDateTime scheduledDate = tz.TZDateTime(tz.local, now.year);
 
     if (now.weekday != 6 && now.weekday != 7) {
-      print(buttonText + "before");
-
-      if (buttonText == "CHECK IN") {
+      if (buttonText == "CLOCK IN") {
         scheduledDate =
-            tz.TZDateTime(tz.local, now.year, now.month, now.day, 13, 57);
+            tz.TZDateTime(tz.local, now.year, now.month, now.day, 10, 50);
         if (scheduledDate.isBefore(now)) {
           scheduledDate = scheduledDate.add(const Duration(days: 1));
         }
@@ -494,8 +495,8 @@ class _HrDashboardState extends State<HrDashboard>
   Future<void> notification8_50() async {
     await flutterLocalNotificationsPlugin.zonedSchedule(
         0,
-        'Check In z!',
-        'Don’t Forget to Check In your attendance 9:00 AM',
+        'Check In Reminder!',
+        'Don’t Forget to Check In your attendance at 9:00 AM',
         _nextInstanceOf8_50(),
         const NotificationDetails(
           android: AndroidNotificationDetails(
@@ -513,11 +514,9 @@ class _HrDashboardState extends State<HrDashboard>
     tz.TZDateTime scheduledDate = tz.TZDateTime(tz.local, now.year);
 
     if (now.weekday != 6 && now.weekday != 7) {
-      print(buttonText + "after");
-
-      if (buttonText == "CHECK IN") {
+      if (buttonText == "CLOCK IN") {
         scheduledDate =
-            tz.TZDateTime(tz.local, now.year, now.month, now.day, 13, 58);
+            tz.TZDateTime(tz.local, now.year, now.month, now.day, 10, 52);
         if (scheduledDate.isBefore(now)) {
           scheduledDate = scheduledDate.add(const Duration(days: 1));
         }
@@ -548,10 +547,9 @@ class _HrDashboardState extends State<HrDashboard>
     tz.TZDateTime scheduledDate = tz.TZDateTime(tz.local, now.year);
 
     if (now.weekday != 6 && now.weekday != 7) {
-      print(buttonText + "before");
       if (buttonText == "CLOCK OUT") {
         scheduledDate =
-            tz.TZDateTime(tz.local, now.year, now.month, now.day, 13, 59);
+            tz.TZDateTime(tz.local, now.year, now.month, now.day, 10, 54);
         if (scheduledDate.isBefore(now)) {
           scheduledDate = scheduledDate.add(const Duration(days: 1));
         }
@@ -562,7 +560,7 @@ class _HrDashboardState extends State<HrDashboard>
 
   Future<void> notification5_50() async {
     await flutterLocalNotificationsPlugin.zonedSchedule(
-        8,
+        2,
         'Check Out Reminder!',
         'Don’t Forget to Check Out at 6:00 PM',
         _nextInstanceOf5_50(),
@@ -582,11 +580,9 @@ class _HrDashboardState extends State<HrDashboard>
     tz.TZDateTime scheduledDate = tz.TZDateTime(tz.local, now.year);
 
     if (now.weekday != 6 && now.weekday != 7) {
-      print(buttonText + "after");
-
       if (buttonText == "CLOCK OUT") {
         scheduledDate =
-            tz.TZDateTime(tz.local, now.year, now.month, now.day, 14, 00);
+            tz.TZDateTime(tz.local, now.year, now.month, now.day, 10, 56);
         if (scheduledDate.isBefore(now)) {
           scheduledDate = scheduledDate.add(const Duration(days: 1));
         }
@@ -809,15 +805,21 @@ class _HrDashboardState extends State<HrDashboard>
                   fontWeight: FontWeight.w500),
             ),
             Center(
-              child: Container(
-                margin: const EdgeInsets.only(top: 5, bottom: 5),
-                child: Text(
-                  DateFormat('EEEE, dd MMMM yyyy').format(DateTime.now()),
-                  style: const TextStyle(
-                      fontFamily: "Poppins",
-                      color: greyShade,
-                      fontSize: 15,
-                      fontWeight: FontWeight.w400),
+              child: InkWell(
+                onTap: () {
+                  final tz.TZDateTime now = tz.TZDateTime.now(tz.local);
+                  print(now.location.zones);
+                },
+                child: Container(
+                  margin: const EdgeInsets.only(top: 5, bottom: 5),
+                  child: Text(
+                    DateFormat('EEEE, dd MMMM yyyy').format(DateTime.now()),
+                    style: const TextStyle(
+                        fontFamily: "Poppins",
+                        color: greyShade,
+                        fontSize: 15,
+                        fontWeight: FontWeight.w400),
+                  ),
                 ),
               ),
             ),
@@ -1625,7 +1627,7 @@ class UpperPortion extends StatelessWidget {
                                   Navigator.of(context, rootNavigator: true)
                                       .push(MaterialPageRoute(
                                           builder: (BuildContext context) =>
-                                              const MyProfileEdit()));
+                                              const MyProfileEdit(teamId: "")));
                                 },
                                 child: Text(
                                   "Hello, $empName",
@@ -1665,7 +1667,7 @@ class UpperPortion extends StatelessWidget {
                                 Navigator.of(context, rootNavigator: true).push(
                                     MaterialPageRoute(
                                         builder: (BuildContext context) =>
-                                            const MyProfileEdit()));
+                                            const MyProfileEdit(teamId: "")));
                               },
                               child: Container(
                                 padding:

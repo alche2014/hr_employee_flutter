@@ -7,8 +7,8 @@ import 'package:hr_app/main.dart';
 
 class AccountInfoCard extends StatelessWidget {
   // ignore: prefer_typing_uninitialized_variables
-  final data;
-  const AccountInfoCard({Key? key, this.data}) : super(key: key);
+  final data, teamEdit;
+  const AccountInfoCard({Key? key, this.data, this.teamEdit}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -20,22 +20,24 @@ class AccountInfoCard extends StatelessWidget {
             const Text('Account Info',
                 style:
                     TextStyle(fontWeight: FontWeight.bold, color: purpleDark)),
-            InkWell(
-                onTap: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => BankdataInfo(data: data)));
-                },
-                child: Container(
-                    width: 50,
-                    height: 30,
-                    alignment: Alignment.centerRight,
-                    child: const Text('Edit',
-                        style: TextStyle(
-                            color: kPrimaryColor,
-                            fontSize: 13,
-                            fontWeight: FontWeight.w400))))
+            teamEdit
+                ? InkWell(
+                    onTap: () {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => BankdataInfo(data: data)));
+                    },
+                    child: Container(
+                        width: 50,
+                        height: 30,
+                        alignment: Alignment.centerRight,
+                        child: const Text('Edit',
+                            style: TextStyle(
+                                color: kPrimaryColor,
+                                fontSize: 13,
+                                fontWeight: FontWeight.w400))))
+                : Container()
           ]),
           AccountInfo(data),
         ],

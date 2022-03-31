@@ -2,9 +2,12 @@
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:hr_app/Constants/constants.dart';
+import 'package:hr_app/MainApp/main_home_profile/teamInfo.dart';
+import 'package:percent_indicator/percent_indicator.dart';
+import 'package:syncfusion_flutter_charts/charts.dart';
 import 'package:flutter/material.dart';
 import 'package:hr_app/Constants/colors.dart';
-import 'package:hr_app/Constants/constants.dart';
 import 'package:hr_app/UserprofileScreen.dart/appbar.dart';
 import 'package:hr_app/main.dart';
 import 'package:intl/intl.dart';
@@ -21,20 +24,99 @@ class _TeamReportsState extends State<TeamReports> {
   DateTime now = DateTime.now();
   List<Map<String, dynamic>> empAtten = [];
   int presentEmp = 0;
-  DateTime avg = DateTime(
-      DateTime.now().year, DateTime.now().month, DateTime.now().day, 00, 00);
+  // DateTime avg = DateTime(
+  //     DateTime.now().year, DateTime.now().month, DateTime.now().day, 00, 00);
   List avgCheckin = [];
   List avgCheckout = [];
   int avgIn = 0;
+  String aaa = '10 : 25 : 01';
+
+  int avgInEmp = 0;
+  int avgOutEmp = 0;
+  int workHours = 0;
+  List avgCheckinEmp = [];
+  List avgCheckoutEmp = [];
   int avgOut = 0;
+  String date = "March 2022";
+  final List<ChartData> chartData = <ChartData>[];
+  final List<ChartData2> chartData2 = <ChartData2>[];
+  DateTime avg = DateTime(
+      DateTime.now().year, DateTime.now().month, DateTime.now().day, 00, 00);
 
   @override
   void initState() {
     super.initState();
-    loadTeam();
+
+    loadTeamAvg();
+    loadTeamAtt();
   }
 
-  loadTeam() {
+  loadTeamAvg() {
+    for (int i = 1;
+        i < DateTime(DateTime.now().year, DateTime.now().month + 1, 25).day + 1;
+        i++) {
+      FirebaseFirestore.instance
+          .collection('attendance')
+          .where("reportingToId", isEqualTo: uid)
+          .where("date", isEqualTo: "March $i 2022")
+          .snapshots()
+          .listen((onValue) async {
+        setState(() {
+          if (onValue.docs.isNotEmpty) {
+            avgIn = 0;
+            avgCheckin.clear();
+            for (var doc in onValue.docs) {
+              avgIn = avgIn +
+                  int.parse(doc['checkin']
+                      .toDate()
+                      .difference(DateTime(
+                          DateTime.now().year, DateTime.now().month, i, 00, 00))
+                      .inMinutes
+                      .toString());
+              avgCheckin.add(doc['checkin']
+                  .toDate()
+                  .difference(DateTime(
+                      DateTime.now().year, DateTime.now().month, i, 00, 00))
+                  .inMinutes);
+              if (doc['checkout'] != null) {
+                avgOut = avgOut +
+                    int.parse(doc['checkout']
+                        .toDate()
+                        .difference(DateTime(DateTime.now().year,
+                            DateTime.now().month, i, 00, 00))
+                        .inMinutes
+                        .toString());
+                avgCheckout.add(doc['checkout']
+                    .toDate()
+                    .difference(DateTime(
+                        DateTime.now().year, DateTime.now().month, i, 00, 00))
+                    .inMinutes);
+              }
+            }
+
+            chartData.add(ChartData(
+                "March $i",
+                DateTime(
+                    now.year,
+                    now.month,
+                    i,
+                    avgIn / avgCheckin.length ~/ 60,
+                    (avgIn / avgCheckin.length % 60).toInt())));
+            chartData2.add(ChartData2(
+                "March $i",
+                DateTime(
+                    now.year,
+                    now.month,
+                    i,
+                    avgOut / avgCheckout.length ~/ 60,
+                    (avgOut / avgCheckout.length % 60).toInt())));
+          }
+        });
+      });
+    }
+  }
+
+  loadTeamAtt() {
     FirebaseFirestore.instance
         .collection('employees')
         .where("reportingToId", isEqualTo: uid)
@@ -46,58 +128,65 @@ class _TeamReportsState extends State<TeamReports> {
           FirebaseFirestore.instance
               .collection("attendance")
               .where("empId", isEqualTo: doc.id.toString())
-              .where("date",
-                  isEqualTo: DateFormat('MMMM dd yyyy').format(now).toString())
+              .where("month",
+                  isEqualTo: DateFormat('MMMM yyyy').format(now).toString())
               .snapshots()
               .listen((onValues) {
-            setState(() {
-              if (onValues.docs.isEmpty) {
-                empAtten.add({
-                  "id": doc.id.toString(),
-                  "image": doc['imagePath'],
-                  "name": doc['displayName'],
-                  "desig": doc['designation'],
-                  "absent": "true",
-                  "late": "",
-                  "checkin": null,
-                  "checkout": null,
-                });
-              } else {
-                presentEmp++;
-                empAtten.add({
-                  "id": doc.id.toString(),
-                  "image": doc['imagePath'],
-                  "name": doc['displayName'],
-                  "desig": doc['designation'],
-                  "absent": "false",
-                  "late": onValues.docs.first['late'],
-                  "checkin": onValues.docs.first['checkin'],
-                  "checkout": onValues.docs.first['checkout'],
-                });
-                avgIn = avgIn +
-                    int.parse(onValues.docs.first['checkin']
-                        .toDate()
-                        .difference(avg)
-                        .inMinutes
-                        .toString());
-                if (onValues.docs.first['checkout'] != null) {
-                  avgOut = avgOut +
-                      int.parse(onValues.docs.first['checkout']
+            avgInEmp = 0;
+            int out = 0;
+            workHours = 0;
+            if (onValues.docs.isNotEmpty) {
+              for (var docs in onValues.docs) {
+                setState(() {
+                  avgInEmp = avgInEmp +
+                      int.parse(docs['checkin']
                           .toDate()
-                          .difference(avg)
+                          .difference(DateTime.parse(DateFormat('MMMM dd yyyy')
+                              .parse(docs["date"])
+                              .toString()))
                           .inMinutes
                           .toString());
-                  avgCheckout.add(onValues.docs.first['checkout']
-                      .toDate()
-                      .difference(avg)
-                      .inMinutes);
-                }
-                avgCheckin.add(onValues.docs.first['checkin']
-                    .toDate()
-                    .difference(avg)
-                    .inMinutes);
+                  if (docs['checkout'] != null) {
+                    workHours = workHours +
+                        ((int.parse(docs['workHours'].split(":")[0].trim()) *
+                                60) +
+                            int.parse(docs['workHours'].split(":")[0].trim()));
+
+                    out++;
+                    avgOutEmp = avgOutEmp +
+                        int.parse(docs['checkout']
+                            .toDate()
+                            .difference(DateTime.parse(
+                                DateFormat('MMMM dd yyyy')
+                                    .parse(docs["date"])
+                                    .toString()))
+                            .inMinutes
+                            .toString());
+                  }
+                });
               }
-            });
+              empAtten.add({
+                "id": doc.id.toString(),
+                "image": doc['imagePath'],
+                "name": doc['displayName'],
+                'workHours': workHours,
+                "checkin":
+                    "${(avgInEmp / onValues.docs.length ~/ 60).toInt()} : ${(avgInEmp / onValues.docs.length % 60).toInt()}",
+                "checkout":
+                    "${(avgOutEmp / out ~/ 60).toInt()} : ${(avgOutEmp / out % 60).toInt()}"
+              });
+            } else {
+              setState(() {
+                empAtten.add({
+                  "id": doc.id.toString(),
+                  "image": doc['imagePath'],
+                  "name": doc['displayName'],
+                  'workHours': workHours,
+                  "checkin": " -- : -- ",
+                  "checkout": " -- : -- "
+                });
+              });
+            }
           });
         }
       });
@@ -175,20 +264,49 @@ class _TeamReportsState extends State<TeamReports> {
                   margin: EdgeInsets.only(top: 30, left: 12, right: 12),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: const [
-                      Text("Avg Team Punctuality",
-                          textAlign: TextAlign.start,
-                          style: TextStyle(
-                              fontSize: 14,
-                              fontFamily: "Poppins",
-                              fontWeight: FontWeight.w500,
-                              color: purpleDark)),
+                    children: [
+                      InkWell(
+                        onTap: () {
+                          print(chartData.toString());
+                        },
+                        child: Text("Avg Team Punctuality",
+                            textAlign: TextAlign.start,
+                            style: TextStyle(
+                                fontSize: 14,
+                                fontFamily: "Poppins",
+                                fontWeight: FontWeight.w500,
+                                color: purpleDark)),
+                      ),
                       Icon(Icons.download_for_offline_outlined,
                           color: purpleDark)
                     ],
                   ),
                 ),
               ),
+              Container(
+                  color: Colors.white,
+                  child: SfCartesianChart(
+                      enableSideBySideSeriesPlacement: true,
+                      primaryXAxis: CategoryAxis(),
+                      primaryYAxis: DateTimeAxis(
+                        labelFormat: '{value}',
+                        dateFormat: DateFormat.jm(),
+                      ),
+                      enableAxisAnimation: true,
+                      series: <ChartSeries>[
+                        SplineSeries<ChartData2, String>(
+                            dataSource: chartData2,
+                            xValueMapper: (ChartData2 data, _) => data.x,
+                            yValueMapper: (ChartData2 data, _) {
+                              return data.y!.hour;
+                            }),
+                        SplineSeries<ChartData, String>(
+                            dataSource: chartData,
+                            xValueMapper: (ChartData data, _) => data.x,
+                            yValueMapper: (ChartData data, _) {
+                              return data.y!.hour;
+                            })
+                      ])),
               Container(
                 color: Colors.white,
                 child: Column(
@@ -217,19 +335,51 @@ class _TeamReportsState extends State<TeamReports> {
                       color: Colors.grey.shade300,
                     ),
                     Container(
-                      color: Colors.white,
-                      child: empAtten.isEmpty
-                          ? shimmer(context)
-                          : ListView.builder(
-                              padding: EdgeInsets.all(0),
-                              shrinkWrap: true,
-                              physics: NeverScrollableScrollPhysics(),
-                              itemCount: empAtten.length,
-                              itemBuilder: (context, index) {
-                                return Column(
-                                  children: [
-                                    ListTile(
-                                      leading: CircleAvatar(
+                      margin: EdgeInsets.only(top: 30, left: 12, right: 12),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          InkWell(
+                            onTap: () {
+                              print(chartData.toString());
+                            },
+                            child: Text("Work Hours & Timings",
+                                textAlign: TextAlign.start,
+                                style: TextStyle(
+                                    fontSize: 14,
+                                    fontFamily: "Poppins",
+                                    fontWeight: FontWeight.w500,
+                                    color: purpleDark)),
+                          ),
+                          Icon(Icons.download_for_offline_outlined,
+                              color: purpleDark)
+                        ],
+                      ),
+                    ),
+                    empAtten.isEmpty
+                        ? shimmer(context)
+                        : ListView.builder(
+                            padding: EdgeInsets.all(0),
+                            shrinkWrap: true,
+                            physics: NeverScrollableScrollPhysics(),
+                            itemCount: empAtten.length,
+                            itemBuilder: (context, index) {
+                              return Container(
+                                margin: EdgeInsets.only(
+                                    top: 2, left: 12, right: 12),
+                                child: InkWell(
+                                  onTap: () {
+                                    Navigator.of(context, rootNavigator: true)
+                                        .push(MaterialPageRoute(
+                                            builder: (BuildContext context) =>
+                                                TeamMemberInfo(
+                                                    teamId:
+                                                        "${empAtten[index]['id']}")));
+                                  },
+                                  child: Row(children: [
+                                    Expanded(
+                                      flex: 1,
+                                      child: CircleAvatar(
                                         backgroundColor: Colors.transparent,
                                         radius: 20,
                                         child: ClipRRect(
@@ -244,8 +394,8 @@ class _TeamReportsState extends State<TeamReports> {
                                                           ["image"]
                                                       .toString(),
                                                   fit: BoxFit.cover,
-                                                  height: 40,
-                                                  width: 40,
+                                                  height: 30,
+                                                  width: 30,
                                                   progressIndicatorBuilder: (context,
                                                           url,
                                                           downloadProgress) =>
@@ -264,116 +414,70 @@ class _TeamReportsState extends State<TeamReports> {
                                                 ),
                                         ),
                                       ),
-                                      title: Text(
-                                        empAtten[index]["name"].toString(),
-                                        style: TextStyle(
-                                            fontSize: 14,
-                                            fontWeight: FontWeight.bold),
-                                      ),
-                                      subtitle: Text(
-                                        empAtten[index]["desig"].toString(),
-                                        style: TextStyle(fontSize: 11),
-                                      ),
-                                      trailing: SizedBox(
-                                          width: 150,
-                                          child: empAtten[index]["absent"]
-                                                      .toString() ==
-                                                  "true"
-                                              ? Container(
-                                                  width: 70,
-                                                  height: 30,
-                                                  alignment: Alignment.center,
-                                                  margin:
-                                                      EdgeInsets.only(left: 80),
-                                                  padding: EdgeInsets.all(8.0),
-                                                  decoration: BoxDecoration(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            10),
-                                                    color: Colors.red.shade600,
-                                                  ),
-                                                  child: Text(
-                                                    "Absent",
-                                                    textAlign: TextAlign.center,
-                                                    style: TextStyle(
-                                                        color: Colors.white),
-                                                  ))
-                                              : Row(
-                                                  children: [
-                                                    Expanded(
-                                                        child: Row(children: [
-                                                      SizedBox(
-                                                        height: 15,
-                                                        width: 15,
-                                                        child: Image.asset(
-                                                            "assets/Arrowdown.png"),
-                                                      ),
-                                                      Text(
-                                                          DateFormat('K:mma')
-                                                              .format(empAtten[
-                                                                          index]
-                                                                      [
-                                                                      "checkin"]
-                                                                  .toDate())
-                                                              .toLowerCase(),
-                                                          style: TextStyle(
-                                                              color: empAtten[index]
-                                                                              [
-                                                                              "late"]
-                                                                          .toString() ==
-                                                                      "0 hrs & 0 mins"
-                                                                  ? Colors.green
-                                                                  : Colors.red))
-                                                    ])),
-                                                    SizedBox(width: 15),
-                                                    Expanded(
-                                                      child: Row(
-                                                        children: [
-                                                          SizedBox(
-                                                            height: 15,
-                                                            width: 15,
-                                                            child: Image.asset(
-                                                                "assets/Arrowup.png"),
-                                                          ),
-                                                          Text(
-                                                              empAtten[index][
-                                                                          'checkout'] ==
-                                                                      null
-                                                                  ? "  -- : --"
-                                                                  : DateFormat(
-                                                                          'K:mma')
-                                                                      .format(empAtten[
-                                                                              index]
-                                                                          [
-                                                                          'checkout']),
-                                                              style: TextStyle(
-                                                                  color: empAtten[index]
-                                                                              [
-                                                                              'checkout'] ==
-                                                                          null
-                                                                      ? Colors
-                                                                          .black
-                                                                      : Colors
-                                                                          .green)),
-                                                        ],
-                                                      ),
-                                                    ),
-                                                  ],
-                                                )),
                                     ),
-                                    Container(
-                                      margin:
-                                          EdgeInsets.only(top: 10, bottom: 10),
-                                      height: 1,
-                                      color: Colors.grey.shade300,
+                                    Expanded(
+                                      flex: 9,
+                                      child: Stack(
+                                        children: [
+                                          LinearPercentIndicator(
+                                            linearStrokeCap:
+                                                LinearStrokeCap.butt,
+
+                                            fillColor: Colors.transparent,
+                                            backgroundColor: Colors.transparent,
+                                            lineHeight: 25,
+                                            restartAnimation: true,
+                                            animationDuration: 1000,
+                                            animateFromLastPercent: false,
+                                            // animation: true,
+                                            percent: 1.0,
+                                            progressColor: Colors.teal,
+                                            // trailing: Text("9:00am"),
+                                          ),
+                                          Container(
+                                              margin: EdgeInsets.only(
+                                                  left: 12, top: 6),
+                                              alignment: Alignment.centerLeft,
+                                              child: Text(
+                                                empAtten[index]['checkin'],
+                                                style: TextStyle(
+                                                    fontSize: 10,
+                                                    color: Colors.black),
+                                              )),
+                                          Container(
+                                              margin: EdgeInsets.only(
+                                                  right: 12, top: 6),
+                                              alignment: Alignment.centerRight,
+                                              child: Text(
+                                                empAtten[index]['checkout'],
+                                                style: TextStyle(
+                                                    fontSize: 10,
+                                                    color: Colors.black),
+                                              ))
+                                        ],
+                                      ),
                                     ),
-                                  ],
-                                );
-                              }),
-                    ),
+                                    Expanded(
+                                      flex: 2,
+                                      child: Container(
+                                          alignment: Alignment.center,
+                                          child: Text(
+                                            empAtten[index]['workHours'] == 0
+                                                ? "-- : --"
+                                                : "${(empAtten[index]['workHours'] ~/ 60).toInt()} : ${(empAtten[index]['workHours'] % 60).toInt()}",
+                                            textAlign: TextAlign.center,
+                                            style: TextStyle(
+                                                fontSize: 10,
+                                                color: Colors.black),
+                                          )),
+                                    ),
+                                  ]),
+                                ),
+                              );
+                            }),
                   ],
                 ),
-              )
+              ),
             ],
           ),
         ));
@@ -405,4 +509,16 @@ class _TeamReportsState extends State<TeamReports> {
           ],
         ));
   }
+}
+
+class ChartData {
+  ChartData(this.x, this.y);
+  final String x;
+  final DateTime? y;
+}
+
+class ChartData2 {
+  ChartData2(this.x, this.y);
+  final String x;
+  final DateTime? y;
 }

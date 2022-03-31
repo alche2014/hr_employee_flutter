@@ -10,7 +10,7 @@ import 'package:hr_app/MainApp/screen_about_app.dart';
 import 'package:hr_app/MainApp/screen_notification.dart';
 import 'package:hr_app/UserprofileScreen.dart/my_profile_edit.dart';
 import 'package:hr_app/main.dart';
-import 'package:hr_app/mainApp/Login/auth.dart';
+import 'package:hr_app/MainApp/Login/auth.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({Key? key}) : super(key: key);

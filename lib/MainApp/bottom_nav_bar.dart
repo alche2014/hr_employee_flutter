@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:hr_app/MainApp/CheckIn/main_check_in.dart';
 import 'package:hr_app/MainApp/HomeScreen.dart';
 import 'package:hr_app/MainApp/settings.dart';
-import 'package:hr_app/mainApp/LeaveManagement/leave_history.dart';
+import 'package:hr_app/main.dart';
+import 'package:hr_app/MainApp/LeaveManagement/leave_history.dart';
 
 int? count;
 String? user;
@@ -21,7 +22,7 @@ class _NavBarState extends State<NavBar> {
   final tabs = [
     // Assigning Tabs for bottom bar position Icon
     const Center(child: HrDashboard()),
-    const Center(child: LeaveHistory(value: false)),
+    Center(child: LeaveHistory(value: "Leave Management", memId: uid)),
     const Center(child: MainCheckIn()),
     const Center(child: SettingsScreen()),
   ];

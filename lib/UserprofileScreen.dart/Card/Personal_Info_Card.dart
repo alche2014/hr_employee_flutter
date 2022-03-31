@@ -6,8 +6,9 @@ import 'package:hr_app/Constants/colors.dart';
 
 class PersonalInfoCard extends StatefulWidget {
   // ignore: prefer_typing_uninitialized_variables
-  final data;
-  const PersonalInfoCard({Key? key, this.data}) : super(key: key);
+  final data, teamEdit;
+  const PersonalInfoCard({Key? key, this.data, this.teamEdit})
+      : super(key: key);
 
   @override
   _PersonalInfoCardState createState() => _PersonalInfoCardState();
@@ -24,24 +25,26 @@ class _PersonalInfoCardState extends State<PersonalInfoCard> {
             const Text('Personal Data',
                 style:
                     TextStyle(fontWeight: FontWeight.bold, color: purpleDark)),
-            InkWell(
-                onTap: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) =>
-                              ContactInfo(data: widget.data)));
-                },
-                child: Container(
-                  width: 50,
-                  height: 30,
-                  alignment: Alignment.centerRight,
-                  child: const Text('Edit',
-                      style: TextStyle(
-                          color: kPrimaryColor,
-                          fontSize: 13,
-                          fontWeight: FontWeight.w400)),
-                )),
+            widget.teamEdit
+                ? InkWell(
+                    onTap: () {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) =>
+                                  ContactInfo(data: widget.data)));
+                    },
+                    child: Container(
+                      width: 50,
+                      height: 30,
+                      alignment: Alignment.centerRight,
+                      child: const Text('Edit',
+                          style: TextStyle(
+                              color: kPrimaryColor,
+                              fontSize: 13,
+                              fontWeight: FontWeight.w400)),
+                    ))
+                : Container(),
           ]),
           personalInfo(widget.data),
           const SizedBox(height: 15),

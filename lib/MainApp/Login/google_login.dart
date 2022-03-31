@@ -2,12 +2,9 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_offline/flutter_offline.dart';
 import 'package:flutter_signin_button/flutter_signin_button.dart';
-// import 'package:flutter_offline/flutter_offline.dart';
 import 'package:hr_app/Constants/loadingDailog.dart';
 import 'package:connectivity/connectivity.dart' as conT;
-import 'package:connectivity/connectivity.dart';
 import 'package:hr_app/main.dart';
 
 import 'auth.dart';

@@ -6,8 +6,8 @@ import 'package:hr_app/Constants/constants.dart';
 
 class TrainingsCard extends StatelessWidget {
   // ignore: prefer_typing_uninitialized_variables
-  final data;
-  const TrainingsCard({Key? key, this.data}) : super(key: key);
+  final data, teamEdit;
+  const TrainingsCard({Key? key, this.data, this.teamEdit}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -26,26 +26,28 @@ class TrainingsCard extends StatelessWidget {
                 )),
             Expanded(
               flex: 2,
-              child: InkWell(
-                onTap: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => MainTrainings(
-                                trainings: data,
-                              )));
-                },
-                child: Container(
-                  width: 50,
-                  height: 30,
-                  alignment: Alignment.centerRight,
-                  child: const Text('Edit',
-                      style: TextStyle(
-                          color: kPrimaryColor,
-                          fontSize: 13,
-                          fontWeight: FontWeight.w400)),
-                ),
-              ),
+              child: teamEdit
+                  ? InkWell(
+                      onTap: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => MainTrainings(
+                                      trainings: data,
+                                    )));
+                      },
+                      child: Container(
+                        width: 50,
+                        height: 30,
+                        alignment: Alignment.centerRight,
+                        child: const Text('Edit',
+                            style: TextStyle(
+                                color: kPrimaryColor,
+                                fontSize: 13,
+                                fontWeight: FontWeight.w400)),
+                      ),
+                    )
+                  : const Text(""),
             ),
           ]),
           trainings == null
