@@ -8,6 +8,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:hr_app/Constants/loadingDailog.dart';
 import 'package:hr_app/UserprofileScreen.dart/appbar.dart';
 import 'package:hr_app/Constants/constants.dart';
+import 'package:hr_app/main.dart';
 
 class Dependent extends StatefulWidget {
   // ignore: prefer_typing_uninitialized_variables
@@ -20,6 +21,8 @@ class Dependent extends StatefulWidget {
 
 class _DependentState extends State<Dependent> {
   TextEditingController _controller1 = TextEditingController();
+  TextEditingController _controller2 = TextEditingController();
+
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   TextEditingController phoneController = TextEditingController();
   var defaultCode = "+92";
@@ -51,9 +54,9 @@ class _DependentState extends State<Dependent> {
     });
     userId = widget.dependent["uid"];
     _controller1 = TextEditingController(text: widget.dependent["depName"]);
+    _controller2 = TextEditingController(text: widget.dependent["depAddress"]);
 
     selectRelation = widget.dependent["relation"];
-    phoneController = TextEditingController(text: widget.dependent["depPhone"]);
     defaultCode = widget.dependent["depPhone"] == null ||
             widget.dependent["depPhone"] == ""
         ? "+92"
@@ -98,7 +101,7 @@ class _DependentState extends State<Dependent> {
                             if (value!.isEmpty) {
                               return null;
                             } else if (!regExp.hasMatch(value)) {
-                              return 'Enter a Valid Name';
+                              return 'Enter a valid Name';
                             } else {
                               return null;
                             }
@@ -149,6 +152,17 @@ class _DependentState extends State<Dependent> {
                             style: TextFieldTextStyle(),
                             decoration: TextPhoneFieldDecoration(defaultCode)),
                         const SizedBox(height: 15),
+                        Text("  Address", style: TextFieldHeadingStyle()),
+                        const SizedBox(height: 10),
+                        TextFormField(
+                          textCapitalization: TextCapitalization.sentences,
+                          textInputAction: TextInputAction.next,
+                          controller: _controller2,
+                          style: TextFieldTextStyle(),
+                          decoration: TextFieldDecoration('Address'),
+                          autovalidateMode: AutovalidateMode.onUserInteraction,
+                        ),
+                        const SizedBox(height: 15),
                         saveButton(context, onpress)
                       ],
                     )))));
@@ -158,7 +172,8 @@ class _DependentState extends State<Dependent> {
     if (_controller1.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Name is empty'),
+          backgroundColor: Colors.white,
+          content: Text('Name is empty', style: TextStyle(color: Colors.black)),
         ),
       );
     } else {
@@ -172,10 +187,11 @@ class _DependentState extends State<Dependent> {
       // ignore: prefer_const_constructors
       if (selectRelation == "Relation") {
         const SnackBar(
+            backgroundColor: Colors.white,
             content: Text("Kindly Select Relation",
                 style: TextStyle(
                     fontSize: 15,
-                    color: Colors.white,
+                    color: Colors.black,
                     fontWeight: FontWeight.w500)));
       } else {
         int guest = 0;
@@ -202,6 +218,7 @@ class _DependentState extends State<Dependent> {
           "depPhone": phoneController.text.isEmpty
               ? ''
               : defaultCode + " " + phoneController.text,
+          "depAddress": _controller2.text.isEmpty ? '' : _controller2.text,
           "relation": selectRelation,
         }).whenComplete(() {
           Navigator.of(context).pop();

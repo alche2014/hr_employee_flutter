@@ -382,7 +382,9 @@ class _EducationState extends State<Education> {
     if (schoolController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('School name is empty'),
+          backgroundColor: Colors.white,
+          content: Text('School name is empty',
+              style: TextStyle(color: Colors.black)),
         ),
       );
     } else {
@@ -406,12 +408,16 @@ class _EducationState extends State<Education> {
     final form = _formKey.currentState;
     if (form!.validate()) {
       if (dateFormat == "From" || dateFormat == null) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(const SnackBar(content: Text("Kindly select date")));
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+            backgroundColor: Colors.white,
+            content: Text("Kindly select date",
+                style: TextStyle(color: Colors.black))));
       }
       if (todateFormat == "To" || todateFormat == null) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(const SnackBar(content: Text("Kindly select date")));
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+            backgroundColor: Colors.white,
+            content: Text("Kindly select date",
+                style: TextStyle(color: Colors.black))));
       } else {
         int guest = 0;
         final user = FirebaseAuth.instance.currentUser!;
@@ -475,11 +481,15 @@ class _EducationState extends State<Education> {
     final form = _formKey.currentState;
     if (form!.validate()) {
       if (dateFormat == "From" || dateFormat == null) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(const SnackBar(content: Text("Kindly select date")));
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+            backgroundColor: Colors.white,
+            content: Text("Kindly select date",
+                style: TextStyle(color: Colors.black))));
       } else if (todateFormat == "To" || todateFormat == null) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(const SnackBar(content: Text("Kindly select date")));
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+            backgroundColor: Colors.white,
+            content: Text("Kindly select date",
+                style: TextStyle(color: Colors.black))));
       } else {
         int guest = 0;
         final user = FirebaseAuth.instance.currentUser!;

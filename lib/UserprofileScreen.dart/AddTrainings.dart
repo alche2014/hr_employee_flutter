@@ -338,7 +338,8 @@ class _AddTrainingsState extends State<AddTrainings> {
     if (nameController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Name is empty'),
+          backgroundColor: Colors.white,
+          content: Text('Name is empty', style: TextStyle(color: Colors.black)),
         ),
       );
     } else {

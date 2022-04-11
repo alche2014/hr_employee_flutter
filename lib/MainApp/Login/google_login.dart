@@ -123,7 +123,8 @@ class _GoogleLoginState extends State<GoogleLogin> {
         //   Buttons.Google,
         //   onPressed: () {
         //     ScaffoldMessenger.of(context).showSnackBar(
-        //         const SnackBar(content: Text("No Internet Connection")));
+        //         const SnackBar(
+        // backgroundColor: Colors.white,content: Text("No Internet Connection")));
         //   },
         // );
         // } else {

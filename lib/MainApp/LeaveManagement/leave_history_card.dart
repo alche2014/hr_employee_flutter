@@ -68,13 +68,21 @@ class LeaveHistoryCard extends StatelessWidget {
                     decoration: BoxDecoration(
                         color: bodyContent['leaveStatus'] == 'approved'
                             ? Colors.green
-                            : Colors.transparent,
+                            : bodyContent['leaveStatus'] == 'rejected'
+                                ? Colors.red
+                                : bodyContent['leaveStatus'] == 'pending'
+                                    ? Colors.yellow.shade700
+                                    : Colors.transparent,
                         borderRadius: BorderRadius.circular(20),
                         border: Border.all(
                           width: 1.0,
                           color: bodyContent['leaveStatus'] == 'approved'
                               ? Colors.green
-                              : Colors.grey.shade300,
+                              : bodyContent['leaveStatus'] == 'rejected'
+                                  ? Colors.red
+                                  : bodyContent['leaveStatus'] == 'pending'
+                                      ? Colors.yellow.shade700
+                                      : Colors.grey.shade300,
                         )),
                     child: Padding(
                         padding: const EdgeInsets.all(8.0),
@@ -84,7 +92,11 @@ class LeaveHistoryCard extends StatelessWidget {
                           style: TextStyle(
                               color: bodyContent['leaveStatus'] == 'approved'
                                   ? Colors.white
-                                  : Colors.grey,
+                                  : bodyContent['leaveStatus'] == 'rejected'
+                                      ? Colors.white
+                                      : bodyContent['leaveStatus'] == 'pending'
+                                          ? Colors.white
+                                          : Colors.grey,
                               fontSize: 12),
                         ))),
               ),

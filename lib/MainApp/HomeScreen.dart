@@ -1,12 +1,15 @@
 // ignore_for_file: deprecated_member_use
 
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
 import 'package:cron/cron.dart';
+import 'package:http/http.dart' as http;
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart' as auth;
+import 'package:flutter_native_timezone/flutter_native_timezone.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -130,7 +133,6 @@ class _HrDashboardState extends State<HrDashboard>
   late Timestamp todayIn = Timestamp.fromDate(DateTime.now());
   late Timestamp todayOut = Timestamp.fromDate(DateTime.now());
   String? todayhrs;
-
   double _hr = 0;
   double _minute = 0;
   String lateTime = "0 hrs & 0 mins";
@@ -476,17 +478,26 @@ class _HrDashboardState extends State<HrDashboard>
     firebaseCloudMessagingListeners();
   }
 
+  apiCall(area) async {
+    final jsonValue = await http.Client()
+        .get(Uri.parse("http://worldtimeapi.org/api/timezone/$area"));
+    // var document = parse(jsonValue.body);
+    var responseBody = (jsonValue.body);
+    var parsedJson = json.decode(responseBody);
+    print(parsedJson['datetime'].toString());
+  }
+
   tz.TZDateTime _nextInstanceOf8_50() {
     final tz.TZDateTime now = tz.TZDateTime.now(tz.local);
     tz.TZDateTime scheduledDate = tz.TZDateTime(tz.local, now.year);
 
     if (now.weekday != 6 && now.weekday != 7) {
-      if (buttonText == "CLOCK IN") {
-        scheduledDate =
-            tz.TZDateTime(tz.local, now.year, now.month, now.day, 10, 50);
-        if (scheduledDate.isBefore(now)) {
-          scheduledDate = scheduledDate.add(const Duration(days: 1));
-        }
+      // if (buttonText == "CLOCK IN") {
+      scheduledDate =
+          tz.TZDateTime(tz.local, now.year, now.month, now.day, 03, 55);
+      if (scheduledDate.isBefore(now)) {
+        scheduledDate = scheduledDate.add(const Duration(days: 1));
+        // }
       }
     }
     return scheduledDate;
@@ -514,12 +525,12 @@ class _HrDashboardState extends State<HrDashboard>
     tz.TZDateTime scheduledDate = tz.TZDateTime(tz.local, now.year);
 
     if (now.weekday != 6 && now.weekday != 7) {
-      if (buttonText == "CLOCK IN") {
-        scheduledDate =
-            tz.TZDateTime(tz.local, now.year, now.month, now.day, 10, 52);
-        if (scheduledDate.isBefore(now)) {
-          scheduledDate = scheduledDate.add(const Duration(days: 1));
-        }
+      // if (buttonText == "CLOCK IN") {
+      scheduledDate =
+          tz.TZDateTime(tz.local, now.year, now.month, now.day, 04, 05);
+      if (scheduledDate.isBefore(now)) {
+        scheduledDate = scheduledDate.add(const Duration(days: 1));
+        // }
       }
     }
     return scheduledDate;
@@ -547,12 +558,12 @@ class _HrDashboardState extends State<HrDashboard>
     tz.TZDateTime scheduledDate = tz.TZDateTime(tz.local, now.year);
 
     if (now.weekday != 6 && now.weekday != 7) {
-      if (buttonText == "CLOCK OUT") {
-        scheduledDate =
-            tz.TZDateTime(tz.local, now.year, now.month, now.day, 10, 54);
-        if (scheduledDate.isBefore(now)) {
-          scheduledDate = scheduledDate.add(const Duration(days: 1));
-        }
+      // if (buttonText == "CLOCK OUT") {
+      scheduledDate =
+          tz.TZDateTime(tz.local, now.year, now.month, now.day, 10, 55);
+      if (scheduledDate.isBefore(now)) {
+        scheduledDate = scheduledDate.add(const Duration(days: 1));
+        // }
       }
     }
     return scheduledDate;
@@ -580,12 +591,12 @@ class _HrDashboardState extends State<HrDashboard>
     tz.TZDateTime scheduledDate = tz.TZDateTime(tz.local, now.year);
 
     if (now.weekday != 6 && now.weekday != 7) {
-      if (buttonText == "CLOCK OUT") {
-        scheduledDate =
-            tz.TZDateTime(tz.local, now.year, now.month, now.day, 10, 56);
-        if (scheduledDate.isBefore(now)) {
-          scheduledDate = scheduledDate.add(const Duration(days: 1));
-        }
+      // if (buttonText == "CLOCK OUT") {
+      scheduledDate =
+          tz.TZDateTime(tz.local, now.year, now.month, now.day, 11, 05);
+      if (scheduledDate.isBefore(now)) {
+        scheduledDate = scheduledDate.add(const Duration(days: 1));
+        // }
       }
     }
     return scheduledDate;
@@ -711,10 +722,10 @@ class _HrDashboardState extends State<HrDashboard>
       if (onValue.docs.isEmpty) {
         setState(() {
           buttonText = "CLOCK IN";
-          notification8_50();
-          notification9_10();
-          notification5_50();
-          notification6_10();
+          // notification8_50();
+          // notification9_10();
+          // notification5_50();
+          // notification6_10();
         });
       } else if (onValue.docs.isNotEmpty) {
         setState(() {
@@ -736,10 +747,10 @@ class _HrDashboardState extends State<HrDashboard>
           seconds = secondsD.toInt();
           buttonText = "CLOCK OUT";
 
-          notification8_50();
-          notification9_10();
-          notification5_50();
-          notification6_10();
+          // notification8_50();
+          // notification9_10();
+          // notification5_50();
+          // notification6_10();
         });
       }
     });
@@ -806,9 +817,16 @@ class _HrDashboardState extends State<HrDashboard>
             ),
             Center(
               child: InkWell(
-                onTap: () {
+                onTap: () async {
+                  final String currentTimeZone =
+                      await FlutterNativeTimezone.getLocalTimezone();
                   final tz.TZDateTime now = tz.TZDateTime.now(tz.local);
-                  print(now.location.zones);
+
+                  print(currentTimeZone);
+                  apiCall(currentTimeZone);
+
+                  // tz.TZDateTime scheduledDate =
+                  //     tz.TZDateTime(tz.local, now.year);
                 },
                 child: Container(
                   margin: const EdgeInsets.only(top: 5, bottom: 5),
@@ -843,6 +861,7 @@ class _HrDashboardState extends State<HrDashboard>
             //       child: InkWell(
             //         onTap: () {
             //           ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+            // backgroundColor: Colors.white,
             //               content: Text("No Internet Connection")));
             //         },
             //         child: Column(
@@ -1349,7 +1368,9 @@ class _HrDashboardState extends State<HrDashboard>
     if (currentLat == null || currentLng == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text("Unable to get current location"),
+          backgroundColor: Colors.white,
+          content: Text("Unable to get current location",
+              style: TextStyle(color: Colors.black)),
         ),
       );
     } else {
@@ -1388,10 +1409,10 @@ class _HrDashboardState extends State<HrDashboard>
   checkin() async {
     setState(() {
       buttonText = "CLOCK OUT";
-      notification8_50();
-      notification9_10();
-      notification5_50();
-      notification6_10();
+      // notification8_50();
+      // notification9_10();
+      // notification5_50();
+      // notification6_10();
     });
     var a;
     var b;
@@ -1500,7 +1521,9 @@ class _HrDashboardState extends State<HrDashboard>
                   onPressed: () {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
-                        content: Text("No Internet Connection"),
+                        backgroundColor: Colors.white,
+                        content: Text("No Internet Connection",
+                            style: TextStyle(color: Colors.black)),
                       ),
                     );
                   },
@@ -1514,10 +1537,10 @@ class _HrDashboardState extends State<HrDashboard>
                 onPressed: () {
                   setState(() {
                     buttonText = "CLOCK IN";
-                    notification8_50();
-                    notification9_10();
-                    notification5_50();
-                    notification6_10();
+                    // notification8_50();
+                    // notification9_10();
+                    // notification5_50();
+                    // notification6_10();
                   });
 
                   FirebaseFirestore.instance

@@ -14,15 +14,14 @@ class CheckinHistory extends StatefulWidget {
 }
 
 class _CheckinHistoryState extends State<CheckinHistory> {
-  var totalemployee = 0;
-  var ontime = 0;
-  var late = 0;
-  var absent = 0;
+  int a = 0;
   DateTime now = DateTime.now();
+  int days = 0;
   String dropdownValue =
       '${DateFormat('MMMM yyyy').format(DateTime.now()).toString()}';
   @override
   void initState() {
+    days = DateTime(now.year, now.month + 1, now.day).day;
     super.initState();
   }
 
@@ -40,7 +39,7 @@ class _CheckinHistoryState extends State<CheckinHistory> {
                         .collection("attendance")
                         .where("empId", isEqualTo: widget.memId)
                         .where("month", isEqualTo: dropdownValue)
-                        .orderBy("checkin", descending: true)
+                        .orderBy("checkin", descending: false)
                         .snapshots(),
                     builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
                       if (!snapshot.hasData) {
@@ -92,12 +91,94 @@ class _CheckinHistoryState extends State<CheckinHistory> {
                             : ListView.builder(
                                 padding: const EdgeInsets.all(0),
                                 shrinkWrap: true,
-                                physics: NeverScrollableScrollPhysics(),
-                                itemCount: snapshot.data!.docs.length,
+                                physics: const NeverScrollableScrollPhysics(),
+                                itemCount: days,
+                                // reverse: true,
                                 itemBuilder: (BuildContext context, int index) {
-                                  return CheckInCard(
-                                    snapshot.data!.docs[index],
-                                  );
+                                  return
+                                      // snapshot.data!.docs[index]['late'] ==
+                                      //         "-"
+                                      //     ? Column(children: [
+                                      //         Row(
+                                      //           children: [
+                                      //             Expanded(
+                                      //               flex: 2,
+                                      //               child: Center(
+                                      //                 child: Container(
+                                      //                   width: 43,
+                                      //                   padding:
+                                      //                       const EdgeInsets.all(
+                                      //                           5.0),
+                                      //                   decoration: BoxDecoration(
+                                      //                       color: Colors.white,
+                                      //                       borderRadius:
+                                      //                           BorderRadius
+                                      //                               .circular(5),
+                                      //                       border: Border.all(
+                                      //                           color: Colors
+                                      //                               .grey.shade300,
+                                      //                           width: 1)),
+                                      //                   child: Column(children: [
+                                      //                     Text(
+                                      //                         DateFormat('dd').format(DateFormat(
+                                      //                                 'MMMM dd yyyy')
+                                      //                             .parse(snapshot
+                                      //                                         .data!
+                                      //                                         .docs[
+                                      //                                     index]
+                                      //                                 ['date'])),
+                                      //                         style: const TextStyle(
+                                      //                             fontWeight:
+                                      //                                 FontWeight
+                                      //                                     .bold,
+                                      //                             fontSize: 17)),
+                                      //                     const SizedBox(height: 2),
+                                      //                     Text(
+                                      //                         DateFormat(
+                                      //                                 'EEE')
+                                      //                             .format(DateFormat(
+                                      //                                     'MMMM dd yyyy')
+                                      //                                 .parse(snapshot
+                                      //                                         .data!
+                                      //                                         .docs[index]
+                                      //                                     ['date']))
+                                      //                             .toUpperCase(),
+                                      //                         style: TextStyle(
+                                      //                             fontWeight:
+                                      //                                 FontWeight
+                                      //                                     .bold,
+                                      //                             fontSize: 12,
+                                      //                             color: Colors.grey
+                                      //                                 .shade700)),
+                                      //                   ]),
+                                      //                 ),
+                                      //               ),
+                                      //             ),
+                                      //             Expanded(
+                                      //                 flex: 9,
+                                      //                 child: Center(
+                                      //                   child: Text(
+                                      //                     snapshot.data!.docs[index]
+                                      //                         ['leave'],
+                                      //                     style: const TextStyle(
+                                      //                         color: Colors.red),
+                                      //                   ),
+                                      //                 )),
+                                      //           ],
+                                      //         ),
+                                      //         Container(
+                                      //           margin: const EdgeInsets.only(
+                                      //               top: 5,
+                                      //               bottom: 5,
+                                      //               left: 75,
+                                      //               right: 10),
+                                      //           height: 1,
+                                      //           color: Colors.grey.shade300,
+                                      //         )
+                                      //       ])
+                                      //     :
+                                      checkinCard(snapshot.data!.docs, index,
+                                          dropdownValue);
                                 });
                       } else {
                         return const Center(
@@ -120,7 +201,7 @@ class _CheckinHistoryState extends State<CheckinHistory> {
                           now = DateTime(now.year, now.month - 1);
                           dropdownValue =
                               '${DateFormat('MMMM yyyy').format(now).toString()}';
-                          ;
+                          days = DateTime(now.year, now.month + 1, 0).day;
                         });
                       },
                       child: Container(
@@ -149,7 +230,7 @@ class _CheckinHistoryState extends State<CheckinHistory> {
                             now = DateTime(now.year, now.month + 1);
                             dropdownValue =
                                 '${DateFormat('MMMM yyyy').format(now).toString()}';
-                            ;
+                            days = DateTime(now.year, now.month + 1, 0).day;
                           });
                         }
                       },
@@ -206,6 +287,141 @@ class _CheckinHistoryState extends State<CheckinHistory> {
           ),
         ],
       ),
+    );
+  }
+
+  Widget checkinCard(timeStatus, index, day) {
+    if (DateFormat('EEE')
+                .format(DateFormat('dd MMMM yyyy').parse("${index + 1} $day"))
+                .toUpperCase() ==
+            "SAT" ||
+        DateFormat('EEE')
+                .format(DateFormat('dd MMMM yyyy').parse("${index + 1} $day"))
+                .toUpperCase() ==
+            "SUN") {
+      a++;
+    } else if (timeStatus[index - a]['date'].toString() !=
+        DateFormat('MMMM dd yyyy')
+            .format(DateFormat('dd MMMM yyyy').parse("${index + 1} $day"))) {
+      a++;
+    }
+    return Column(
+      children: [
+        Row(
+          children: [
+            Expanded(
+              flex: 2,
+              child: Center(
+                child: Container(
+                  width: 43,
+                  padding: const EdgeInsets.all(5.0),
+                  decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(5),
+                      border:
+                          Border.all(color: Colors.grey.shade300, width: 1)),
+                  child: Column(children: [
+                    Text("${index + 1}",
+                        style: const TextStyle(
+                            fontWeight: FontWeight.bold, fontSize: 17)),
+                    const SizedBox(height: 2),
+                    Text(
+                        DateFormat('EEE')
+                            .format(DateFormat('dd MMMM yyyy')
+                                .parse("${index + 1} $day"))
+                            .toUpperCase(),
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 12,
+                            color: Colors.grey.shade700)),
+                  ]),
+                ),
+              ),
+            ),
+            Expanded(
+                flex: 9,
+                child: Center(
+                  child: DateFormat('EEE')
+                                  .format(DateFormat('dd MMMM yyyy')
+                                      .parse("${index + 1} $day"))
+                                  .toUpperCase() ==
+                              "SAT" ||
+                          DateFormat('EEE')
+                                  .format(DateFormat('dd MMMM yyyy')
+                                      .parse("${index + 1} $day"))
+                                  .toUpperCase() ==
+                              "SUN"
+                      ? Text("Weekend")
+                      : timeStatus[index - a]['date'].toString() !=
+                              DateFormat('MMMM dd yyyy').format(
+                                  DateFormat('dd MMMM yyyy')
+                                      .parse("${index + 1} $day"))
+                          ? Text("absent")
+                          : Text(
+                              timeStatus[index - a]['date']
+                                  // .indexOf(DateFormat('dd MMMM yyyy')
+                                  //     .parse("${index + 1} $day"))
+                                  .toString(),
+                              // [6]['late'].toString(),
+                              style: const TextStyle(color: Colors.red),
+                            ),
+                )),
+            // Expanded(
+            //     flex: 3,
+            //     child: Row(
+            //       crossAxisAlignment: CrossAxisAlignment.center,
+            //       mainAxisAlignment: MainAxisAlignment.center,
+            //       children: [
+            //         SizedBox(
+            //           height: 12,
+            //           width: 12,
+            //           child: Image.asset("assets/Arrowdown.png"),
+            //         ),
+            //         const SizedBox(width: 4),
+            //         Text(
+            //           DateFormat('K:mma').format(dateTime).toLowerCase(),
+            //           style: TextStyle(
+            //               color: timeStatus["late"] == "0 hrs & 0 mins"
+            //                   ? Colors.green
+            //                   : Colors.red),
+            //         ),
+            //       ],
+            //     )),
+            // Expanded(
+            //   flex: 3,
+            //   child: Row(
+            //       crossAxisAlignment: CrossAxisAlignment.center,
+            //       mainAxisAlignment: MainAxisAlignment.center,
+            //       children: [
+            //         timeStatus['checkout'] != null
+            //             ? SizedBox(
+            //                 height: 12,
+            //                 width: 12,
+            //                 child: Image.asset("assets/Arrowup.png"),
+            //               )
+            //             : Container(),
+            //         const SizedBox(width: 4),
+            //         Text(timeStatus['checkout'] == null
+            //             ? "- - - - "
+            //             : DateFormat('K:mma').format(dateTime2).toLowerCase()),
+            //       ]),
+            // ),
+            // Expanded(
+            //   flex: 3,
+            //   child: Center(
+            //       child: timeStatus["checkout"] == null
+            //           ? Text(
+            //               "${((DateTime.now().difference(dateTime).inSeconds) / 3600).toInt()} : ${(((DateTime.now().difference(dateTime).inSeconds) % 3600) / 60).toInt()}")
+            //           : Text(' ${timeStatus["workHours"]}')),
+            // ),
+          ],
+        ),
+        Container(
+          margin: const EdgeInsets.only(top: 5, bottom: 5, left: 75, right: 10),
+          height: 1,
+          color: Colors.grey.shade300,
+        )
+      ],
     );
   }
 }

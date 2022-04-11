@@ -52,14 +52,18 @@ class _AddLeaveState extends State<AddLeave>
   List<int> selectedRadioTile = [];
   List days = [];
   double total = 0;
+  int pending = 0;
   late String leaveReason;
   String selectleave = "Select Leave";
   int minDays = 0;
   FocusNode _leaveReasonFocus = FocusNode();
   TextEditingController leaveReasonController = TextEditingController();
+  DateTime now = DateTime.now();
   DateTime toDate = DateTime.now();
   DateTime fromDate = DateTime.now();
   double? availableDays;
+  var weekendDefi;
+
   Future _selectDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
         context: context,
@@ -96,6 +100,9 @@ class _AddLeaveState extends State<AddLeave>
   @override
   void initState() {
     super.initState();
+    toDate = DateTime(now.year, now.month, now.day, 00, 00);
+    fromDate = DateTime(now.year, now.month, now.day, 00, 00);
+
     //check internet connection
     connectivity = Connectivity();
     subscription =
@@ -111,7 +118,23 @@ class _AddLeaveState extends State<AddLeave>
         });
       }
     });
+    if (shiftId != null) {
+      _getShiftSchedule();
+    }
+    loadMPendingRequests();
     reportingTo == null ? print("not assigned") : loadManagerToken();
+  }
+
+  _getShiftSchedule() {
+    FirebaseFirestore.instance
+        .collection('shiftSchedule')
+        .doc(shiftId)
+        .snapshots()
+        .listen((onValue) {
+      setState(() {
+        weekendDefi = onValue.data()!["weekendDef"];
+      });
+    });
   }
 
   @override
@@ -121,6 +144,19 @@ class _AddLeaveState extends State<AddLeave>
   }
 
 //loading managers token
+
+  loadMPendingRequests() {
+    FirebaseFirestore.instance
+        .collection('requests')
+        .where("leaveStatus", isEqualTo: "pending")
+        .snapshots()
+        .listen((onValue) {
+      setState(() {
+        pending = onValue.docs.length;
+      });
+    });
+  }
+
   loadManagerToken() {
     FirebaseFirestore.instance
         .collection('employees')
@@ -282,7 +318,18 @@ class _AddLeaveState extends State<AddLeave>
                           if (selectleave == "Select Leave") {
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
-                                  content: Text("Kindly Select Leave Type")),
+                                  backgroundColor: Colors.white,
+                                  content: Text("Kindly Select Leave Type",
+                                      style: TextStyle(color: Colors.black))),
+                            );
+                          } else if (pending != 0) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                  backgroundColor: Colors.white,
+                                  content: Text(
+                                    "You cannot apply for leave because previous your leave request is already pending",
+                                    style: TextStyle(color: Colors.black),
+                                  )),
                             );
                           } else {
                             validateAndSave();
@@ -302,25 +349,30 @@ class _AddLeaveState extends State<AddLeave>
       if (reportingTo == null) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content:
-                Text("You don't have any team leader to approve your request"),
+            backgroundColor: Colors.white,
+            content: Text(
+                "You don't have any team leader to approve your request",
+                style: TextStyle(color: Colors.black)),
           ),
         );
       } else if (toDate.difference(fromDate).inDays < 0.0) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Kindly Select To Date properly")),
-        );
-      } else if ((toDate.difference(fromDate).inDays + 2) < minDays) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              "You can minimum apply for $minDays Days",
-            ),
-          ),
+          const SnackBar(
+              backgroundColor: Colors.white,
+              content: Text("Kindly Select To Date properly",
+                  style: TextStyle(color: Colors.black))),
         );
       } else {
         if (sandwich) {
-          if (availableDays! <= toDate.difference(fromDate).inDays) {
+          if ((toDate.difference(fromDate).inDays + 1) < minDays) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                  "You can minimum apply for $minDays Days",
+                ),
+              ),
+            );
+          } else if (availableDays! <= toDate.difference(fromDate).inDays) {
             Fluttertoast.showToast(
                 msg: "you have only $availableDays available Leaves");
           } else {
@@ -383,12 +435,13 @@ class _AddLeaveState extends State<AddLeave>
                               "receiverId": reportingTo,
                               "timeStamp": "${DateTime.now()}",
                               "docId": reference.id,
-                              "employeeName": "$name",
+                              "employeeName": empName,
                               "days": days,
                               "payload": {
                                 "notification": {
                                   "title": "Leave Request",
-                                  "body": "$name has requested for the leave",
+                                  "body":
+                                      "$empName has requested for the leave",
                                   "sound": "default",
                                   "badge": "1",
                                   "click_action": "FLUTTER_NOTIFICATION_CLICK"
@@ -409,6 +462,68 @@ class _AddLeaveState extends State<AddLeave>
                                 Fluttertoast.showToast(
                                     msg:
                                         "You have successfully applied for the leave");
+                                showDialog(
+                                    context: context,
+                                    builder: (BuildContext context) => Dialog(
+                                          shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(
+                                                      12.0)), //this right here
+                                          child: SizedBox(
+                                            height: 300.0,
+                                            width: 300.0,
+                                            child: Column(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.start,
+                                              children: <Widget>[
+                                                Container(
+                                                    padding:
+                                                        const EdgeInsets.all(
+                                                            15),
+                                                    alignment:
+                                                        Alignment.topRight,
+                                                    child: InkWell(
+                                                        onTap: () {
+                                                          Navigator.pop(
+                                                              context);
+                                                        },
+                                                        child: const Icon(
+                                                            Icons.close))),
+                                                Padding(
+                                                  padding:
+                                                      const EdgeInsets.all(3),
+                                                  child: Image.asset(
+                                                      "assets/leaveApplied.png",
+                                                      height: 140),
+                                                ),
+                                                const Padding(
+                                                    padding: EdgeInsets.only(
+                                                        top: 10.0)),
+                                                Center(
+                                                  child: Container(
+                                                      alignment:
+                                                          Alignment.center,
+                                                      margin:
+                                                          const EdgeInsets.only(
+                                                              left: 15,
+                                                              right: 15,
+                                                              top: 15),
+                                                      child: const Text(
+                                                          'Your leave request has been submitted, waiting for approval',
+                                                          textAlign:
+                                                              TextAlign.center,
+                                                          style: TextStyle(
+                                                              color:
+                                                                  Colors.black,
+                                                              fontSize: 15,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .bold))),
+                                                )
+                                              ],
+                                            ),
+                                          ),
+                                        ));
                               });
                             }).catchError((onError) {});
                           });
@@ -421,14 +536,12 @@ class _AddLeaveState extends State<AddLeave>
             );
           }
         } else {
-          // if (availableDays! <= toDate.difference(fromDate).inDays) {
-          //   Fluttertoast.showToast(
-          //       msg: "you have only $availableDays available Leaves");
-          // } else {
           days.clear();
           for (int i = 0; i <= toDate.difference(fromDate).inDays; i++) {
-            if (fromDate.add(Duration(days: i)).weekday != 7 &&
-                fromDate.add(Duration(days: i)).weekday != 6) {
+            if ((!weekendDefi.contains(
+                    "${DateFormat('EEE').format(fromDate.add(Duration(days: i)))}${(fromDate.add(Duration(days: i)).day / 8).toInt() + 1}") &&
+                !weekendDefi.contains(
+                    "${DateFormat('EEE').format(fromDate.add(Duration(days: i)))}0"))) {
               days.add({
                 "days": DateFormat('dd MMM yyyy')
                     .format(fromDate.add(Duration(days: i))),
@@ -437,8 +550,15 @@ class _AddLeaveState extends State<AddLeave>
               });
             }
           }
-
-          if (availableDays! <= days.length) {
+          if (days.length + 1 < minDays) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                  "You can minimum apply for $minDays Days",
+                ),
+              ),
+            );
+          } else if (availableDays! < days.length) {
             Fluttertoast.showToast(
                 msg: "you have only $availableDays available Leaves");
           } else {
@@ -492,12 +612,13 @@ class _AddLeaveState extends State<AddLeave>
                               "receiverId": reportingTo,
                               "timeStamp": "${DateTime.now()}",
                               "docId": reference.id,
-                              "employeeName": "$name",
+                              "employeeName": empName,
                               "days": days,
                               "payload": {
                                 "notification": {
                                   "title": "Leave Request",
-                                  "body": "$name has requested for the leave",
+                                  "body":
+                                      "$empName has requested for the leave",
                                   "sound": "default",
                                   "badge": "1",
                                   "click_action": "FLUTTER_NOTIFICATION_CLICK"
@@ -518,6 +639,68 @@ class _AddLeaveState extends State<AddLeave>
                                 Fluttertoast.showToast(
                                     msg:
                                         "You have successfully applied for the leave");
+                                showDialog(
+                                    context: context,
+                                    builder: (BuildContext context) => Dialog(
+                                          shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(
+                                                      12.0)), //this right here
+                                          child: SizedBox(
+                                            height: 300.0,
+                                            width: 300.0,
+                                            child: Column(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.start,
+                                              children: <Widget>[
+                                                Container(
+                                                    padding:
+                                                        const EdgeInsets.all(
+                                                            15),
+                                                    alignment:
+                                                        Alignment.topRight,
+                                                    child: InkWell(
+                                                        onTap: () {
+                                                          Navigator.pop(
+                                                              context);
+                                                        },
+                                                        child: const Icon(
+                                                            Icons.close))),
+                                                Padding(
+                                                  padding:
+                                                      const EdgeInsets.all(3),
+                                                  child: Image.asset(
+                                                      "assets/leaveApplied.png",
+                                                      height: 140),
+                                                ),
+                                                const Padding(
+                                                    padding: EdgeInsets.only(
+                                                        top: 10.0)),
+                                                Center(
+                                                  child: Container(
+                                                      alignment:
+                                                          Alignment.center,
+                                                      margin:
+                                                          const EdgeInsets.only(
+                                                              left: 15,
+                                                              right: 15,
+                                                              top: 15),
+                                                      child: const Text(
+                                                          'Your leave request has been submitted, waiting for approval',
+                                                          textAlign:
+                                                              TextAlign.center,
+                                                          style: TextStyle(
+                                                              color:
+                                                                  Colors.black,
+                                                              fontSize: 15,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .bold))),
+                                                )
+                                              ],
+                                            ),
+                                          ),
+                                        ));
                               });
                             }).catchError((onError) {});
                           });

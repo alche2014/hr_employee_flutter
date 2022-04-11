@@ -170,7 +170,9 @@ class _BankdataInfoState extends State<BankdataInfo> {
     if (bankNameController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Bank Name is empty'),
+          backgroundColor: Colors.white,
+          content:
+              Text('Bank Name is empty', style: TextStyle(color: Colors.black)),
         ),
       );
     } else {

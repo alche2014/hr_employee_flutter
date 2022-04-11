@@ -316,7 +316,9 @@ class _AddLicencesInfoState extends State<AddLicencesInfo> {
     if (nameController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Institue Name is empty'),
+          backgroundColor: Colors.white,
+          content: Text('Institue Name is empty',
+              style: TextStyle(color: Colors.black)),
         ),
       );
     } else {

@@ -964,9 +964,14 @@ class _MainHomeProfileState extends State<MainHomeProfile>
                                                                       .of(context)
                                                                   .showSnackBar(
                                                                 const SnackBar(
+                                                                  backgroundColor:
+                                                                      Colors
+                                                                          .white,
                                                                   content: Text(
-                                                                    "No Internet Connection",
-                                                                  ),
+                                                                      "No Internet Connection",
+                                                                      style: TextStyle(
+                                                                          color:
+                                                                              Colors.black)),
                                                                 ),
                                                               );
                                                             },
@@ -1768,7 +1773,9 @@ class _MainHomeProfileState extends State<MainHomeProfile>
     if (currentLat == null || currentLng == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text("Unable to get current location"),
+          backgroundColor: Colors.white,
+          content: Text("Unable to get current location",
+              style: TextStyle(color: Colors.black)),
         ),
       );
     } else {
@@ -1986,7 +1993,9 @@ class _MainHomeProfileState extends State<MainHomeProfile>
                   onPressed: () {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
-                        content: Text("No Internet Connection"),
+                        backgroundColor: Colors.white,
+                        content: Text("No Internet Connection",
+                            style: TextStyle(color: Colors.black)),
                       ),
                     );
                   },

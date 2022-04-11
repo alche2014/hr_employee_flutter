@@ -8,10 +8,14 @@ import 'package:flutter/material.dart';
 import 'package:hr_app/Constants/loadingDailog.dart';
 import 'package:hr_app/MainApp/screen_notification.dart';
 import 'package:hr_app/UserprofileScreen.dart/Card/AboutCard.dart';
+import 'package:hr_app/UserprofileScreen.dart/Card/AssetsCard.dart';
+import 'package:hr_app/UserprofileScreen.dart/Card/ContacInfoCard.dart';
 import 'package:hr_app/UserprofileScreen.dart/Card/DependentCard.dart';
 import 'package:hr_app/UserprofileScreen.dart/Card/KinCard.dart';
 import 'package:hr_app/UserprofileScreen.dart/Card/LicenceCard.dart';
+import 'package:hr_app/UserprofileScreen.dart/Card/MedicalInfoCard.dart';
 import 'package:hr_app/UserprofileScreen.dart/Card/work_info_card.dart';
+import 'package:hr_app/UserprofileScreen.dart/ProfilePic.dart';
 import 'package:hr_app/UserprofileScreen.dart/screen_dependent.dart';
 import 'package:hr_app/UserprofileScreen.dart/TrainingsCard.dart';
 import 'package:hr_app/Constants/colors.dart';
@@ -156,7 +160,17 @@ class _MyProfileEditState extends State<MyProfileEdit> {
                                       teamEdit:
                                           widget.teamId == "" ? true : false),
                                   closing(),
-                                  KinCard(
+                                  PersonalInfoCard(
+                                      data: snapshot.data!.data(),
+                                      teamEdit:
+                                          widget.teamId == "" ? true : false),
+                                  closing(),
+                                  ContactInfoCard(
+                                      data: snapshot.data!.data(),
+                                      teamEdit:
+                                          widget.teamId == "" ? true : false),
+                                  closing(),
+                                  MedicalInfoCard(
                                       data: snapshot.data!.data(),
                                       teamEdit:
                                           widget.teamId == "" ? true : false),
@@ -217,11 +231,11 @@ class _MyProfileEditState extends State<MyProfileEdit> {
                                       data: snapshot.data!.data(),
                                       teamEdit:
                                           widget.teamId == "" ? true : false),
-                                  closing(),
-                                  PersonalInfoCard(
-                                      data: snapshot.data!.data(),
-                                      teamEdit:
-                                          widget.teamId == "" ? true : false),
+                                  // closing(),
+                                  // KinCard(
+                                  //     data: snapshot.data!.data(),
+                                  //     teamEdit:
+                                  //         widget.teamId == "" ? true : false),
                                 ]),
                           ),
                         ),
@@ -282,50 +296,131 @@ class _MyProfileEditState extends State<MyProfileEdit> {
                             ),
                           ),
                         ),
-                        Container(
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          margin: EdgeInsets.only(top: 10, bottom: 5),
-                          child: Theme(
-                            data: ThemeData(
-                              dividerColor: Colors.transparent,
-                            ),
-                            child: ExpansionTile(
-                                collapsedIconColor: purpleDark,
-                                iconColor: purpleDark,
-                                title: Row(
-                                  children: [
-                                    SizedBox(
-                                        height: 20,
-                                        child: Image.asset(
-                                            "assets/employment.png")),
-                                    Text(
-                                      "  Employment Info",
-                                      style: TextStyle(
-                                          color: purpleDark,
-                                          fontSize: 16.0,
-                                          fontWeight: FontWeight.bold),
-                                    )
-                                  ],
+                        guest == 0
+                            ? Container()
+                            : Container(
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(10),
                                 ),
-                                children: [
-                                  guest == 0
-                                      ? Container()
-                                      : WorkInfoCard(
-                                          data: snapshot.data!.data(),
-                                          teamEdit: widget.teamId == ""
-                                              ? true
-                                              : false),
-                                  closing(),
-                                  AccountInfoCard(
-                                      data: snapshot.data!.data(),
-                                      teamEdit:
-                                          widget.teamId == "" ? true : false)
-                                ]),
-                          ),
-                        ),
+                                margin: EdgeInsets.only(top: 10, bottom: 5),
+                                child: Theme(
+                                  data: ThemeData(
+                                    dividerColor: Colors.transparent,
+                                  ),
+                                  child: ExpansionTile(
+                                      collapsedIconColor: purpleDark,
+                                      iconColor: purpleDark,
+                                      title: Row(
+                                        children: [
+                                          SizedBox(
+                                              height: 20,
+                                              child: Image.asset(
+                                                  "assets/employment.png")),
+                                          Text(
+                                            "  Employment Info",
+                                            style: TextStyle(
+                                                color: purpleDark,
+                                                fontSize: 16.0,
+                                                fontWeight: FontWeight.bold),
+                                          )
+                                        ],
+                                      ),
+                                      children: [
+                                        guest == 0
+                                            ? Container()
+                                            : WorkInfoCard(
+                                                data: snapshot.data!.data(),
+                                                teamEdit: widget.teamId == ""
+                                                    ? true
+                                                    : false),
+                                      ]),
+                                ),
+                              ),
+                        guest == 0
+                            ? Container()
+                            : Container(
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                margin: EdgeInsets.only(top: 10, bottom: 5),
+                                child: Theme(
+                                  data: ThemeData(
+                                    dividerColor: Colors.transparent,
+                                  ),
+                                  child: ExpansionTile(
+                                      collapsedIconColor: purpleDark,
+                                      iconColor: purpleDark,
+                                      title: Row(
+                                        children: const [
+                                          SizedBox(
+                                              height: 20,
+                                              child: Icon(
+                                                Icons.account_box_outlined,
+                                                color: purpleDark,
+                                              )),
+                                          Text(
+                                            "  Account Info",
+                                            style: TextStyle(
+                                                color: purpleDark,
+                                                fontSize: 16.0,
+                                                fontWeight: FontWeight.bold),
+                                          )
+                                        ],
+                                      ),
+                                      children: [
+                                        guest == 0
+                                            ? Container()
+                                            : AccountInfoCard(
+                                                data: snapshot.data!.data(),
+                                                teamEdit: widget.teamId == ""
+                                                    ? true
+                                                    : false),
+                                      ]),
+                                ),
+                              ),
+                        guest == 0
+                            ? Container()
+                            : Container(
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                margin: EdgeInsets.only(top: 10, bottom: 5),
+                                child: Theme(
+                                  data: ThemeData(
+                                    dividerColor: Colors.transparent,
+                                  ),
+                                  child: ExpansionTile(
+                                      collapsedIconColor: purpleDark,
+                                      iconColor: purpleDark,
+                                      title: Row(
+                                        children: const [
+                                          SizedBox(
+                                              height: 20,
+                                              child: Icon(
+                                                Icons.assignment_sharp,
+                                                color: purpleDark,
+                                              )),
+                                          Text(
+                                            "  Assets Info",
+                                            style: TextStyle(
+                                                color: purpleDark,
+                                                fontSize: 16.0,
+                                                fontWeight: FontWeight.bold),
+                                          )
+                                        ],
+                                      ),
+                                      children: [
+                                        AssetsCard(
+                                            data: snapshot.data!.data(),
+                                            teamEdit: widget.teamId == ""
+                                                ? true
+                                                : false),
+                                      ]),
+                                ),
+                              ),
                         guest != 0
                             ? Container()
                             : Container(
@@ -493,6 +588,39 @@ class _MyProfileEditState extends State<MyProfileEdit> {
                   ],
                 ),
               ),
+              Container(
+                margin: const EdgeInsets.only(top: 3, bottom: 3, left: 5),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: <Widget>[
+                    Expanded(
+                      flex: 4,
+                      child: Text(
+                        "Address: ",
+                        style: TextStyle(
+                            color: Color(0XFF535353),
+                            fontWeight: FontWeight.w500,
+                            fontSize: 14),
+                      ),
+                    ),
+                    Expanded(
+                      flex: 7,
+                      child: Container(
+                        margin: const EdgeInsets.only(left: 10),
+                        child: Text(
+                          snapshot["depAddress"] ?? "Address",
+                          style: TextStyle(
+                              color: snapshot["depPhone"] == null
+                                  ? Colors.grey[500]
+                                  : Colors.grey[700],
+                              fontWeight: FontWeight.w400,
+                              fontSize: 15),
+                        ),
+                      ),
+                    )
+                  ],
+                ),
+              ),
             ]));
   }
 }
@@ -572,39 +700,45 @@ class UpperPortion extends StatelessWidget {
           Positioned(
               top: 95,
               left: 35,
-              child: Container(
-                height: 100,
-                width: 100,
-                child: CircleAvatar(
-                  backgroundColor: Colors.transparent,
-                  radius: 40,
-                  child: ClipRRect(
-                    clipBehavior: Clip.antiAlias,
-                    borderRadius: BorderRadius.circular(100),
-                    child: imagePath != null || imagePath != ""
-                        ? CachedNetworkImage(
-                            imageUrl: imagePath,
-                            fit: BoxFit.cover,
-                            height: 94,
-                            width: 94,
-                            progressIndicatorBuilder:
-                                (context, url, downloadProgress) =>
-                                    CircularProgressIndicator(
-                              value: downloadProgress.progress,
-                              color: Colors.white,
+              child: InkWell(
+                onTap: () {
+                  Navigator.of(context).push(MaterialPageRoute(
+                      builder: (context) => ProfilePicture()));
+                },
+                child: Container(
+                  height: 100,
+                  width: 100,
+                  child: CircleAvatar(
+                    backgroundColor: Colors.transparent,
+                    radius: 40,
+                    child: ClipRRect(
+                      clipBehavior: Clip.antiAlias,
+                      borderRadius: BorderRadius.circular(100),
+                      child: imagePath != null || imagePath != ""
+                          ? CachedNetworkImage(
+                              imageUrl: imagePath,
+                              fit: BoxFit.cover,
+                              height: 94,
+                              width: 94,
+                              progressIndicatorBuilder:
+                                  (context, url, downloadProgress) =>
+                                      CircularProgressIndicator(
+                                value: downloadProgress.progress,
+                                color: Colors.white,
+                              ),
+                              errorWidget: (context, url, error) =>
+                                  const Icon(Icons.error),
+                            )
+                          : Image.asset(
+                              'assets/placeholder.png',
+                              fit: BoxFit.cover,
                             ),
-                            errorWidget: (context, url, error) =>
-                                const Icon(Icons.error),
-                          )
-                        : Image.asset(
-                            'assets/placeholder.png',
-                            fit: BoxFit.cover,
-                          ),
+                    ),
                   ),
+                  decoration: BoxDecoration(
+                      shape: BoxShape.circle, color: Colors.white),
+                  padding: EdgeInsets.all(4),
                 ),
-                decoration:
-                    BoxDecoration(shape: BoxShape.circle, color: Colors.white),
-                padding: EdgeInsets.all(4),
               ))
         ],
       ),

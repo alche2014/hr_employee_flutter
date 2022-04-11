@@ -107,7 +107,9 @@ class _MainSkillsState extends State<MainSkills> {
                       if (userSkillList.contains(value)) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
-                            content: Text('Already Selected'),
+                            backgroundColor: Colors.white,
+                            content: Text('Already Selected',
+                                style: TextStyle(color: Colors.black)),
                           ),
                         );
                       } else {
@@ -175,7 +177,9 @@ class _MainSkillsState extends State<MainSkills> {
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Add some Skills'),
+          backgroundColor: Colors.white,
+          content:
+              Text('Add some Skills', style: TextStyle(color: Colors.black)),
         ),
       );
     }

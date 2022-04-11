@@ -462,8 +462,10 @@ class _FirstTimeFormState extends State<FirstTimeForm> {
                                       maritalStatus == null) {
                                     ScaffoldMessenger.of(context).showSnackBar(
                                         const SnackBar(
-                                            content:
-                                                Text("Complete the form")));
+                                            backgroundColor: Colors.white,
+                                            content: Text("Complete the form",
+                                                style: TextStyle(
+                                                    color: Colors.black))));
                                   } else {
                                     validateAndSave();
                                   }

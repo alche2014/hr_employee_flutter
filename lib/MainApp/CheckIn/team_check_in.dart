@@ -3,6 +3,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:hr_app/Constants/colors.dart';
 import 'package:hr_app/Constants/constants.dart';
 import 'package:hr_app/MainApp/CheckIn/team_reports.dart';
@@ -684,13 +685,13 @@ class _MainCheckInTeamState extends State<MainCheckInTeam> {
   Widget miniCards(image, title) {
     return InkWell(
       onTap: () {
-        // Fluttertoast.showToast(msg: "In Progress");
+        Fluttertoast.showToast(msg: "In Progress");
 
         // if (title == "Team Reports") {
         // Fluttertoast.showToast(msg: "You are not the team lead");
 
-        Navigator.push(
-            context, MaterialPageRoute(builder: (context) => TeamReports()));
+        // Navigator.push(
+        //     context, MaterialPageRoute(builder: (context) => TeamReports()));
         // } else if (title == "Announcements") {
         //   // Navigator.push(context,
         //   //     MaterialPageRoute(builder: (context) => const Announcements()));

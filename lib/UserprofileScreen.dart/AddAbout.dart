@@ -68,7 +68,9 @@ class _AddAboutScreenState extends State<AddAboutScreen> {
     if (descriptionController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Write about yourself'),
+          backgroundColor: Colors.white,
+          content: Text('Write about yourself',
+              style: TextStyle(color: Colors.black)),
         ),
       );
     } else {

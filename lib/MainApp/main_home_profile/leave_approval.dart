@@ -3,6 +3,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter/cupertino.dart';
@@ -14,6 +15,10 @@ import 'package:hr_app/Constants/loadingDailog.dart';
 import 'package:connectivity/connectivity.dart' as conT;
 
 import 'package:hr_app/UserprofileScreen.dart/appbar.dart';
+import 'package:hr_app/UserprofileScreen.dart/my_profile_edit.dart';
+import 'package:hr_app/main.dart';
+import 'package:intl/intl.dart';
+import 'package:percent_indicator/percent_indicator.dart';
 
 //Manager can approve or reject the applied leaves of the employees
 
@@ -33,14 +38,15 @@ class _LeaveApprovalScreenState extends State<LeaveApprovalScreen> {
   List<int> selectHalfRadioTile = [];
   List<int> selectedRadioTile = [];
   List days = [];
-  String? managerName;
   String? leaveType;
-  String managerPhoto = "";
-  String? employeeId;
+  String empPhoto = "";
   String? employeeName;
+  String? employeeDesig;
   String? managerId;
-  String? empId;
   String? empToken;
+  String? fromTo;
+  String? reason;
+  String? reporting;
   var leaves;
   var dayNo;
 
@@ -63,12 +69,8 @@ class _LeaveApprovalScreenState extends State<LeaveApprovalScreen> {
       }
     });
 
-    setState(() {
-      loadLeaveInfo();
-    });
-    Future.delayed(const Duration(milliseconds: 500), () {
-      setState(() {});
-    });
+    loadLeaveInfo();
+    loadEmployeeInfo();
   }
 
   @override
@@ -84,611 +86,801 @@ class _LeaveApprovalScreenState extends State<LeaveApprovalScreen> {
         .doc("${widget.docId}")
         .snapshots()
         .listen((onData) {
-      dayNo = onData["days"];
-      days = onData["leavesDays"];
-      managerId = onData["managerId"];
-      employeeId = onData["empId"];
-      leaveType = onData["leaveType"];
-
-      setState(() {
-        loadManagerInfo(managerId);
-      });
-      setState(() {
-        loadEmployeeInfo(employeeId);
-      });
-    });
-  }
-
-//loading manager's information
-  loadManagerInfo(String? managerId) {
-    FirebaseFirestore.instance
-        .collection("employees")
-        .doc("$managerId")
-        .snapshots()
-        .listen((onData) {
-      managerName = onData["displayName"];
-      managerPhoto = onData["imagePath"];
+      if (mounted) {
+        setState(() {
+          dayNo = onData["days"];
+          days = onData["leavesDays"];
+          managerId = onData["managerId"];
+          leaveType = onData["leaveType"];
+          fromTo = onData['from-to-date'];
+          reason = onData['reason'];
+        });
+      }
     });
   }
 
 //loading employee's information
-  loadEmployeeInfo(String? employeeId) {
+  loadEmployeeInfo() {
     FirebaseFirestore.instance
         .collection("employees")
-        .doc("$employeeId")
+        .doc("${widget.empId}")
         .snapshots()
         .listen((onData) {
-      employeeName = onData["displayName"];
-      empId = onData["uid"];
-      empToken = onData["deviceToken"];
-      leaves = onData["leaves"];
+      if (mounted) {
+        setState(() {
+          empPhoto = onData['imagePath'];
+          employeeDesig = onData['designation'];
+          employeeName = onData["displayName"];
+          empToken = onData["deviceToken"];
+          leaves = onData["leaves"];
+          reporting = onData['reportingTo'];
+        });
+      }
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    return RefreshIndicator(
-      onRefresh: _handleRefresh,
-      child: Scaffold(
-        extendBodyBehindAppBar: true,
-        appBar: buildMyAppBar(context, 'Leave Approval', false),
-        body: Stack(
-          children: [
-            Container(
-              padding: Platform.isIOS
-                  ? const EdgeInsets.only(bottom: 50, top: 130)
-                  : const EdgeInsets.only(bottom: 15, top: 100),
-              child: SingleChildScrollView(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    Container(
-                      alignment: Alignment.center,
-                      margin: const EdgeInsets.only(
-                          left: 10, right: 10, top: 2, bottom: 10),
-                      child: Text(
-                        "$employeeName has applied for $leaveType",
-                        style: const TextStyle(
-                            color: Colors.black,
-                            fontFamily: "Avenir",
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500),
-                      ),
-                    ),
-                    Container(
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(10),
-                        border:
-                            Border.all(width: 1, color: Colors.grey.shade300),
-                      ),
-                      width: MediaQuery.of(context).size.width,
-                      margin:
-                          const EdgeInsets.only(left: 10, right: 10, top: 5),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: <Widget>[
-                          Container(
-                            height: 25,
-                            padding: const EdgeInsets.only(left: 10, top: 10),
-                            child: const Text(
-                              "APPROVAL HIERARCHY",
-                              style: TextStyle(
-                                  color: Colors.black,
-                                  fontWeight: FontWeight.w500,
-                                  fontSize: 13),
-                            ),
-                          ),
-                          Container(
-                            margin: const EdgeInsets.only(
-                                top: 5, left: 5, right: 5),
-                            height: 60.0,
-                            width: 60.0,
-                            child: Container(
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                border: Border.all(
-                                  color: Colors.grey.shade200,
-                                  width: 3.0,
-                                ),
-                                borderRadius: const BorderRadius.all(
-                                    Radius.circular(80.0)),
-                              ),
-                              height: 120.0,
-                              width: 120.0,
+    return Scaffold(
+      backgroundColor: Colors.grey.shade100,
+      appBar: buildMyAppBar(context, 'Leave Approval', false),
+      body: employeeName == null
+          ? const Center(child: CircularProgressIndicator())
+          : SingleChildScrollView(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  InkWell(
+                    onTap: () {
+                      Navigator.of(context, rootNavigator: true).push(
+                          MaterialPageRoute(
+                              builder: (BuildContext context) =>
+                                  MyProfileEdit(teamId: widget.empId)));
+                    },
+                    child: Row(
+                      children: [
+                        Expanded(
+                          flex: 2,
+                          child: Container(
+                            alignment: Alignment.centerLeft,
+                            child: CircleAvatar(
+                              backgroundColor: Colors.transparent,
+                              radius: 50,
                               child: ClipRRect(
-                                borderRadius: BorderRadius.circular(88),
-                                child: FadeInImage(
-                                  fit: BoxFit.fill,
-                                  placeholder: const AssetImage(
-                                    "assets/images/profileImg.png",
-                                    // height: 30,
-                                  ),
-                                  image: NetworkImage(managerPhoto.toString()),
-                                ),
+                                clipBehavior: Clip.antiAlias,
+                                borderRadius: BorderRadius.circular(100),
+                                child: empPhoto != null || empPhoto != ""
+                                    ? CachedNetworkImage(
+                                        imageUrl: empPhoto,
+                                        fit: BoxFit.cover,
+                                        height: 70,
+                                        width: 70,
+                                        progressIndicatorBuilder:
+                                            (context, url, downloadProgress) =>
+                                                CircularProgressIndicator(
+                                          value: downloadProgress.progress,
+                                          color: Colors.white,
+                                        ),
+                                        errorWidget: (context, url, error) =>
+                                            const Icon(Icons.error),
+                                      )
+                                    : Image.asset(
+                                        'assets/placeholder.png',
+                                        fit: BoxFit.cover,
+                                      ),
                               ),
                             ),
                           ),
-                          Container(
-                            margin: const EdgeInsets.only(
-                                top: 5, left: 15, right: 5, bottom: 5),
-                            child: Text(
-                              "$managerName",
-                              style: const TextStyle(
-                                  color: Colors.black,
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 15),
-                            ),
+                        ),
+                        Expanded(
+                          flex: 5,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(employeeName!,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(
+                                      fontFamily: "Poppins",
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.black)),
+                              const SizedBox(height: 5),
+                              Text(employeeDesig!,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(
+                                      fontFamily: "Poppins",
+                                      fontSize: 13,
+                                      color: Colors.black)),
+                            ],
                           ),
-                        ],
-                      ),
+                        )
+                      ],
                     ),
-
-                    Container(
-                      margin:
-                          const EdgeInsets.only(left: 15, right: 10, top: 10),
-                      child: Text(
-                        "Employee: $employeeName",
-                        style: TextStyle(
-                            color: Colors.grey.shade700,
-                            fontFamily: "Avenir",
-                            fontSize: 15,
-                            fontWeight: FontWeight.w500),
-                      ),
-                    ),
-                    Container(
-                      margin:
-                          const EdgeInsets.only(left: 15, right: 10, top: 10),
-                      child: Text(
-                        "Leave Type: $leaveType",
-                        style: TextStyle(
-                            color: Colors.grey.shade700,
-                            fontFamily: "Avenir",
-                            fontSize: 15,
-                            fontWeight: FontWeight.w500),
-                      ),
-                    ),
-
-                    Container(
-                      margin:
-                          const EdgeInsets.only(left: 15, right: 10, top: 20),
-                      child: const Text(
-                        "Applied Dates: ",
-                        style: TextStyle(
-                            color: Colors.black,
-                            fontFamily: "Avenir",
-                            fontSize: 15,
-                            fontWeight: FontWeight.w500),
-                      ),
-                    ),
-                    Container(
-                      margin: const EdgeInsets.only(left: 10, right: 10),
-                      child: ListView.builder(
-                          padding: const EdgeInsets.all(0),
-                          shrinkWrap: true,
-                          itemCount: days.length,
-                          physics: const NeverScrollableScrollPhysics(),
-                          itemBuilder: (BuildContext context, int index) {
-                            selectHalfRadioTile.add(-1);
-                            selectedRadioTile.add(-1);
-                            return Column(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: <Widget>[
-                                Container(
-                                  margin: const EdgeInsets.only(
-                                      left: 10, right: 10, top: 10, bottom: 10),
-                                  child: Text(
-                                    days[index]['days'],
-                                  ),
-                                ),
-                                Container(
-                                  margin: const EdgeInsets.only(
-                                      left: 10, right: 10, top: 10, bottom: 10),
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.start,
+                  ),
+                  Container(
+                    alignment: Alignment.center,
+                    height: 92,
+                    width: MediaQuery.of(context).size.width,
+                    child: ListView.builder(
+                        padding: const EdgeInsets.all(0),
+                        itemCount: leaves.length,
+                        scrollDirection: Axis.horizontal,
+                        shrinkWrap: true,
+                        itemBuilder: (BuildContext context, int index) {
+                          return leaves[index]["active"] == true &&
+                                  leaves[index]["status"] == true &&
+                                  int.parse(leaves[index]["minExpDays"]) <
+                                      (joiningDate == ""
+                                          ? 0
+                                          : DateTime.now()
+                                              .difference(
+                                                  DateFormat('dd-MMM-yyyy')
+                                                      .parse(joiningDate))
+                                              .inDays)
+                              ? Container(
+                                  margin: const EdgeInsets.all(10),
+                                  child: Column(
                                     crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: <Widget>[
-                                      Expanded(
-                                        flex: 9,
-                                        child:
-                                            // days[index]['dayType'] == "Full Day"
-                                            // ? fullTile()
-                                            // : days[index]['dayType'] == "Half Day"
-                                            //     ? halfRadioTiles(
-                                            //         context, days[index]["daytime"])
-                                            //     : days[index]['dayType'] ==
-                                            //             "Quarter Day"
-                                            //         ? quarterRadioTiles(context,
-                                            //             days[index]["daytime"])
-                                            //         :
-                                            SizedBox(
-                                                width: MediaQuery.of(context)
-                                                    .size
-                                                    .width,
-                                                child: fullTile()),
+                                        CrossAxisAlignment.center,
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      CircularPercentIndicator(
+                                        animationDuration: 1000,
+                                        animateFromLastPercent: true,
+                                        animation: true,
+                                        radius: 50.0,
+                                        lineWidth: 3.0,
+                                        percent: (leaves[index]!['taken'])
+                                                .toDouble() /
+                                            leaves[index]!['leaveQuota']
+                                                .toDouble(),
+                                        center: RichText(
+                                          text: TextSpan(
+                                            text:
+                                                '${leaves[index]!['leaveQuota']}/',
+                                            style: const TextStyle(
+                                                color: Color(0XFF5B5B5B),
+                                                fontSize: 11),
+                                            children: <TextSpan>[
+                                              TextSpan(
+                                                  text:
+                                                      "${(leaves[index]!['leaveQuota'] - leaves[index]!['taken']).toInt()}",
+                                                  style: const TextStyle(
+                                                      fontSize: 14,
+                                                      color: purpleDark,
+                                                      fontWeight:
+                                                          FontWeight.bold)),
+                                            ],
+                                          ),
+                                        ),
+                                        progressColor: purpleDark,
                                       ),
-                                      // Expanded(
-                                      //   flex: 2,
-                                      //   child: Container(
-                                      //     alignment: Alignment.centerRight,
-                                      //     margin:
-                                      //         EdgeInsets.only(left: 10, right: 10),
-                                      //     child: Text(
-                                      //       // days[index]['dayType'] == "Full Day"
-                                      //       //     ? "1 Day"
-                                      //       //     : days[index]['dayType'] ==
-                                      //       //             "Half Day"
-                                      //       //         ? "0.5 Day"
-                                      //       //         : days[index]['dayType'] ==
-                                      //       //                 "Quarter Day"
-                                      //       //             ? "0.25 Day"
-                                      //       //             :
-                                      //       "1 Day",
-                                      //     ),
-                                      //   ),
-                                      // ),
+                                      const SizedBox(height: 6),
+                                      Text(leaves[index]!["name"].toString(),
+                                          style: const TextStyle(fontSize: 13)),
                                     ],
                                   ),
                                 )
-                              ],
-                            );
-                          }),
-                    ),
-                    //manager approving the leave
-                    Container(
+                              : Container();
+                        }),
+                  ),
+                  Container(
+                    height: MediaQuery.of(context).size.height / 1.6,
+                    width: MediaQuery.of(context).size.width,
+                    padding: const EdgeInsets.only(top: 10),
+                    margin: const EdgeInsets.only(top: 10),
+                    decoration: const BoxDecoration(
+                        borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(35),
+                          topRight: Radius.circular(35),
+                        ),
+                        color: Colors.white),
+                    child: Column(children: [
+                      Container(
+                        alignment: Alignment.center,
                         margin: const EdgeInsets.only(
-                            left: 10, right: 10, top: 10, bottom: 50),
+                            left: 20, right: 10, top: 10, bottom: 10),
                         child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: <Widget>[
-                            Container(
-                              height: 40,
-                              width: MediaQuery.of(context).size.width / 2.5,
-                              margin: const EdgeInsets.only(
-                                  left: 10, right: 10, top: 3),
-                              child: RaisedButton(
-                                color: Colors.green[600],
-                                child: const Text(
-                                  "APPROVE",
+                          children: [
+                            const Expanded(
+                                flex: 3,
+                                child: Text(
+                                  "Applied for: ",
                                   style: TextStyle(
-                                      color: Colors.white,
+                                      color: Colors.black,
                                       fontFamily: "Avenir",
-                                      fontSize: 13,
+                                      fontSize: 14,
                                       fontWeight: FontWeight.w500),
+                                )),
+                            Expanded(
+                              flex: 7,
+                              child: Card(
+                                color: Colors.white,
+                                elevation: 4,
+                                margin:
+                                    const EdgeInsets.only(left: 10, right: 10),
+                                child: Container(
+                                  padding: const EdgeInsets.all(12),
+                                  child: Text(
+                                    "$leaveType",
+                                    style: const TextStyle(
+                                        color: Colors.black,
+                                        fontFamily: "Avenir",
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w500),
+                                  ),
                                 ),
-                                onPressed: () {
-                                  showDialog(
-                                    context: context,
-                                    barrierDismissible:
-                                        false, // user must tap button for close dialog!
-                                    builder: (BuildContext context) {
-                                      return CupertinoAlertDialog(
-                                        title: const Text('Approve Leave'),
-                                        content: const Text(
-                                            'Are you sure you want to approve this Leave Request?'),
-                                        actions: <Widget>[
-                                          FlatButton(
-                                            child: const Text('No'),
-                                            onPressed: () {
-                                              Navigator.of(context).pop();
-                                            },
-                                          ),
-                                          OfflineBuilder(connectivityBuilder: (
-                                            BuildContext context,
-                                            ConnectivityResult connectivity2,
-                                            Widget child,
-                                          ) {
-                                            if (connectivity2 ==
-                                                ConnectivityResult.none) {
-                                              return FlatButton(
-                                                child: const Text('Yes'),
-                                                onPressed: () {
-                                                  ScaffoldMessenger.of(context)
-                                                      .showSnackBar(
-                                                    const SnackBar(
-                                                      content: Text(
-                                                          "No Internet Connection"),
-                                                    ),
-                                                  );
-                                                },
-                                              );
-                                            } else {
-                                              return child;
-                                            }
-                                          }, builder: (BuildContext context) {
-                                            return FlatButton(
-                                              child: const Text('Yes'),
-                                              onPressed: () {
-                                                showLoadingDialog(context);
-                                                FirebaseFirestore.instance
-                                                    .runTransaction((Transaction
-                                                        transaction) async {
-                                                  DocumentReference reference =
-                                                      FirebaseFirestore.instance
-                                                          .collection(
-                                                              "employees")
-                                                          .doc(
-                                                              "${widget.empId}");
-
-                                                  for (int i = 0;
-                                                      i < leaves.length;
-                                                      i++) {
-                                                    if (leaveType ==
-                                                        leaves[i]["name"]) {
-                                                      reference
-                                                          .update({
-                                                            "leaves": FieldValue
-                                                                .arrayRemove(
-                                                                    [leaves[i]])
-                                                          })
-                                                          .whenComplete(() {})
-                                                          .catchError((e) {});
-                                                      Map<String?, dynamic>
-                                                          serializedMessage = {
-                                                        "active": leaves[i]
-                                                            ['active'],
-                                                        "docId": leaves[i]
-                                                            ['docId'],
-                                                        "leaveQuota": leaves[i]
-                                                            ["leaveQuota"],
-                                                        "minExpDays": leaves[i]
-                                                            ['minExpDays'],
-                                                        "status": leaves[i]
-                                                            ['status'],
-                                                        "sandwich": leaves[i]
-                                                            ["sandwich"],
-                                                        "minApply": leaves[i]
-                                                            ['minApply'],
-                                                        "name": leaves[i]
-                                                            ["name"],
-                                                        "taken": leaves[i]
-                                                                ["taken"] +
-                                                            dayNo.toDouble()
-                                                      };
-
-                                                      reference
-                                                          .update({
-                                                            "leaves": FieldValue
-                                                                .arrayUnion([
-                                                              serializedMessage
-                                                            ])
-                                                          })
-                                                          .whenComplete(() {})
-                                                          .catchError((e) {});
-                                                    }
-                                                  }
-
-                                                  await
-                                                      // reference
-
-                                                      FirebaseFirestore.instance
-                                                          .collection(
-                                                              "requests")
-                                                          .doc(
-                                                              "${widget.docId}")
-                                                          .update({
-                                                    "leaveStatus": "approved",
-                                                    "approvalTime":
-                                                        "${DateTime.now()}",
-                                                  }).whenComplete(() {
-                                                    var note = FirebaseFunctions
-                                                        .instance
-                                                        .httpsCallable(
-                                                            'sendSpecificFcm');
-                                                    note.call({
-                                                      "fcmToken": "$empToken",
-                                                      "employeeId":
-                                                          "${widget.empId}",
-                                                      "managerId": "$managerId",
-                                                      "receiverId":
-                                                          "${widget.empId}",
-                                                      "timeStamp":
-                                                          "${DateTime.now()}",
-                                                      "docId": reference.id,
-                                                      "employeeName": "",
-                                                      "days": days,
-                                                      "payload": {
-                                                        "notification": {
-                                                          "title":
-                                                              "Leave Approved",
-                                                          "body":
-                                                              "$managerName has approved your leave request",
-                                                          "sound": "default",
-                                                          "badge": "1",
-                                                          "click_action":
-                                                              "FLUTTER_NOTIFICATION_CLICK"
-                                                        },
-                                                        "data": {
-                                                          "employeeName":
-                                                              "$employeeName",
-                                                          "employeeId":
-                                                              "${widget.empId}",
-                                                          "managerId":
-                                                              "$managerId",
-                                                          "leaveStatus":
-                                                              "approved"
-                                                        }
-                                                      }
-                                                    }).whenComplete(() {
-                                                      Future.delayed(
-                                                          const Duration(
-                                                              milliseconds:
-                                                                  500), () {
-                                                        Navigator.of(context)
-                                                            .pushNamedAndRemoveUntil(
-                                                                '/app',
-                                                                (Route<dynamic>
-                                                                        route) =>
-                                                                    false);
-                                                        Fluttertoast.showToast(
-                                                            msg:
-                                                                "You have approved leave request");
-                                                      });
-                                                    }).catchError((onError) {});
-                                                  });
-                                                }).catchError((e) {});
-                                              },
-                                            );
-                                          })
-                                        ],
-                                      );
-                                    },
-                                  );
-                                },
                               ),
                             ),
-                            //manager rejecting the leave
-                            Container(
-                              height: 40,
-                              width: MediaQuery.of(context).size.width / 2.5,
-                              margin: const EdgeInsets.only(
-                                  left: 10, right: 10, top: 3),
-                              child: RaisedButton(
-                                color: purpleDark,
-                                child: const Text(
-                                  "REJECT",
+                          ],
+                        ),
+                      ),
+                      Container(
+                        alignment: Alignment.center,
+                        margin: const EdgeInsets.only(
+                            left: 20, right: 10, bottom: 10),
+                        child: Row(
+                          children: [
+                            const Expanded(
+                                flex: 3,
+                                child: Text(
+                                  "Applied Dates: ",
                                   style: TextStyle(
-                                      color: Colors.white,
+                                      color: Colors.black,
                                       fontFamily: "Avenir",
-                                      fontSize: 13,
+                                      fontSize: 14,
                                       fontWeight: FontWeight.w500),
+                                )),
+                            Expanded(
+                              flex: 7,
+                              child: Card(
+                                color: Colors.white,
+                                elevation: 4,
+                                margin:
+                                    const EdgeInsets.only(left: 10, right: 10),
+                                child: Container(
+                                  padding: const EdgeInsets.all(12),
+                                  child: Text(
+                                    "$fromTo",
+                                    style: const TextStyle(
+                                        color: Colors.black,
+                                        fontFamily: "Avenir",
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w500),
+                                  ),
                                 ),
-                                onPressed: () {
-                                  showDialog(
-                                    context: context,
-                                    barrierDismissible:
-                                        false, // user must tap button for close dialog!
-                                    builder: (BuildContext context) {
-                                      return CupertinoAlertDialog(
-                                        title: const Text('Reject Leave'),
-                                        content: const Text(
-                                            'Are you sure you want to reject this Leave Request?'),
-                                        actions: <Widget>[
-                                          FlatButton(
-                                            child: const Text('No'),
-                                            onPressed: () {
-                                              Navigator.of(context).pop();
-                                            },
-                                          ),
-                                          OfflineBuilder(connectivityBuilder: (
-                                            BuildContext context,
-                                            ConnectivityResult connectivity2,
-                                            Widget child,
-                                          ) {
-                                            if (connectivity2 ==
-                                                conT.ConnectivityResult.none) {
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Container(
+                        alignment: Alignment.center,
+                        margin: const EdgeInsets.only(
+                            left: 20, right: 10, bottom: 10),
+                        child: Row(
+                          children: [
+                            const Expanded(
+                                flex: 3,
+                                child: Text(
+                                  "Reason: ",
+                                  style: TextStyle(
+                                      color: Colors.black,
+                                      fontFamily: "Avenir",
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w500),
+                                )),
+                            Expanded(
+                              flex: 7,
+                              child: Card(
+                                color: Colors.white,
+                                elevation: 4,
+                                margin:
+                                    const EdgeInsets.only(left: 10, right: 10),
+                                child: Container(
+                                  padding: const EdgeInsets.all(12),
+                                  child: Text(
+                                    reason == '' ? "N/A" : "$reason",
+                                    style: const TextStyle(
+                                        color: Colors.black,
+                                        fontFamily: "Avenir",
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w400),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Container(
+                          margin: const EdgeInsets.only(left: 12, right: 12),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                flex: 5,
+                                child: InkWell(
+                                  child: Container(
+                                    height: 40,
+                                    margin: const EdgeInsets.all(13),
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(30),
+                                      color: purpleDark,
+                                    ),
+                                    child: const Center(
+                                      child: Text(
+                                        'APPROVE',
+                                        textAlign: TextAlign.center,
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  onTap: () {
+                                    showDialog(
+                                      context: context,
+                                      barrierDismissible:
+                                          false, // user must tap button for close dialog!
+                                      builder: (BuildContext context) {
+                                        return CupertinoAlertDialog(
+                                          title: const Text('Approve Leave'),
+                                          content: const Text(
+                                              'Are you sure you want to approve this Leave Request?'),
+                                          actions: <Widget>[
+                                            FlatButton(
+                                              child: const Text('No'),
+                                              onPressed: () {
+                                                Navigator.of(context).pop();
+                                              },
+                                            ),
+                                            OfflineBuilder(
+                                                connectivityBuilder: (
+                                              BuildContext context,
+                                              ConnectivityResult connectivity2,
+                                              Widget child,
+                                            ) {
+                                              if (connectivity2 ==
+                                                  ConnectivityResult.none) {
+                                                return FlatButton(
+                                                  child: const Text('Yes'),
+                                                  onPressed: () {
+                                                    ScaffoldMessenger.of(
+                                                            context)
+                                                        .showSnackBar(
+                                                      const SnackBar(
+                                                        backgroundColor:
+                                                            Colors.white,
+                                                        content: Text(
+                                                            "No Internet Connection",
+                                                            style: TextStyle(
+                                                                color: Colors
+                                                                    .black)),
+                                                      ),
+                                                    );
+                                                  },
+                                                );
+                                              } else {
+                                                return child;
+                                              }
+                                            }, builder: (BuildContext context) {
                                               return FlatButton(
                                                 child: const Text('Yes'),
                                                 onPressed: () {
-                                                  ScaffoldMessenger.of(context)
-                                                      .showSnackBar(
-                                                    const SnackBar(
-                                                        content: Text(
-                                                            'No Internet Connection')),
-                                                  );
+                                                  showLoadingDialog(context);
+                                                  FirebaseFirestore.instance
+                                                      .runTransaction((Transaction
+                                                          transaction) async {
+                                                    DocumentReference
+                                                        reference =
+                                                        FirebaseFirestore
+                                                            .instance
+                                                            .collection(
+                                                                "employees")
+                                                            .doc(
+                                                                "${widget.empId}");
+
+                                                    for (int i = 0;
+                                                        i < leaves.length;
+                                                        i++) {
+                                                      if (leaveType ==
+                                                          leaves[i]["name"]) {
+                                                        reference
+                                                            .update({
+                                                              "leaves": FieldValue
+                                                                  .arrayRemove([
+                                                                leaves[i]
+                                                              ])
+                                                            })
+                                                            .whenComplete(() {})
+                                                            .catchError((e) {});
+                                                        Map<String?, dynamic>
+                                                            serializedMessage =
+                                                            {
+                                                          "active": leaves[i]
+                                                              ['active'],
+                                                          "docId": leaves[i]
+                                                              ['docId'],
+                                                          "leaveQuota": leaves[
+                                                              i]["leaveQuota"],
+                                                          "minExpDays": leaves[
+                                                              i]['minExpDays'],
+                                                          "status": leaves[i]
+                                                              ['status'],
+                                                          "sandwich": leaves[i]
+                                                              ["sandwich"],
+                                                          "minApply": leaves[i]
+                                                              ['minApply'],
+                                                          "name": leaves[i]
+                                                              ["name"],
+                                                          "taken": leaves[i]
+                                                                  ["taken"] +
+                                                              dayNo.toDouble()
+                                                        };
+
+                                                        reference
+                                                            .update({
+                                                              "leaves": FieldValue
+                                                                  .arrayUnion([
+                                                                serializedMessage
+                                                              ])
+                                                            })
+                                                            .whenComplete(() {})
+                                                            .catchError((e) {});
+                                                      }
+                                                    }
+                                                    for (int i = 0;
+                                                        i < days.length;
+                                                        i++) {
+                                                      DocumentReference ref =
+                                                          FirebaseFirestore
+                                                              .instance
+                                                              .collection(
+                                                                  "attendance")
+                                                              .doc();
+                                                      await ref.set({
+                                                        "workHours": "-",
+                                                        "date": DateFormat(
+                                                                'MMMM dd yyyy')
+                                                            .format(DateFormat(
+                                                                    'dd MMM yyyy')
+                                                                .parse(days[i]
+                                                                    ['days'])),
+                                                        "reportingToId": uid,
+                                                        "checkin":
+                                                            DateTime.now(),
+                                                        "empId": widget.empId,
+                                                        "late": "-",
+                                                        "companyId":
+                                                            "$companyId",
+                                                        "docId": ref.id,
+                                                        "checkout":
+                                                            DateTime.now(),
+                                                        "leave": "$leaveType",
+                                                        "month": DateFormat(
+                                                                'MMMM yyyy')
+                                                            .format(DateFormat(
+                                                                    'dd MMM yyyy')
+                                                                .parse(days[i]
+                                                                    ['days']))
+                                                      });
+                                                    }
+
+                                                    await FirebaseFirestore
+                                                        .instance
+                                                        .collection("requests")
+                                                        .doc("${widget.docId}")
+                                                        .update({
+                                                      "leaveStatus": "approved",
+                                                      "approvalTime":
+                                                          "${DateTime.now()}",
+                                                    }).whenComplete(() {
+                                                      var note = FirebaseFunctions
+                                                          .instance
+                                                          .httpsCallable(
+                                                              'sendSpecificFcm');
+                                                      note.call({
+                                                        "fcmToken": "$empToken",
+                                                        "employeeId":
+                                                            "${widget.empId}",
+                                                        "managerId":
+                                                            "$managerId",
+                                                        "receiverId":
+                                                            "${widget.empId}",
+                                                        "timeStamp":
+                                                            "${DateTime.now()}",
+                                                        "docId": reference.id,
+                                                        "employeeName": "",
+                                                        "days": days,
+                                                        "payload": {
+                                                          "notification": {
+                                                            "title":
+                                                                "Leave Approved",
+                                                            "body":
+                                                                "$empName has approved your leave request",
+                                                            "sound": "default",
+                                                            "badge": "1",
+                                                            "click_action":
+                                                                "FLUTTER_NOTIFICATION_CLICK"
+                                                          },
+                                                          "data": {
+                                                            "employeeName":
+                                                                "$employeeName",
+                                                            "employeeId":
+                                                                "${widget.empId}",
+                                                            "managerId":
+                                                                "$managerId",
+                                                            "leaveStatus":
+                                                                "approved"
+                                                          }
+                                                        }
+                                                      }).whenComplete(() {
+                                                        Future.delayed(
+                                                            const Duration(
+                                                                milliseconds:
+                                                                    500), () {
+                                                          Navigator.of(context)
+                                                              .pushNamedAndRemoveUntil(
+                                                                  '/app',
+                                                                  (Route<dynamic>
+                                                                          route) =>
+                                                                      false);
+                                                          Fluttertoast.showToast(
+                                                              msg:
+                                                                  "You have approved leave request");
+                                                        });
+                                                      }).catchError(
+                                                          (onError) {});
+                                                    });
+                                                  }).catchError((e) {});
                                                 },
                                               );
-                                            } else {
-                                              return child;
-                                            }
-                                          }, builder: (BuildContext context) {
-                                            return FlatButton(
-                                              child: const Text('Yes'),
-                                              onPressed: () {
-                                                showLoadingDialog(context);
-                                                FirebaseFirestore.instance
-                                                    .runTransaction((Transaction
-                                                        transaction) async {
-                                                  DocumentReference reference =
-                                                      FirebaseFirestore.instance
-                                                          .collection(
-                                                              "requests")
-                                                          .doc(
-                                                              "${widget.docId}");
-                                                  await reference.update({
-                                                    "leaveStatus": "rejected",
-                                                    "approvalTime":
-                                                        "${DateTime.now()}",
-                                                  }).whenComplete(() {
-                                                    var note = FirebaseFunctions
-                                                        .instance
-                                                        .httpsCallable(
-                                                            'sendSpecificFcm');
-                                                    note.call({
-                                                      "fcmToken": "$empToken",
-                                                      "employeeId":
-                                                          "${widget.empId}",
-                                                      "managerId": "$managerId",
-                                                      "receiverId":
-                                                          "${widget.empId}",
-                                                      "timeStamp":
-                                                          "${DateTime.now()}",
-                                                      "docId": reference.id,
-                                                      "employeeName": "",
-                                                      "days": days,
-                                                      "payload": {
-                                                        "notification": {
-                                                          "title":
-                                                              "Leave Rejected",
-                                                          "body":
-                                                              "$managerName has rejected your leave request",
-                                                          "sound": "default",
-                                                          "badge": "1",
-                                                          "click_action":
-                                                              "FLUTTER_NOTIFICATION_CLICK"
-                                                        },
-                                                        "data": {
-                                                          "employeeName":
-                                                              "$employeeName",
-                                                          "employeeId":
-                                                              "${widget.empId}",
-                                                          "managerId":
-                                                              "$managerId",
-                                                          "leaveStatus":
-                                                              "reject"
-                                                        }
-                                                      }
-                                                    }).whenComplete(() {
-                                                      Future.delayed(
-                                                          const Duration(
-                                                              milliseconds:
-                                                                  500), () {
-                                                        Navigator.of(context)
-                                                            .pushNamedAndRemoveUntil(
-                                                                '/app',
-                                                                (Route<dynamic>
-                                                                        route) =>
-                                                                    false);
-                                                        Fluttertoast.showToast(
-                                                            msg:
-                                                                "You have rejected leave request");
-                                                      });
-                                                    }).catchError((onError) {});
-                                                  });
-                                                }).catchError((e) {});
-                                              },
-                                            );
-                                          })
-                                        ],
-                                      );
-                                    },
-                                  );
-                                },
+                                            })
+                                          ],
+                                        );
+                                      },
+                                    );
+                                  },
+                                ),
                               ),
-                            )
-                          ],
-                        )),
-                  ],
-                ),
+                              //manager rejecting the leave
+
+                              Expanded(
+                                flex: 5,
+                                child: InkWell(
+                                  child: Container(
+                                    height: 40,
+                                    margin: const EdgeInsets.all(13),
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(30),
+                                      color: purpleDark,
+                                    ),
+                                    child: const Center(
+                                      child: Text(
+                                        'REJECT',
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  onTap: () {
+                                    showDialog(
+                                      context: context,
+                                      barrierDismissible:
+                                          false, // user must tap button for close dialog!
+                                      builder: (BuildContext context) {
+                                        return CupertinoAlertDialog(
+                                          title: const Text('Reject Leave'),
+                                          content: const Text(
+                                              'Are you sure you want to reject this Leave Request?'),
+                                          actions: <Widget>[
+                                            FlatButton(
+                                              child: const Text('No'),
+                                              onPressed: () {
+                                                Navigator.of(context).pop();
+                                              },
+                                            ),
+                                            OfflineBuilder(
+                                                connectivityBuilder: (
+                                              BuildContext context,
+                                              ConnectivityResult connectivity2,
+                                              Widget child,
+                                            ) {
+                                              if (connectivity2 ==
+                                                  conT.ConnectivityResult
+                                                      .none) {
+                                                return FlatButton(
+                                                  child: const Text('Yes'),
+                                                  onPressed: () {
+                                                    ScaffoldMessenger.of(
+                                                            context)
+                                                        .showSnackBar(
+                                                      const SnackBar(
+                                                          backgroundColor:
+                                                              Colors.white,
+                                                          content: Text(
+                                                              'No Internet Connection',
+                                                              style: TextStyle(
+                                                                  color: Colors
+                                                                      .black))),
+                                                    );
+                                                  },
+                                                );
+                                              } else {
+                                                return child;
+                                              }
+                                            }, builder: (BuildContext context) {
+                                              return FlatButton(
+                                                child: const Text('Yes'),
+                                                onPressed: () {
+                                                  showLoadingDialog(context);
+                                                  FirebaseFirestore.instance
+                                                      .runTransaction((Transaction
+                                                          transaction) async {
+                                                    DocumentReference reference =
+                                                        FirebaseFirestore
+                                                            .instance
+                                                            .collection(
+                                                                "requests")
+                                                            .doc(
+                                                                "${widget.docId}");
+                                                    await reference.update({
+                                                      "leaveStatus": "rejected",
+                                                      "approvalTime":
+                                                          "${DateTime.now()}",
+                                                    }).whenComplete(() {
+                                                      var note = FirebaseFunctions
+                                                          .instance
+                                                          .httpsCallable(
+                                                              'sendSpecificFcm');
+                                                      note.call({
+                                                        "fcmToken": "$empToken",
+                                                        "employeeId":
+                                                            "${widget.empId}",
+                                                        "managerId":
+                                                            "$managerId",
+                                                        "receiverId":
+                                                            "${widget.empId}",
+                                                        "timeStamp":
+                                                            "${DateTime.now()}",
+                                                        "docId": reference.id,
+                                                        "employeeName": "",
+                                                        "days": days,
+                                                        "payload": {
+                                                          "notification": {
+                                                            "title":
+                                                                "Leave Rejected",
+                                                            "body":
+                                                                "$empName has rejected your leave request",
+                                                            "sound": "default",
+                                                            "badge": "1",
+                                                            "click_action":
+                                                                "FLUTTER_NOTIFICATION_CLICK"
+                                                          },
+                                                          "data": {
+                                                            "employeeName":
+                                                                "$employeeName",
+                                                            "employeeId":
+                                                                "${widget.empId}",
+                                                            "managerId":
+                                                                "$managerId",
+                                                            "leaveStatus":
+                                                                "reject"
+                                                          }
+                                                        }
+                                                      }).whenComplete(() {
+                                                        Future.delayed(
+                                                            const Duration(
+                                                                milliseconds:
+                                                                    500), () {
+                                                          Navigator.of(context)
+                                                              .pushNamedAndRemoveUntil(
+                                                                  '/app',
+                                                                  (Route<dynamic>
+                                                                          route) =>
+                                                                      false);
+                                                          Fluttertoast.showToast(
+                                                              msg:
+                                                                  "You have rejected leave request");
+                                                        });
+                                                      }).catchError(
+                                                          (onError) {});
+                                                    });
+                                                  }).catchError((e) {});
+                                                },
+                                              );
+                                            })
+                                          ],
+                                        );
+                                      },
+                                    );
+                                  },
+                                ),
+                              )
+                            ],
+                          )),
+                    ]),
+                  ),
+
+                  // Container(
+                  //   margin: const EdgeInsets.only(left: 10, right: 10),
+                  //   child: ListView.builder(
+                  //       padding: const EdgeInsets.all(0),
+                  //       shrinkWrap: true,
+                  //       itemCount: days.length,
+                  //       physics: const NeverScrollableScrollPhysics(),
+                  //       itemBuilder: (BuildContext context, int index) {
+                  //         selectHalfRadioTile.add(-1);
+                  //         selectedRadioTile.add(-1);
+                  //         return Column(
+                  //           mainAxisAlignment: MainAxisAlignment.start,
+                  //           crossAxisAlignment: CrossAxisAlignment.start,
+                  //           children: <Widget>[
+                  //             Container(
+                  //               margin: const EdgeInsets.only(
+                  //                   left: 10, right: 10, top: 10, bottom: 10),
+                  //               child: Text(
+                  //                 days[index]['days'],
+                  //               ),
+                  //             ),
+                  //             Container(
+                  //               margin: const EdgeInsets.only(
+                  //                   left: 10, right: 10, top: 10, bottom: 10),
+                  //               child: Row(
+                  //                 mainAxisAlignment: MainAxisAlignment.start,
+                  //                 crossAxisAlignment: CrossAxisAlignment.start,
+                  //                 children: <Widget>[
+                  //                   Expanded(
+                  //                     flex: 9,
+                  //                     child:
+                  //                         // days[index]['dayType'] == "Full Day"
+                  //                         // ? fullTile()
+                  //                         // : days[index]['dayType'] == "Half Day"
+                  //                         //     ? halfRadioTiles(
+                  //                         //         context, days[index]["daytime"])
+                  //                         //     : days[index]['dayType'] ==
+                  //                         //             "Quarter Day"
+                  //                         //         ? quarterRadioTiles(context,
+                  //                         //             days[index]["daytime"])
+                  //                         //         :
+                  //                         SizedBox(
+                  //                             width:
+                  //                                 MediaQuery.of(context).size.width,
+                  //                             child: fullTile()),
+                  //                   ),
+                  //                   // Expanded(
+                  //                   //   flex: 2,
+                  //                   //   child: Container(
+                  //                   //     alignment: Alignment.centerRight,
+                  //                   //     margin:
+                  //                   //         EdgeInsets.only(left: 10, right: 10),
+                  //                   //     child: Text(
+                  //                   //       // days[index]['dayType'] == "Full Day"
+                  //                   //       //     ? "1 Day"
+                  //                   //       //     : days[index]['dayType'] ==
+                  //                   //       //             "Half Day"
+                  //                   //       //         ? "0.5 Day"
+                  //                   //       //         : days[index]['dayType'] ==
+                  //                   //       //                 "Quarter Day"
+                  //                   //       //             ? "0.25 Day"
+                  //                   //       //             :
+                  //                   //       "1 Day",
+                  //                   //     ),
+                  //                   //   ),
+                  //                   // ),
+                  //                 ],
+                  //               ),
+                  //             )
+                  //           ],
+                  //         );
+                  //       }),
+                  // ),
+                  //manager approving the leave
+                ],
               ),
             ),
-          ],
-        ),
-      ),
     );
   }
 

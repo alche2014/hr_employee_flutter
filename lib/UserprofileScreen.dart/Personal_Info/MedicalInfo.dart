@@ -1,4 +1,5 @@
 import 'dart:async';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:connectivity/connectivity.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -9,27 +10,26 @@ import 'package:hr_app/UserprofileScreen.dart/appbar.dart';
 import 'package:hr_app/Constants/constants.dart';
 
 // employee add his/her personal information in this screen
-enum Gender { male, female }
 
-class ContactInfo extends StatefulWidget {
+class MedicalInfo extends StatefulWidget {
   final data;
-  const ContactInfo({Key? key, this.data}) : super(key: key);
+  const MedicalInfo({Key? key, this.data}) : super(key: key);
   @override
-  _ContactInfoState createState() => _ContactInfoState();
+  _MedicalInfoState createState() => _MedicalInfoState();
 }
 
-class _ContactInfoState extends State<ContactInfo> {
+class _MedicalInfoState extends State<MedicalInfo> {
   Connectivity? connectivity;
   StreamSubscription<ConnectivityResult>? subscription;
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  late String? cityName;
-  var defaultCode = "+92";
   String? userId;
   final FocusNode cityFocus = FocusNode();
-  TextEditingController addressController = TextEditingController();
-  TextEditingController phoneController = TextEditingController();
-  TextEditingController emailController = TextEditingController();
-  TextEditingController cityController = TextEditingController();
+  TextEditingController healthController = TextEditingController();
+  TextEditingController medicalidController = TextEditingController();
+  TextEditingController bloodgroupController = TextEditingController();
+  TextEditingController diseaseController = TextEditingController();
+  TextEditingController allergyController = TextEditingController();
+
   ScrollController? con;
 
   @override
@@ -48,29 +48,31 @@ class _ContactInfoState extends State<ContactInfo> {
     });
 
     userId = widget.data["uid"];
-    defaultCode = widget.data["phone"] == null || widget.data["phone"] == ""
-        ? "+92"
-        : widget.data["phone"].split(" ")[0];
 
-    phoneController = TextEditingController(
-        text: widget.data["phone"] == null || widget.data["phone"] == ""
-            ? ""
-            : widget.data["phone"].split(" ")[1]);
-    emailController = TextEditingController(
+    bloodgroupController = TextEditingController(
         text:
-            widget.data["otherEmail"] == null || widget.data["otherEmail"] == ""
+            widget.data["bloodGroup"] == null || widget.data["bloodGroup"] == ""
                 ? ""
-                : widget.data["otherEmail"]);
+                : widget.data["bloodGroup"]);
 
-    cityController = TextEditingController(
-        text: widget.data["cityName"] == null || widget.data["cityName"] == ""
+    medicalidController = TextEditingController(
+        text: widget.data["medicalId"] == null || widget.data["medicalId"] == ""
             ? ""
-            : widget.data["cityName"]);
+            : widget.data["medicalId"]);
+    allergyController = TextEditingController(
+        text: widget.data["allergy"] == null || widget.data["allergy"] == ""
+            ? ""
+            : widget.data["allergy"]);
+    diseaseController = TextEditingController(
+        text: widget.data["disease"] == null || widget.data["disease"] == ""
+            ? ""
+            : widget.data["disease"]);
 
-    addressController = TextEditingController(
-        text: widget.data["address"] == null || widget.data["address"] == ''
+    healthController = TextEditingController(
+        text: widget.data["healthCondition"] == null ||
+                widget.data["healthCondition"] == ''
             ? ""
-            : widget.data["address"]);
+            : widget.data["healthCondition"]);
 
     con = ScrollController();
     con!.addListener(() {
@@ -96,7 +98,7 @@ class _ContactInfoState extends State<ContactInfo> {
   Widget build(BuildContext context) {
     return Scaffold(
         backgroundColor: Colors.grey.shade100,
-        appBar: buildMyAppBar(context, 'Contact Details', true),
+        appBar: buildMyAppBar(context, 'Medical Information', true),
         body: Container(
             margin: const EdgeInsets.all(15),
             width: MediaQuery.of(context).size.width,
@@ -109,53 +111,57 @@ class _ContactInfoState extends State<ContactInfo> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
                     const SizedBox(height: 15),
-                    Text("  Email", style: TextFieldHeadingStyle()),
+                    Text("  Medical Card ID", style: TextFieldHeadingStyle()),
                     const SizedBox(height: 10),
                     TextFormField(
-                      controller: emailController,
+                      controller: medicalidController,
                       style: TextFieldTextStyle(),
-                      decoration: TextFieldDecoration('Email'),
+                      decoration: TextFieldDecoration('Medical Card ID'),
                       autovalidateMode: AutovalidateMode.onUserInteraction,
                       textInputAction: TextInputAction.next,
-                      validator: (value) {
-                        String pattern =
-                            r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$';
-                        RegExp regex = RegExp(pattern);
-                        if (!regex.hasMatch(value ?? '')) {
-                          return 'Enter valid email';
-                        } else {
-                          return null;
-                        }
-                      },
-                      keyboardType: TextInputType.emailAddress,
+                      keyboardType: TextInputType.text,
                     ),
                     const SizedBox(height: 15),
-                    Text("  Phone", style: TextFieldHeadingStyle()),
-                    const SizedBox(height: 10),
-                    TextFormField(
-                        keyboardType: TextInputType.number,
-                        controller: phoneController,
-                        style: TextFieldTextStyle(),
-                        decoration: TextPhoneFieldDecoration(defaultCode)),
-                    const SizedBox(height: 15),
-                    Text("  City", style: TextFieldHeadingStyle()),
+                    Text("  Blood Group", style: TextFieldHeadingStyle()),
                     const SizedBox(height: 10),
                     TextFormField(
                       textCapitalization: TextCapitalization.sentences,
-                      controller: cityController,
+                      controller: bloodgroupController,
                       style: TextFieldTextStyle(),
-                      decoration: TextFieldDecoration('City'),
+                      decoration: TextFieldDecoration('Blood Group'),
                       autovalidateMode: AutovalidateMode.onUserInteraction,
                       textInputAction: TextInputAction.next,
                     ),
                     const SizedBox(height: 15),
-                    Text("  Permanent Address", style: TextFieldHeadingStyle()),
+                    Text("  Health Condition", style: TextFieldHeadingStyle()),
                     const SizedBox(height: 10),
                     TextFormField(
                       textCapitalization: TextCapitalization.sentences,
-                      controller: addressController,
+                      controller: healthController,
                       style: TextFieldTextStyle(),
-                      decoration: TextFieldDecoration('Permanent Address'),
+                      decoration: TextFieldDecoration(' Health Condition'),
+                      autovalidateMode: AutovalidateMode.onUserInteraction,
+                      textInputAction: TextInputAction.next,
+                    ),
+                    const SizedBox(height: 15),
+                    Text("  Any Disease", style: TextFieldHeadingStyle()),
+                    const SizedBox(height: 10),
+                    TextFormField(
+                      textCapitalization: TextCapitalization.sentences,
+                      controller: diseaseController,
+                      style: TextFieldTextStyle(),
+                      decoration: TextFieldDecoration('Disease'),
+                      autovalidateMode: AutovalidateMode.onUserInteraction,
+                      textInputAction: TextInputAction.next,
+                    ),
+                    const SizedBox(height: 15),
+                    Text("  Any Allergies", style: TextFieldHeadingStyle()),
+                    const SizedBox(height: 10),
+                    TextFormField(
+                      textCapitalization: TextCapitalization.sentences,
+                      controller: allergyController,
+                      style: TextFieldTextStyle(),
+                      decoration: TextFieldDecoration('Allergy'),
                       autovalidateMode: AutovalidateMode.onUserInteraction,
                       textInputAction: TextInputAction.next,
                     ),
@@ -168,12 +174,12 @@ class _ContactInfoState extends State<ContactInfo> {
   }
 
   onpress() {
-    if (emailController.text.isEmpty) {
+    if (medicalidController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           backgroundColor: Colors.white,
-          content:
-              Text('Email is empty', style: TextStyle(color: Colors.black)),
+          content: Text('Medical Card Id is empty',
+              style: TextStyle(color: Colors.black)),
         ),
       );
     } else {
@@ -211,17 +217,24 @@ class _ContactInfoState extends State<ContactInfo> {
             ? FirebaseFirestore.instance.collection("guests").doc(userId)
             : FirebaseFirestore.instance.collection("employees").doc(userId);
         await reference.update({
-          "phone": phoneController.text.isEmpty
+          "medicalId": medicalidController.text.isEmpty
+              ? "null"
+              : medicalidController.text,
+          "bloodGroup": bloodgroupController.text == ""
               ? null
-              : defaultCode + " " + phoneController.text,
-          "cityName": cityController.text == "" ? null : cityController.text,
-          "address":
-              addressController.text == "" ? null : addressController.text,
+              : bloodgroupController.text,
+          "allergy":
+              allergyController.text == "" ? null : allergyController.text,
+          "disease":
+              diseaseController.text == "" ? null : diseaseController.text,
+          "healthCondition":
+              healthController.text == "" ? null : healthController.text,
         });
       }).whenComplete(() {
         Navigator.pop(context);
 
-        Fluttertoast.showToast(msg: "Contact detail is added successfully");
+        Fluttertoast.showToast(
+            msg: "Medical Information is added successfully");
         Navigator.pop(context);
       }).catchError((e) {
         Fluttertoast.showToast(msg: e);

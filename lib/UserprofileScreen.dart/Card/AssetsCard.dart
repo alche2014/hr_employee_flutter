@@ -1,51 +1,31 @@
 // ignore_for_file: file_names
 import 'package:flutter/material.dart';
 import 'package:hr_app/Constants/colors.dart';
-import 'package:hr_app/Constants/constants.dart';
 import 'package:hr_app/main.dart';
 
-import '../main_skill.dart';
-
-class SkillsCard extends StatelessWidget {
+class AssetsCard extends StatelessWidget {
   // ignore: prefer_typing_uninitialized_variables
   final data, teamEdit;
-  const SkillsCard({Key? key, this.data, this.teamEdit}) : super(key: key);
+  const AssetsCard({Key? key, this.data, this.teamEdit}) : super(key: key);
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 10),
       child: Column(
         children: [
-          Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-            const Text('Skills',
-                style:
-                    TextStyle(fontWeight: FontWeight.bold, color: purpleDark)),
-            teamEdit
-                ? InkWell(
-                    onTap: () {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => MainSkills(data: data)));
-                    },
-                    child: Container(
-                      width: 50,
-                      height: 30,
-                      alignment: Alignment.centerRight,
-                      child: const Text('Edit',
-                          style: TextStyle(
-                              color: kPrimaryColor,
-                              fontSize: 13,
-                              fontWeight: FontWeight.w400)),
-                    ))
-                : Container(),
-          ]),
-          data['skills'] == null
+          Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: const [
+                Text('Assets',
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold, color: purpleDark)),
+              ]),
+          data['assets'] == null
               ? Center(
                   child: Container(
                     margin: const EdgeInsets.only(bottom: 20),
                     child: Text(
-                      "No Skills added yet",
+                      "No Assets assigned yet",
                       style: TextStyle(
                           color: isdarkmode.value == false
                               ? Colors.grey[700]
@@ -55,10 +35,10 @@ class SkillsCard extends StatelessWidget {
                     ),
                   ),
                 )
-              : data['skills'] != null && data['skills'].length == 0
+              : data['assets'] != null && data['assets'].length == 0
                   ? Center(
                       child: Text(
-                      "No Skills added yet",
+                      "No Assets added yet",
                       style: TextStyle(
                           color: isdarkmode.value == false
                               ? Colors.grey[700]
@@ -71,8 +51,8 @@ class SkillsCard extends StatelessWidget {
                           const EdgeInsets.only(left: 7, right: 7, top: 10),
                       child: ListView.builder(
                           padding: EdgeInsets.zero,
-                          itemCount: data['skills'] != null
-                              ? data['skills'].length
+                          itemCount: data['assets'] != null
+                              ? data['assets'].length
                               : 0,
                           shrinkWrap: true,
                           physics: const NeverScrollableScrollPhysics(),
@@ -89,9 +69,9 @@ class SkillsCard extends StatelessWidget {
                                           MainAxisAlignment.start,
                                       children: <Widget>[
                                         Text(
-                                          data['skills'] == null
-                                              ? "No Skills added yet"
-                                              : data['skills'][index],
+                                          data['assets'] == null
+                                              ? "No assets assigned yet"
+                                              : data['assets'][index],
                                           style: TextStyle(
                                               color: isdarkmode.value == false
                                                   ? Colors.grey[700]

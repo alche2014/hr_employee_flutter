@@ -433,7 +433,9 @@ class _AddExperienceState extends State<AddExperience> {
     if (titlesController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Title is empty'),
+          backgroundColor: Colors.white,
+          content:
+              Text('Title is empty', style: TextStyle(color: Colors.black)),
         ),
       );
     } else {
@@ -445,8 +447,10 @@ class _AddExperienceState extends State<AddExperience> {
     final form = _formKey.currentState;
     if (form!.validate()) {
       if (dateFormat == "From" || dateFormat == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text("Kindly select start date")));
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+            backgroundColor: Colors.white,
+            content: Text("Kindly select start date",
+                style: TextStyle(color: Colors.black))));
       } else {
         int guest = 0;
         final user = FirebaseAuth.instance.currentUser!;
@@ -529,8 +533,10 @@ class _AddExperienceState extends State<AddExperience> {
     final form = _formKey.currentState;
     if (form!.validate()) {
       if (dateFormat == "From" || dateFormat == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text("Kindly select start date")));
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+            backgroundColor: Colors.white,
+            content: Text("Kindly select start date",
+                style: TextStyle(color: Colors.black))));
       } else {
         int guest = 0;
         final user = FirebaseAuth.instance.currentUser!;

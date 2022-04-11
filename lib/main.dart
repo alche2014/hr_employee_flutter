@@ -62,7 +62,6 @@ String empId = '';
 String? department;
 String? designation;
 
-String? name = '';
 String? role;
 List leaveData = [];
 List<dynamic> leaveType = [];
