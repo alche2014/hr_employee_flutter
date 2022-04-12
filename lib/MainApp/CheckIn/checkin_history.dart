@@ -42,6 +42,8 @@ class _CheckinHistoryState extends State<CheckinHistory> {
                         .orderBy("checkin", descending: false)
                         .snapshots(),
                     builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+                      a = 0;
+
                       if (!snapshot.hasData) {
                         return const Center(
                           child: CircularProgressIndicator(),
@@ -177,6 +179,7 @@ class _CheckinHistoryState extends State<CheckinHistory> {
                                       //         )
                                       //       ])
                                       //     :
+
                                       checkinCard(snapshot.data!.docs, index,
                                           dropdownValue);
                                 });
@@ -198,6 +201,8 @@ class _CheckinHistoryState extends State<CheckinHistory> {
                   leading: InkWell(
                       onTap: () {
                         setState(() {
+                          a = 0;
+
                           now = DateTime(now.year, now.month - 1);
                           dropdownValue =
                               '${DateFormat('MMMM yyyy').format(now).toString()}';
@@ -225,12 +230,28 @@ class _CheckinHistoryState extends State<CheckinHistory> {
                         if (now.year == DateTime.now().year &&
                             now.month == DateTime.now().month) {
                           Fluttertoast.showToast(msg: "No more records");
+                        } else if (now.month + 1 == DateTime.now().month) {
+                          setState(() {
+                            a = 0;
+                            now = DateTime(now.year, now.month + 1);
+
+                            dropdownValue =
+                                '${DateFormat('MMMM yyyy').format(now).toString()}';
+                            days = DateTime(
+                                    now.year, now.month + 1, DateTime.now().day)
+                                .day;
+                          });
                         } else {
                           setState(() {
+                            a = 0;
                             now = DateTime(now.year, now.month + 1);
+
                             dropdownValue =
                                 '${DateFormat('MMMM yyyy').format(now).toString()}';
                             days = DateTime(now.year, now.month + 1, 0).day;
+                            print(now.toString() +
+                                "============" +
+                                days.toString());
                           });
                         }
                       },
@@ -303,7 +324,7 @@ class _CheckinHistoryState extends State<CheckinHistory> {
     } else if (timeStatus[index - a]['date'].toString() !=
         DateFormat('MMMM dd yyyy')
             .format(DateFormat('dd MMMM yyyy').parse("${index + 1} $day"))) {
-      a++;
+      index == 0 ? a : a++;
     }
     return Column(
       children: [
@@ -341,79 +362,23 @@ class _CheckinHistoryState extends State<CheckinHistory> {
             Expanded(
                 flex: 9,
                 child: Center(
-                  child: DateFormat('EEE')
-                                  .format(DateFormat('dd MMMM yyyy')
-                                      .parse("${index + 1} $day"))
-                                  .toUpperCase() ==
-                              "SAT" ||
-                          DateFormat('EEE')
-                                  .format(DateFormat('dd MMMM yyyy')
-                                      .parse("${index + 1} $day"))
-                                  .toUpperCase() ==
-                              "SUN"
-                      ? Text("Weekend")
-                      : timeStatus[index - a]['date'].toString() !=
-                              DateFormat('MMMM dd yyyy').format(
-                                  DateFormat('dd MMMM yyyy')
-                                      .parse("${index + 1} $day"))
-                          ? Text("absent")
-                          : Text(
-                              timeStatus[index - a]['date']
-                                  // .indexOf(DateFormat('dd MMMM yyyy')
-                                  //     .parse("${index + 1} $day"))
-                                  .toString(),
-                              // [6]['late'].toString(),
-                              style: const TextStyle(color: Colors.red),
-                            ),
-                )),
-            // Expanded(
-            //     flex: 3,
-            //     child: Row(
-            //       crossAxisAlignment: CrossAxisAlignment.center,
-            //       mainAxisAlignment: MainAxisAlignment.center,
-            //       children: [
-            //         SizedBox(
-            //           height: 12,
-            //           width: 12,
-            //           child: Image.asset("assets/Arrowdown.png"),
-            //         ),
-            //         const SizedBox(width: 4),
-            //         Text(
-            //           DateFormat('K:mma').format(dateTime).toLowerCase(),
-            //           style: TextStyle(
-            //               color: timeStatus["late"] == "0 hrs & 0 mins"
-            //                   ? Colors.green
-            //                   : Colors.red),
-            //         ),
-            //       ],
-            //     )),
-            // Expanded(
-            //   flex: 3,
-            //   child: Row(
-            //       crossAxisAlignment: CrossAxisAlignment.center,
-            //       mainAxisAlignment: MainAxisAlignment.center,
-            //       children: [
-            //         timeStatus['checkout'] != null
-            //             ? SizedBox(
-            //                 height: 12,
-            //                 width: 12,
-            //                 child: Image.asset("assets/Arrowup.png"),
-            //               )
-            //             : Container(),
-            //         const SizedBox(width: 4),
-            //         Text(timeStatus['checkout'] == null
-            //             ? "- - - - "
-            //             : DateFormat('K:mma').format(dateTime2).toLowerCase()),
-            //       ]),
-            // ),
-            // Expanded(
-            //   flex: 3,
-            //   child: Center(
-            //       child: timeStatus["checkout"] == null
-            //           ? Text(
-            //               "${((DateTime.now().difference(dateTime).inSeconds) / 3600).toInt()} : ${(((DateTime.now().difference(dateTime).inSeconds) % 3600) / 60).toInt()}")
-            //           : Text(' ${timeStatus["workHours"]}')),
-            // ),
+                    child: DateFormat('EEE')
+                                    .format(DateFormat('dd MMMM yyyy')
+                                        .parse("${index + 1} $day"))
+                                    .toUpperCase() ==
+                                "SAT" ||
+                            DateFormat('EEE')
+                                    .format(DateFormat('dd MMMM yyyy')
+                                        .parse("${index + 1} $day"))
+                                    .toUpperCase() ==
+                                "SUN"
+                        ? Text("Weekend")
+                        : timeStatus[index - a]['date'].toString() !=
+                                DateFormat('MMMM dd yyyy').format(
+                                    DateFormat('dd MMMM yyyy')
+                                        .parse("${index + 1} $day"))
+                            ? Text("Absent")
+                            : CheckInCard(timeStatus[index - a]))),
           ],
         ),
         Container(
