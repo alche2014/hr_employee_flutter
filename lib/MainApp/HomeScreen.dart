@@ -631,7 +631,6 @@ class _HrDashboardState extends State<HrDashboard>
     final tz.TZDateTime now = tz.TZDateTime.now(tz.local);
 
     tz.TZDateTime scheduledDate = tz.TZDateTime(tz.local, now.year);
-    print("kkkkkkkkkkk" + now.toString());
 
     // if (now.weekday != 6 && now.weekday != 7) {
     // if (buttonText == "CLOCK OUT") {
