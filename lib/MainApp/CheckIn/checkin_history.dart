@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:hr_app/Constants/colors.dart';
 import 'package:hr_app/MainApp/CheckIn/check_in_card.dart';
+import 'package:hr_app/main.dart';
 import 'package:intl/intl.dart';
 
 class CheckinHistory extends StatefulWidget {
@@ -17,12 +18,27 @@ class _CheckinHistoryState extends State<CheckinHistory> {
   int a = 0;
   DateTime now = DateTime.now();
   int days = 0;
+  var weekendDefi;
+
   String dropdownValue =
       '${DateFormat('MMMM yyyy').format(DateTime.now()).toString()}';
   @override
   void initState() {
     days = DateTime(now.year, now.month + 1, now.day).day;
+    _getShiftSchedule();
     super.initState();
+  }
+
+  _getShiftSchedule() {
+    FirebaseFirestore.instance
+        .collection('shiftSchedule')
+        .doc(shiftId)
+        .snapshots()
+        .listen((onValue) {
+      setState(() {
+        weekendDefi = onValue.data()!["weekendDef"];
+      });
+    });
   }
 
   @override
@@ -95,7 +111,7 @@ class _CheckinHistoryState extends State<CheckinHistory> {
                                 shrinkWrap: true,
                                 physics: const NeverScrollableScrollPhysics(),
                                 itemCount: days,
-                                // reverse: true,
+                                reverse: true,
                                 itemBuilder: (BuildContext context, int index) {
                                   return
                                       // snapshot.data!.docs[index]['late'] ==
@@ -312,14 +328,22 @@ class _CheckinHistoryState extends State<CheckinHistory> {
   }
 
   Widget checkinCard(timeStatus, index, day) {
-    if (DateFormat('EEE')
-                .format(DateFormat('dd MMMM yyyy').parse("${index + 1} $day"))
-                .toUpperCase() ==
-            "SAT" ||
-        DateFormat('EEE')
-                .format(DateFormat('dd MMMM yyyy').parse("${index + 1} $day"))
-                .toUpperCase() ==
-            "SUN") {
+    if (weekendDefi.contains(
+            "${DateFormat('EEE').format(DateFormat('dd MMMM yyyy').parse("${index + 1} $day"))}${(DateFormat('dd MMMM yyyy').parse("${index + 1} $day").day / 8).toInt() + 1}") &&
+        weekendDefi.contains(
+            "${DateFormat('EEE').format(DateFormat('dd MMMM yyyy').parse("${index + 1} $day"))}0"))
+
+    // DateFormat('EEE')
+    //           .format(DateFormat('dd MMMM yyyy').parse("${index + 1} $day"))
+    //           .toUpperCase() ==
+    //       "SAT" ||
+    //   DateFormat('EEE')
+    //           .format(DateFormat('dd MMMM yyyy').parse("${index + 1} $day"))
+    //           .toUpperCase() ==
+    //       "SUN")
+    {
+      a++;
+    } else if (index - a == timeStatus.length) {
       a++;
     } else if (timeStatus[index - a]['date'].toString() !=
         DateFormat('MMMM dd yyyy')
@@ -328,59 +352,71 @@ class _CheckinHistoryState extends State<CheckinHistory> {
     }
     return Column(
       children: [
-        Row(
-          children: [
-            Expanded(
-              flex: 2,
-              child: Center(
-                child: Container(
-                  width: 43,
-                  padding: const EdgeInsets.all(5.0),
-                  decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(5),
-                      border:
-                          Border.all(color: Colors.grey.shade300, width: 1)),
-                  child: Column(children: [
-                    Text("${index + 1}",
-                        style: const TextStyle(
-                            fontWeight: FontWeight.bold, fontSize: 17)),
-                    const SizedBox(height: 2),
-                    Text(
-                        DateFormat('EEE')
-                            .format(DateFormat('dd MMMM yyyy')
-                                .parse("${index + 1} $day"))
-                            .toUpperCase(),
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 12,
-                            color: Colors.grey.shade700)),
-                  ]),
-                ),
-              ),
-            ),
-            Expanded(
-                flex: 9,
+        (weekendDefi.contains(
+                    "${DateFormat('EEE').format(DateFormat('dd MMMM yyyy').parse("${index + 1} $day"))}${(DateFormat('dd MMMM yyyy').parse("${index + 1} $day").day / 8).toInt() + 1}") ||
+                weekendDefi.contains(
+                    "${DateFormat('EEE').format(DateFormat('dd MMMM yyyy').parse("${index + 1} $day"))}0"))
+            ? Container(
+                height: 45,
+                margin: EdgeInsets.only(left: 12, right: 12, top: 5, bottom: 5),
+                color: Colors.grey.shade200,
                 child: Center(
-                    child: DateFormat('EEE')
-                                    .format(DateFormat('dd MMMM yyyy')
-                                        .parse("${index + 1} $day"))
-                                    .toUpperCase() ==
-                                "SAT" ||
-                            DateFormat('EEE')
-                                    .format(DateFormat('dd MMMM yyyy')
-                                        .parse("${index + 1} $day"))
-                                    .toUpperCase() ==
-                                "SUN"
-                        ? Text("Weekend")
-                        : timeStatus[index - a]['date'].toString() !=
-                                DateFormat('MMMM dd yyyy').format(
-                                    DateFormat('dd MMMM yyyy')
-                                        .parse("${index + 1} $day"))
-                            ? Text("Absent")
-                            : CheckInCard(timeStatus[index - a]))),
-          ],
-        ),
+                  child: Text(
+                    "Weekend: ${index + 1} ${DateFormat('EEE').format(DateFormat('dd MMMM yyyy').parse("${index + 1} $day")).toUpperCase()}",
+                    style: TextStyle(color: Colors.black),
+                  ),
+                ),
+              )
+            : Row(
+                children: [
+                  Expanded(
+                    flex: 2,
+                    child: Center(
+                      child: Container(
+                        width: 43,
+                        padding: const EdgeInsets.all(5.0),
+                        decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(5),
+                            border: Border.all(
+                                color: Colors.grey.shade300, width: 1)),
+                        child: Column(children: [
+                          Text("${index + 1}",
+                              style: const TextStyle(
+                                  fontWeight: FontWeight.bold, fontSize: 17)),
+                          const SizedBox(height: 2),
+                          Text(
+                              DateFormat('EEE')
+                                  .format(DateFormat('dd MMMM yyyy')
+                                      .parse("${index + 1} $day"))
+                                  .toUpperCase(),
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 12,
+                                  color: Colors.grey.shade700)),
+                        ]),
+                      ),
+                    ),
+                  ),
+                  Expanded(
+                      flex: 9,
+                      child: Center(
+                          child: index - a == timeStatus.length
+                              ? const Text(
+                                  "Absent",
+                                  style: TextStyle(color: Colors.red),
+                                )
+                              : timeStatus[index - a]['date'].toString() !=
+                                      DateFormat('MMMM dd yyyy').format(
+                                          DateFormat('dd MMMM yyyy')
+                                              .parse("${index + 1} $day"))
+                                  ? const Text(
+                                      "Absent",
+                                      style: TextStyle(color: Colors.red),
+                                    )
+                                  : CheckInCard(timeStatus[index - a]))),
+                ],
+              ),
         Container(
           margin: const EdgeInsets.only(top: 5, bottom: 5, left: 75, right: 10),
           height: 1,

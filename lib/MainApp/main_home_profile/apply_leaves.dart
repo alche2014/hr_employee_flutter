@@ -538,10 +538,10 @@ class _AddLeaveState extends State<AddLeave>
         } else {
           days.clear();
           for (int i = 0; i <= toDate.difference(fromDate).inDays; i++) {
-            if ((!weekendDefi.contains(
+            if (!weekendDefi.contains(
                     "${DateFormat('EEE').format(fromDate.add(Duration(days: i)))}${(fromDate.add(Duration(days: i)).day / 8).toInt() + 1}") &&
                 !weekendDefi.contains(
-                    "${DateFormat('EEE').format(fromDate.add(Duration(days: i)))}0"))) {
+                    "${DateFormat('EEE').format(fromDate.add(Duration(days: i)))}0")) {
               days.add({
                 "days": DateFormat('dd MMM yyyy')
                     .format(fromDate.add(Duration(days: i))),

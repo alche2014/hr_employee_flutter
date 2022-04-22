@@ -5,11 +5,10 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
 import 'package:cron/cron.dart';
+import 'package:hr_app/MainApp/CheckIn/team_check_in.dart';
 import 'package:http/http.dart' as http;
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart' as auth;
-import 'package:flutter_native_timezone/flutter_native_timezone.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -27,18 +26,15 @@ import 'package:hr_app/MainApp/screen_notification.dart';
 import 'package:hr_app/UserprofileScreen.dart/my_profile_edit.dart';
 import 'package:hr_app/main.dart';
 import 'package:hr_app/MainApp/annoucment_screen.dart';
-import 'package:hr_app/MainApp/CheckIn/team_check_in.dart';
 import 'package:hr_app/MainApp/CheckIn/main_check_in.dart';
 import 'package:hr_app/MainApp/LeaveManagement/leave_management.dart';
 import 'package:hr_app/MainApp/main_home_profile/leave_approval.dart';
 import 'package:intl/intl.dart';
 import 'package:location/location.dart';
 import 'package:rxdart/rxdart.dart';
-import 'package:shimmer/shimmer.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:location/location.dart' as loc;
 import 'package:connectivity/connectivity.dart' as conT;
-import 'package:connectivity_platform_interface/src/enums.dart' as enm;
 
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
     FlutterLocalNotificationsPlugin();
@@ -116,7 +112,7 @@ class _HrDashboardState extends State<HrDashboard>
   double? currentLng;
   double? officeLat;
   double? officeLng;
-  String? location;
+  // String? location;
   late int hours = 00;
   late int minutes = 00;
   late int seconds = 00;
@@ -128,6 +124,7 @@ class _HrDashboardState extends State<HrDashboard>
   late String token;
   late Timer timer;
   int? weekend;
+  var utcOffset;
   var weekendDefi;
   String todaysAttendance = "no";
   late Timestamp todayIn = Timestamp.fromDate(DateTime.now());
@@ -143,6 +140,11 @@ class _HrDashboardState extends State<HrDashboard>
   File? image;
   DocumentReference? documentReference;
   bool announData = false;
+  List timeZones = [
+    {"country": "PAKISTAN", "region": "Asia/karachi"},
+    {"country": "UNITED ARAB EMIRATES", "region": "Asia/dubai"},
+    {"country": "American Samoa", "region": "America/Swift_Current"}
+  ];
 
   firebase() async {
     await Firebase.initializeApp();
@@ -374,13 +376,11 @@ class _HrDashboardState extends State<HrDashboard>
     determinePosition();
     loadTeam();
 
-    notification8_50();
-    notification9_10();
-    notification5_50();
-    notification6_10();
-
-    timer = Timer.periodic(
-        const Duration(seconds: 60), (Timer t) => loadFirebaseUser());
+    timer = Timer.periodic(const Duration(minutes: 1), (Timer t) {
+      loadFirebaseUser();
+      loadcheckout();
+      currentTime = currentTime!.add(const Duration(minutes: 1));
+    });
     controller = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 32400),
@@ -437,13 +437,6 @@ class _HrDashboardState extends State<HrDashboard>
           );
     }
 
-    timer = Timer.periodic(
-        const Duration(seconds: 1), (Timer t) => loadFirebaseUser());
-    controller = AnimationController(
-      vsync: this,
-      duration: const Duration(seconds: 32400),
-    );
-
     super.initState();
     setupmessaging();
     _requestPermissions();
@@ -479,22 +472,40 @@ class _HrDashboardState extends State<HrDashboard>
   }
 
   apiCall(area) async {
-    final jsonValue = await http.Client()
-        .get(Uri.parse("http://worldtimeapi.org/api/timezone/$area"));
-    // var document = parse(jsonValue.body);
+    print(timeZones[area]['region']);
+    final jsonValue = await http.Client().get(Uri.parse(
+        "http://worldtimeapi.org/api/timezone/${timeZones[area]['region']}"));
     var responseBody = (jsonValue.body);
     var parsedJson = json.decode(responseBody);
-    print(parsedJson['datetime'].toString());
+    utcOffset = parsedJson['utc_offset'];
+    print(int.parse(
+        parsedJson['utc_offset'].split(':')[0].replaceAll("+", '').trim()));
+    currentTime = parsedJson['utc_offset'].contains("+")
+        ? DateTime.parse(parsedJson['datetime']).add(Duration(
+            hours: int.parse(parsedJson['utc_offset']
+                .split(':')[0]
+                .replaceAll("+", '')
+                .trim()),
+            minutes: int.parse(parsedJson['utc_offset'].split(':')[1])))
+        : DateTime.parse(parsedJson['datetime']).subtract(Duration(
+            hours: int.parse(parsedJson['utc_offset']
+                .split(':')[0]
+                .replaceAll("-", '')
+                .trim()),
+            minutes: int.parse(parsedJson['utc_offset'].split(':')[1])));
+    print(currentTime!);
   }
 
   tz.TZDateTime _nextInstanceOf8_50() {
     final tz.TZDateTime now = tz.TZDateTime.now(tz.local);
     tz.TZDateTime scheduledDate = tz.TZDateTime(tz.local, now.year);
 
-    if (now.weekday != 6 && now.weekday != 7) {
+    if (!weekendDefi.contains(
+            "${DateFormat('EEE').format(currentTime!)}${(currentTime!.day / 8).toInt() + 1}") &&
+        !weekendDefi.contains("${DateFormat('EEE').format(currentTime!)}0")) {
       // if (buttonText == "CLOCK IN") {
-      scheduledDate =
-          tz.TZDateTime(tz.local, now.year, now.month, now.day, 03, 55);
+      scheduledDate = tz.TZDateTime(tz.local, now.year, now.month, now.day,
+          int.parse(to.split(":")[0]), 55);
       if (scheduledDate.isBefore(now)) {
         scheduledDate = scheduledDate.add(const Duration(days: 1));
         // }
@@ -526,8 +537,8 @@ class _HrDashboardState extends State<HrDashboard>
 
     if (now.weekday != 6 && now.weekday != 7) {
       // if (buttonText == "CLOCK IN") {
-      scheduledDate =
-          tz.TZDateTime(tz.local, now.year, now.month, now.day, 04, 05);
+      scheduledDate = tz.TZDateTime(tz.local, now.year, now.month, now.day,
+          int.parse(to.split(":")[0]) - 5, 05);
       if (scheduledDate.isBefore(now)) {
         scheduledDate = scheduledDate.add(const Duration(days: 1));
         // }
@@ -554,17 +565,47 @@ class _HrDashboardState extends State<HrDashboard>
   }
 
   tz.TZDateTime _nextInstanceOf5_50() {
-    final tz.TZDateTime now = tz.TZDateTime.now(tz.local);
-    tz.TZDateTime scheduledDate = tz.TZDateTime(tz.local, now.year);
+    var zone = tz.getLocation('Asia/Karachi');
 
-    if (now.weekday != 6 && now.weekday != 7) {
-      // if (buttonText == "CLOCK OUT") {
-      scheduledDate =
-          tz.TZDateTime(tz.local, now.year, now.month, now.day, 10, 55);
-      if (scheduledDate.isBefore(now)) {
-        scheduledDate = scheduledDate.add(const Duration(days: 1));
-        // }
-      }
+    tz.TZDateTime now = tz.TZDateTime.from(
+        currentTime!.subtract(Duration(
+            hours:
+                int.parse(utcOffset.split(':')[0].replaceAll("+", '').trim()),
+            minutes: int.parse(utcOffset.split(':')[1]))),
+        zone);
+
+    // now = utcOffset.contains('+')
+    //     ? now.add(Duration(
+    //         hours:
+    //             int.parse(utcOffset.split(':')[0].replaceAll("+", '').trim()),
+    //         minutes: int.parse(utcOffset.split(':')[1])))
+    //     : now.subtract(Duration(
+    //         hours:
+    //             int.parse(utcOffset.split(':')[0].replaceAll("-", '').trim()),
+    //         minutes: int.parse(utcOffset.split(':')[1])));
+    // final laTime = TZDateTime(la, 2010, 1, 1);
+
+    tz.TZDateTime scheduledDate = tz.TZDateTime(zone, now.year);
+
+    print("Helooooooo" + now.toString());
+
+    // if (!weekendDefi.contains(
+    //         "${DateFormat('EEE').format(currentTime!)}${(currentTime!.day / 8).toInt() + 1}") &&
+    //     !weekendDefi.contains("${DateFormat('EEE').format(currentTime!)}0")) {
+    //   if (buttonText == "CLOCK OUT") {
+    scheduledDate = tz.TZDateTime(
+        zone,
+        now.year,
+        now.month,
+        now.day,
+        // int.parse(from.split(":")[0]) - 5, 05);
+
+        now.hour - 5,
+        49);
+    if (scheduledDate.isBefore(now)) {
+      scheduledDate = scheduledDate.add(const Duration(days: 1));
+      //   }
+      // }
     }
     return scheduledDate;
   }
@@ -588,16 +629,20 @@ class _HrDashboardState extends State<HrDashboard>
 
   tz.TZDateTime _nextInstanceOf6_10() {
     final tz.TZDateTime now = tz.TZDateTime.now(tz.local);
-    tz.TZDateTime scheduledDate = tz.TZDateTime(tz.local, now.year);
 
-    if (now.weekday != 6 && now.weekday != 7) {
-      // if (buttonText == "CLOCK OUT") {
-      scheduledDate =
-          tz.TZDateTime(tz.local, now.year, now.month, now.day, 11, 05);
-      if (scheduledDate.isBefore(now)) {
-        scheduledDate = scheduledDate.add(const Duration(days: 1));
-        // }
-      }
+    tz.TZDateTime scheduledDate = tz.TZDateTime(tz.local, now.year);
+    print("kkkkkkkkkkk" + now.toString());
+
+    // if (now.weekday != 6 && now.weekday != 7) {
+    // if (buttonText == "CLOCK OUT") {
+    scheduledDate =
+        tz.TZDateTime(tz.local, now.year, now.month, now.day, now.hour - 5, 03);
+    //  scheduledDate = tz.TZDateTime(tz.local, now.year, now.month, now.day,
+    // int.parse(from.split(":")[0]) - 5, 05);
+    if (scheduledDate.isBefore(now)) {
+      scheduledDate = scheduledDate.add(const Duration(days: 1));
+      // }
+      // }
     }
     return scheduledDate;
   }
@@ -690,7 +735,7 @@ class _HrDashboardState extends State<HrDashboard>
         .collection('attendance')
         .where("empId", isEqualTo: uid)
         .where("date",
-            isEqualTo: DateFormat('MMMM dd yyyy').format(DateTime.now()))
+            isEqualTo: DateFormat('MMMM dd yyyy').format(currentTime!))
         .get()
         .then((onValue) {
       if (onValue.docs.isEmpty) {
@@ -729,13 +774,12 @@ class _HrDashboardState extends State<HrDashboard>
         });
       } else if (onValue.docs.isNotEmpty) {
         setState(() {
-          checkinTime = onValue.docs.first.data()["checkin"];
+          checkinTime = onValue.docs.first.data()["checkin"] as Timestamp;
           docId = onValue.docs.first.data()["docId"];
           lateTime = onValue.docs.first.data()["late"];
-          DateTime lastTime = DateTime.now();
           String difference = onValue.docs.first.data()["checkin"] == null
               ? "0"
-              : "${lastTime.difference(checkinTime.toDate()).inSeconds}";
+              : "${DateTime.parse(currentTime!.toString().replaceAll('Z', '')).difference(checkinTime.toDate()).inSeconds}";
 
           int weekendDef = int.parse(difference);
 
@@ -782,6 +826,11 @@ class _HrDashboardState extends State<HrDashboard>
         shiftName = onValue.data()!["shiftName"];
         weekendDefi = onValue.data()!["weekendDef"];
       });
+
+      notification8_50();
+      notification9_10();
+      notification5_50();
+      notification6_10();
     });
   }
 
@@ -807,40 +856,37 @@ class _HrDashboardState extends State<HrDashboard>
         body: SingleChildScrollView(
           child: Column(children: [
             const UpperPortion(),
-            Text(
-              DateFormat('hh:mm a').format(DateTime.now()),
-              style: const TextStyle(
-                  fontFamily: "Poppins",
-                  color: Colors.black,
-                  fontSize: 30,
-                  fontWeight: FontWeight.w500),
-            ),
-            Center(
-              child: InkWell(
-                onTap: () async {
-                  final String currentTimeZone =
-                      await FlutterNativeTimezone.getLocalTimezone();
-                  final tz.TZDateTime now = tz.TZDateTime.now(tz.local);
-
-                  print(currentTimeZone);
-                  apiCall(currentTimeZone);
-
-                  // tz.TZDateTime scheduledDate =
-                  //     tz.TZDateTime(tz.local, now.year);
-                },
-                child: Container(
-                  margin: const EdgeInsets.only(top: 5, bottom: 5),
-                  child: Text(
-                    DateFormat('EEEE, dd MMMM yyyy').format(DateTime.now()),
+            currentTime == null
+                ? Container()
+                : Text(
+                    DateFormat('hh:mm a').format(currentTime!),
                     style: const TextStyle(
                         fontFamily: "Poppins",
-                        color: greyShade,
-                        fontSize: 15,
-                        fontWeight: FontWeight.w400),
+                        color: Colors.black,
+                        fontSize: 30,
+                        fontWeight: FontWeight.w500),
                   ),
-                ),
-              ),
-            ),
+            currentTime == null
+                ? Container()
+                : Center(
+                    child: InkWell(
+                      onTap: () {
+                        print("pressed");
+                        notification6_10();
+                      },
+                      child: Container(
+                        margin: const EdgeInsets.only(top: 5, bottom: 5),
+                        child: Text(
+                          DateFormat('EEEE, dd MMMM yyyy').format(currentTime!),
+                          style: const TextStyle(
+                              fontFamily: "Poppins",
+                              color: greyShade,
+                              fontSize: 15,
+                              fontWeight: FontWeight.w400),
+                        ),
+                      ),
+                    ),
+                  ),
             const SizedBox(height: 18),
             // OfflineBuilder(connectivityBuilder: (
             //   BuildContext context,
@@ -978,80 +1024,27 @@ class _HrDashboardState extends State<HrDashboard>
             //           )));
             // }),
 
-            Container(
-                height: 150,
-                width: 150,
-                decoration: const BoxDecoration(
-                    gradient: LinearGradient(
-                        tileMode: TileMode.clamp,
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        colors: [purpleLight, purpleDark]),
-                    shape: BoxShape.circle),
-                child: InkWell(
+            OfflineBuilder(connectivityBuilder: (
+              BuildContext context,
+              ConnectivityResult connectivity2,
+              Widget child,
+            ) {
+              if (connectivity2 == conT.ConnectivityResult.none) {
+                return Container(
+                  height: 150,
+                  width: 150,
+                  decoration: const BoxDecoration(
+                      gradient: LinearGradient(
+                          tileMode: TileMode.clamp,
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [purpleLight, purpleDark]),
+                      shape: BoxShape.circle),
+                  child: InkWell(
                     onTap: () {
-                      if (buttonText == "CLOCK OUT") {
-                        if (locationId != null) {
-                          _getOfficeLocation();
-                          determinePosition();
-                          setState(() {
-                            Future.delayed(const Duration(milliseconds: 150),
-                                () {
-                              location == "ON"
-                                  ? _calculations()
-                                  : noLocationCheckin();
-                            });
-                          });
-                        } else {
-                          noLocationCheckin();
-                        }
-                      } else if (shiftId != null) {
-                        if (weekendDefi.contains(
-                                "${DateFormat('EEE').format(DateTime.now())}${DateFormat("M").format(DateTime.now())}") ||
-                            weekendDefi.contains(
-                                "${DateFormat('EEE').format(DateTime.now())}0")) {
-                          Fluttertoast.showToast(
-                              msg: "Today is not a working day");
-                        } else {
-                          if (locationId != null) {
-                            _getOfficeLocation();
-                            determinePosition();
-                            setState(() {
-                              Future.delayed(const Duration(milliseconds: 150),
-                                  () {
-                                location == "ON"
-                                    ? _calculations()
-                                    : noLocationCheckin();
-                              });
-                            });
-                          } else {
-                            noLocationCheckin();
-                          }
-                        }
-                      } else {
-                        if (DateFormat('EEEE').format(DateTime.now()) !=
-                                "Saturday" ||
-                            DateFormat('EEEE').format(DateTime.now()) !=
-                                "Sunday") {
-                          if (locationId != null) {
-                            _getOfficeLocation();
-                            determinePosition();
-                            setState(() {
-                              Future.delayed(const Duration(milliseconds: 150),
-                                  () {
-                                location == "ON"
-                                    ? _calculations()
-                                    : noLocationCheckin();
-                              });
-                            });
-                          } else {
-                            noLocationCheckin();
-                          }
-                        } else {
-                          Fluttertoast.showToast(
-                              msg: "Today is not a working day");
-                        }
-                      }
+                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                          backgroundColor: Colors.white,
+                          content: Text("No Internet Connection")));
                     },
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -1067,7 +1060,95 @@ class _HrDashboardState extends State<HrDashboard>
                             style: const TextStyle(
                                 color: Colors.white, fontSize: 15)),
                       ],
-                    ))),
+                    ),
+                  ),
+                );
+              } else {
+                return child;
+              }
+            }, builder: (BuildContext context) {
+              return Container(
+                  height: 150,
+                  width: 150,
+                  decoration: const BoxDecoration(
+                      gradient: LinearGradient(
+                          tileMode: TileMode.clamp,
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [purpleLight, purpleDark]),
+                      shape: BoxShape.circle),
+                  child: InkWell(
+                      onTap: () {
+                        if (buttonText == "CLOCK OUT") {
+                          if (locationId != null) {
+                            _getOfficeLocation();
+                            determinePosition();
+                            setState(() {
+                              Future.delayed(const Duration(milliseconds: 150),
+                                  () {
+                                location == "ON"
+                                    ? _calculations()
+                                    : noLocationCheckin();
+                              });
+                            });
+                          } else {
+                            noLocationCheckin();
+                          }
+                        } else if (shiftId != null) {
+                          if (weekendDefi.contains(
+                                  "${DateFormat('EEE').format(currentTime!)}${(currentTime!.day / 8).toInt() + 1}") ||
+                              weekendDefi.contains(
+                                  "${DateFormat('EEE').format(currentTime!)}0")) {
+                            Fluttertoast.showToast(
+                                msg: "Today is not a working day");
+                          } else {
+                            if (locationId != null) {
+                              _getOfficeLocation();
+                              determinePosition();
+                              setState(() {
+                                Future.delayed(
+                                    const Duration(milliseconds: 150), () {
+                                  location == "ON"
+                                      ? _calculations()
+                                      : noLocationCheckin();
+                                });
+                              });
+                            } else {
+                              noLocationCheckin();
+                            }
+                          }
+                        } else {
+                          if (!weekendDefi.contains(
+                                  "${DateFormat('EEE').format(currentTime!)}${(currentTime!.day / 8).toInt() + 1}") &&
+                              !weekendDefi.contains(
+                                  "${DateFormat('EEE').format(currentTime!)}0")) {
+                            if (locationId != null) {
+                              _getOfficeLocation();
+                            } else {
+                              noLocationCheckin();
+                            }
+                          } else {
+                            Fluttertoast.showToast(
+                                msg: "Today is not a working day");
+                          }
+                        }
+                      },
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Image.asset(
+                            'assets/Group.png',
+                            height: 50,
+                            width: 50,
+                          ),
+                          const SizedBox(height: 15),
+                          Text(buttonText,
+                              style: const TextStyle(
+                                  color: Colors.white, fontSize: 15)),
+                        ],
+                      )));
+            }),
 
             const SizedBox(height: 25),
             Row(
@@ -1123,39 +1204,6 @@ class _HrDashboardState extends State<HrDashboard>
                                   : DateFormat('K:mm a')
                                       .format(checkinTime.toDate())
                                       .toString(),
-                          // buttonText == "CLOCK IN"
-                          //     ? todaysAttendance == "yes"
-                          //         ? todayIn == null
-                          //             ? checkinTime == null
-                          //                 ? DateFormat('K:mm a')
-                          //                     .format(DateTime.now())
-                          //                     .toString()
-                          //                 : DateFormat('K:mm a')
-                          //                     .format(checkinTime.toDate())
-                          //                     .toString()
-                          //             : DateFormat('K:mm a')
-                          //                 .format(todayIn.toDate())
-                          //                 .toString()
-                          //         : "-- : --"
-                          //     : buttonText == "CLOCK OUT"
-                          //         ? checkinTime.toString()
-                          //         //  DateFormat('K:mm a')
-                          //         //     .format(checkinTime.toDate())
-                          //         //     .toString()
-                          //         // ? todayhrs == null
-                          //         // ? checkinTime == null
-                          //         // ?
-                          //         // // DateFormat('K:mm a')
-                          //         // //     .format(DateTime.now())
-                          //         // //     .toString()
-                          //         // : "hgfdsyuytrertjkffdghjhgfddfg"
-                          //         //  DateFormat('K:mm a')
-                          //         //     .format(checkinTime.toDate())
-                          //         //     .toString()
-                          //         // : DateFormat('K:mm a')
-                          //         //     .format(todayIn.toDate())
-                          //         //     .toString()
-                          //         : "-- : --",
                           style: const TextStyle(
                               fontFamily: "Poppins",
                               color: Colors.black,
@@ -1189,7 +1237,7 @@ class _HrDashboardState extends State<HrDashboard>
                               : todaysAttendance == "yes"
                                   ? todayOut == null
                                       ? DateFormat('K:mm a')
-                                          .format(DateTime.now())
+                                          .format(currentTime!)
                                           .toString()
                                       : DateFormat('K:mm a')
                                           .format(todayOut.toDate())
@@ -1224,7 +1272,7 @@ class _HrDashboardState extends State<HrDashboard>
                         margin: const EdgeInsets.only(top: 5),
                         child: Text(
                           buttonText == "CLOCK OUT"
-                              ? "-- : --"
+                              ? "$hours : $minutes "
                               : todaysAttendance == "yes"
                                   ? todayhrs == null
                                       ? "$hours : $minutes"
@@ -1298,52 +1346,44 @@ class _HrDashboardState extends State<HrDashboard>
     return 12742 * asin(sqrt(a));
   }
 
+  loc.Location? location;
+
   determinePosition() async {
-    loc.Location location = loc.Location();
+    location = loc.Location();
     bool serviceEnabled;
     PermissionStatus _permissionGranted;
-    serviceEnabled = await location.serviceEnabled();
+    serviceEnabled = await location!.serviceEnabled();
     if (!serviceEnabled) {
-      serviceEnabled = await location.requestService();
+      serviceEnabled = await location!.requestService();
       if (!serviceEnabled) {
         return Future.error('Location services are disabled.');
       }
     }
-    _permissionGranted = await location.hasPermission();
+    _permissionGranted = await location!.hasPermission();
     if (_permissionGranted == PermissionStatus.denied) {
-      _permissionGranted = await location.requestPermission();
+      _permissionGranted = await location!.requestPermission();
       if (_permissionGranted != PermissionStatus.granted) {
         return Future.error(
             'Location permissions are permanently denied, we cannot request permissions.');
       }
     }
 
-    LocationData position = await location.getLocation();
+    LocationData position = await location!.getLocation();
     currentLat = position.latitude;
     currentLng = position.longitude;
     Map<String, String> markPlace = Map();
     List<Placemark> placemarks =
         await placemarkFromCoordinates(position.latitude!, position.longitude!);
-    yourAddress = placemarks.first.street!;
+    yourAddress = placemarks.first.street! +
+        ", " +
+        placemarks.first.subLocality! +
+        ", " +
+        placemarks.first.locality!;
+    apiCall(timeZones.indexWhere(
+        (i) => placemarks.first.country!.toUpperCase() == i['country']));
 
     setState(() {});
   }
-
-// //getting current location
-//   _getCurrentLocation() async {
-//     // for getting the position
-//     final Geolocator geolocator = Geolocator();
-//     Position position = await Geolocator.getCurrentPosition(
-//             // desiredAccuracy: LocationAccuracy.high
-//             )
-//         .then((position) {
-//       setState(() {});
-//       _currentPosition = position;
-//       currentLat = position.latitude;
-//       currentLng = position.longitude;
-//       return position;
-//     });
-//   }
 
 //geting office location
   _getOfficeLocation() {
@@ -1357,6 +1397,13 @@ class _HrDashboardState extends State<HrDashboard>
         officeLat = onValue.data()!["lat"];
         officeLng = onValue.data()!["lng"];
         location = onValue.data()!["location"];
+      }).onDone(() {
+        determinePosition();
+        setState(() {
+          Future.delayed(const Duration(milliseconds: 150), () {
+            location == "ON" ? _calculations() : noLocationCheckin();
+          });
+        });
       });
       // } else {
       // return Fluttertoast.showToast(msg: "Kindly set office location first");
@@ -1427,9 +1474,9 @@ class _HrDashboardState extends State<HrDashboard>
       b = int.parse(ab[1]);
     }
 
-    DateTime abc = DateTime.now();
     TimeOfDay yourTime = TimeOfDay(hour: a, minute: b);
-    TimeOfDay nowTime = TimeOfDay(hour: abc.hour, minute: abc.minute);
+    TimeOfDay nowTime =
+        TimeOfDay(hour: currentTime!.hour, minute: currentTime!.minute);
 
     double _doubleyourTime =
         yourTime.hour.toDouble() + (yourTime.minute.toDouble() / 60);
@@ -1448,7 +1495,7 @@ class _HrDashboardState extends State<HrDashboard>
         .collection('attendance')
         .where("empId", isEqualTo: "$uid")
         .where("date",
-            isEqualTo: DateFormat('MMMM dd yyyy').format(DateTime.now()))
+            isEqualTo: DateFormat('MMMM dd yyyy').format(currentTime!))
         .get()
         .then((onValue) async {
       if (onValue.docs.length != 0) {
@@ -1472,13 +1519,12 @@ class _HrDashboardState extends State<HrDashboard>
           await reference.update({"checkout": null});
         });
       } else {
-        print("docccccccccccc==$reportingTo");
         FirebaseFirestore.instance
             .runTransaction((Transaction transaction) async {
               DocumentReference reference =
                   FirebaseFirestore.instance.collection("attendance").doc();
               await reference.set({
-                "date": DateFormat('MMMM dd yyyy').format(DateTime.now()),
+                "date": DateFormat('MMMM dd yyyy').format(currentTime!),
                 "reportingToId": reportingTo,
                 "checkin": FieldValue.serverTimestamp(),
                 "empId": uid,
@@ -1487,7 +1533,7 @@ class _HrDashboardState extends State<HrDashboard>
                 "companyId": "$companyId",
                 "docId": reference.id,
                 "checkout": null,
-                "month": DateFormat('MMMM yyyy').format(DateTime.now()),
+                "month": DateFormat('MMMM yyyy').format(currentTime!),
               });
             })
             .then(
