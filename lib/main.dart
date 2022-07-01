@@ -1,13 +1,12 @@
 import 'dart:async';
 import 'dart:io';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:connectivity/connectivity.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:hr_app/MainApp/Login/Verification.dart';
 import 'package:hr_app/UserprofileScreen.dart/first_time_form.dart';
 import 'package:hr_app/UserprofileScreen.dart/my_profile_edit.dart';
 import 'package:hr_app/MainApp/Login/auth_provider.dart';
@@ -23,14 +22,11 @@ import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 
 // Toggle this to cause an async error to be thrown during initialization
 // and to test that runZonedGuarded() catches the error
+
 const _kShouldTestAsyncErrorOnInit = false;
 auth.User? firebaseUser = auth.FirebaseAuth.instance.currentUser;
 
-var totalemployee = 13;
 String joiningDate = '';
-var ontime = 10;
-var lates = 3;
-var absent = 0;
 late Connectivity connectivity;
 late StreamSubscription<ConnectivityResult> subscription;
 late bool isNetwork = true;
@@ -44,13 +40,13 @@ double? currentLng;
 DateTime? currentTime;
 // String? userId;
 String? locationId;
+var imageCV;
 String? shiftId;
 double? officeLat;
 double? officeLng;
 String? companyId;
 String? location;
 
-late String docId;
 late Timer timer;
 // ScheduleController controllers;
 
@@ -62,7 +58,7 @@ int? weekend;
 String empId = '';
 String? department;
 String? designation;
-
+int guest = 1;
 String? role;
 List leaveData = [];
 List<dynamic> leaveType = [];
@@ -79,6 +75,9 @@ void main() async {
   tz.initializeTimeZones();
 
   WidgetsFlutterBinding.ensureInitialized();
+  // await Firebase.initializeApp(
+  //   options: DefaultFirebaseOptions.currentPlatform,
+  // );
   await Firebase.initializeApp();
   await runZonedGuarded(() async {
     FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterError;
@@ -89,40 +88,33 @@ void main() async {
         child: ValueListenableBuilder(
             valueListenable: isdarkmode,
             builder: (context, value, _) {
-              return ScreenUtilInit(
-                  designSize: Size(375, 812),
-                  minTextAdapt: true,
-                  splitScreenMode: true,
-                  builder: () => MaterialApp(
-                        debugShowCheckedModeBanner: false,
-                        builder: (context, widget) {
-                          ScreenUtil.setContext(context);
-                          return MediaQuery(
-                            //Setting font does not change with system font size
-                            data: MediaQuery.of(context)
-                                .copyWith(textScaleFactor: 1.0),
-                            child: widget!,
-                          );
-                        },
-                        theme: darkmode == false
-                            ? lightThemeData(context)
-                            : darkThemeData(context),
-                        home: const Splash(),
-                        title: 'Smart HR',
+              return MaterialApp(
+                debugShowCheckedModeBanner: false,
+                builder: (context, widget) {
+                  return MediaQuery(
+                    //Setting font does not change with system font size
+                    data: MediaQuery.of(context).copyWith(textScaleFactor: 1.0),
+                    child: widget!,
+                  );
+                },
+                theme: darkmode == false
+                    ? lightThemeData(context)
+                    : darkThemeData(context),
+                home: const Splash(),
+                title: 'Smart HR',
 
-                        //routes of different screens
-                        routes: {
-                          "/login": (BuildContext context) => GoogleLogin(),
-                          "/app": (BuildContext context) => NavBar(0),
-                          "/firstTimeForm": (BuildContext context) =>
-                              const FirstTimeForm(),
-                          // "/signininvite": (BuildContext context) => DynamicLinkScreen(),
-                          "/invalidUser": (BuildContext context) =>
-                              const MyProfileEdit(teamId: ""),
-                          "/guestProfile": (BuildContext context) =>
-                              const MyProfileEdit(teamId: "")
-                        },
-                      ));
+                //routes of different screens
+                routes: {
+                  "/login": (BuildContext context) => const GoogleLogin(),
+                  "/app": (BuildContext context) => NavBar(0),
+                  "/firstTimeForm": (BuildContext context) =>
+                      const FirstTimeForm(),
+                  "/invalidUser": (BuildContext context) =>
+                      const MyProfileEdit(teamId: ""),
+                  "/guestProfile": (BuildContext context) =>
+                      const MyProfileEdit(teamId: ""),
+                },
+              );
             }),
       ));
     });
@@ -181,58 +173,115 @@ class _SplashState extends State<Splash> {
 
   _navigateToHome() async {
     await Future.delayed(Duration(milliseconds: _myValue), () {});
-    //  Widget _defaultHome = GoogleLogin();
 
-    // final FirebaseAuth _auth = FirebaseAuth.instance;
-
-    //  auth service returns boolean
     bool _result = await AuthService().isLogin();
-    // final User? user = await _auth.currentUser;
 
     if (_result) {
       auth.User? firebaseUser = auth.FirebaseAuth.instance.currentUser;
-      FirebaseFirestore.instance
+
+      var userDocRef = FirebaseFirestore.instance
           .collection('employees')
-          .doc(firebaseUser!.uid)
-          .snapshots()
-          .listen((onValue) {
-        if (mounted) {
-          setState(() {
-            uid = firebaseUser.uid;
-            designation = onValue.data()!["designation"] ?? "Designation";
-            department = onValue.data()!["department"] ?? "Department";
-            locationId = onValue.data()!["locationId"];
-            shiftId = onValue.data()!["shiftId"];
-            companyId = onValue.data()!["companyId"];
-            reportingTo = onValue.data()!['reportingToId'];
-            imagePath = onValue.data()!['imagePath'];
-            empName = onValue.data()!['displayName'];
-            empEmail = onValue.data()!['email'];
-            leaveData = onValue.data()!['leaves'] ?? [];
-            joiningDate = onValue.data()!['joiningDate'] ?? "";
-          });
-        }
-      });
+          .doc(firebaseUser!.uid);
+      var doc = await userDocRef.get();
+      var userDocRef2 =
+          FirebaseFirestore.instance.collection('guests').doc(firebaseUser.uid);
+      var doc2 = await userDocRef2.get();
+      if (doc2.exists) {
+        FirebaseFirestore.instance
+            .collection('guests')
+            .doc(firebaseUser.uid)
+            .snapshots()
+            .listen((onValue) async {
+          if (mounted) {
+            setState(() {
+              guest = 0;
+              uid = firebaseUser.uid;
+              imagePath = onValue.data()!['imagePath'];
+              empName = onValue.data()!['displayName'];
+              empEmail = onValue.data()!['email'];
+              joiningDate = "";
+            });
+          }
+        });
+      } else if (doc.exists) {
+        FirebaseFirestore.instance
+            .collection('employees')
+            .doc(firebaseUser.uid)
+            .snapshots()
+            .listen((onValue) async {
+          if (mounted) {
+            setState(() {
+              guest = 1;
+              uid = firebaseUser.uid;
+              designation = onValue.data()!["designation"] ?? "Designation";
+              department = onValue.data()!["department"] ?? "Department";
+              locationId = onValue.data()!["locationId"];
+              shiftId = onValue.data()!["shiftId"];
+              companyId = onValue.data()!["companyId"];
+              reportingTo = onValue.data()!['reportingToId'];
+              imagePath = onValue.data()!['imagePath'];
+              empName = onValue.data()!['displayName'];
+              empEmail = onValue.data()!['email'];
+              leaveData = onValue.data()!['leaves'] ?? [];
+              joiningDate = onValue.data()!['joiningDate'] ?? "";
+            });
+          }
+          Navigator.pushReplacement(
+              context, MaterialPageRoute(builder: (context) => NavBar(0)));
+        });
+      }
+
       //  checking user exists or not
       final user = FirebaseAuth.instance.currentUser!;
       bool _com = await AuthService().userExist(user);
       if (_com) {
-        // returns bool checking the domain exist or not
-        bool domainExist = await AuthService().domainExist(user);
-        if (domainExist) {
-          //domain exists
-          Navigator.pushReplacement(
-              context, MaterialPageRoute(builder: (context) => NavBar(0)));
-        } else {
-          bool _firstTime = await AuthService().firstTimeLogin(user);
-          if (_firstTime) {
-            Navigator.pushReplacement(context,
-                MaterialPageRoute(builder: (context) => const FirstTimeForm()));
+        bool guestExist = await AuthService().guestExist(user);
+        if (guestExist) {
+          if (firebaseUser.emailVerified) {
+            // returns bool checking the domain exist or not
+            bool domainExist = await AuthService().domainExist(user);
+            if (domainExist) {
+              Navigator.pushReplacement(
+                  context, MaterialPageRoute(builder: (context) => NavBar(0)));
+            } else {
+              bool _firstTime = await AuthService().firstTimeLogin(user);
+              if (_firstTime) {
+                Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const FirstTimeForm()));
+              } else {
+                Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const MyProfileEdit(teamId: "")));
+              }
+            }
           } else {
-            Navigator.pushReplacement(
-                context,
+            Navigator.of(context).pushAndRemoveUntil(
                 MaterialPageRoute(
-                    builder: (context) => const MyProfileEdit(teamId: "")));
+                    builder: (context) => EmailVerification(link: false)),
+                (Route<dynamic> route) => false);
+          }
+        } else {
+          if (firebaseUser.emailVerified) {
+            bool _firstTime = await AuthService().firstTimeLogin(user);
+            if (_firstTime) {
+              Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => const FirstTimeForm()));
+            } else {
+              Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => const MyProfileEdit(teamId: "")));
+            }
+          } else {
+            Navigator.of(context).pushAndRemoveUntil(
+                MaterialPageRoute(
+                    builder: (context) => EmailVerification(link: false)),
+                (Route<dynamic> route) => false);
           }
         }
       } else {
@@ -240,8 +289,8 @@ class _SplashState extends State<Splash> {
             context, MaterialPageRoute(builder: (context) => NavBar(0)));
       }
     } else {
-      Navigator.pushReplacement(
-          context, MaterialPageRoute(builder: (context) => GoogleLogin()));
+      Navigator.pushReplacement(context,
+          MaterialPageRoute(builder: (context) => const GoogleLogin()));
     }
   }
 
@@ -256,4 +305,22 @@ class _SplashState extends State<Splash> {
       ),
     )));
   }
+}
+
+class DefaultFirebaseOptions {
+  static FirebaseOptions get currentPlatform {
+    // SIMPLIFIED CODE
+
+    return webProduction;
+  }
+
+  static const FirebaseOptions webProduction = FirebaseOptions(
+    apiKey: 'xxx',
+    appId: 'xxx',
+    messagingSenderId: 'xxx',
+    projectId: 'xxx',
+    authDomain: 'xxx.firebaseapp.com',
+    storageBucket: 'xxx.appspot.com',
+    measurementId: 'xxx',
+  );
 }

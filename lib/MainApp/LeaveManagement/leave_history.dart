@@ -3,10 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:hr_app/Constants/colors.dart';
 import 'package:hr_app/MainApp/LeaveManagement/leave_history_card.dart';
 import 'package:hr_app/MainApp/main_home_profile/apply_leaves.dart';
+import 'package:hr_app/main.dart';
 
 class LeaveHistory extends StatefulWidget {
-  final value, memId;
-  LeaveHistory({Key? key, this.value, this.memId}) : super(key: key);
+  final value, memId, team;
+  LeaveHistory({Key? key, this.value, this.memId, this.team}) : super(key: key);
 
   @override
   State<LeaveHistory> createState() => _LeaveHistoryState();
@@ -36,11 +37,17 @@ class _LeaveHistoryState extends State<LeaveHistory> {
         padding: const EdgeInsets.only(top: 10),
         child: SingleChildScrollView(
           child: StreamBuilder<QuerySnapshot>(
-              stream: FirebaseFirestore.instance
-                  .collection('requests')
-                  .where("empId", isEqualTo: widget.memId)
-                  .orderBy("timeStamp", descending: true)
-                  .snapshots(),
+              stream: widget.team == true
+                  ? FirebaseFirestore.instance
+                      .collection('requests')
+                      .where("managerId", isEqualTo: uid)
+                      .orderBy("timeStamp", descending: true)
+                      .snapshots()
+                  : FirebaseFirestore.instance
+                      .collection('requests')
+                      .where("empId", isEqualTo: widget.memId)
+                      .orderBy("timeStamp", descending: true)
+                      .snapshots(),
               builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
                 if (snapshot.hasData) {
                   return snapshot.data!.docs.isEmpty
@@ -51,10 +58,11 @@ class _LeaveHistoryState extends State<LeaveHistory> {
                           shrinkWrap: true,
                           physics: const NeverScrollableScrollPhysics(),
                           itemBuilder: (context, index) {
-                            return LeaveHistoryCard(snapshot.data!.docs[index]);
+                            return LeaveHistoryCard(
+                                snapshot.data!.docs[index], widget.team);
                           });
                 } else if (!snapshot.hasData) {
-                  return notFound();
+                  return const Center(child: CircularProgressIndicator());
                 } else if (!snapshot.hasError) {
                   return const Text("Error");
                 } else {
@@ -63,19 +71,25 @@ class _LeaveHistoryState extends State<LeaveHistory> {
               }),
         ),
       ),
-      floatingActionButton: widget.value == "Leave History"
+      floatingActionButton: widget.value == "Requests"
           ? Container()
-          : FloatingActionButton(
-              onPressed: () {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => const AddLeave()));
-              },
-              child: const Icon(
-                Icons.add,
-                color: Colors.white,
-              ),
-              backgroundColor: purpleDark,
-            ),
+          : joiningDate == ''
+              ? Container()
+              : leaveData.isEmpty
+                  ? Container()
+                  : FloatingActionButton(
+                      onPressed: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => const AddLeave()));
+                      },
+                      child: const Icon(
+                        Icons.add,
+                        color: Colors.white,
+                      ),
+                      backgroundColor: purpleDark,
+                    ),
     );
   }
 
@@ -102,21 +116,15 @@ class _LeaveHistoryState extends State<LeaveHistory> {
                   fontWeight: FontWeight.w600),
             ),
             Text(
-              "You haven't created any requests yet.",
+              widget.value == "Requests"
+                  ? "No requests found"
+                  : "You haven't created any requests yet.",
               style: TextStyle(
                   color: Colors.grey[400],
                   fontSize: 12,
                   fontFamily: "Roboto",
                   fontWeight: FontWeight.w400),
             ),
-            Text(
-              "Click create request to get started.",
-              style: TextStyle(
-                  color: Colors.grey[400],
-                  fontSize: 12,
-                  fontFamily: "Roboto",
-                  fontWeight: FontWeight.w400),
-            )
           ],
         ),
       ),

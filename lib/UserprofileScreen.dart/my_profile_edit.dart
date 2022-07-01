@@ -11,7 +11,6 @@ import 'package:hr_app/UserprofileScreen.dart/Card/AboutCard.dart';
 import 'package:hr_app/UserprofileScreen.dart/Card/AssetsCard.dart';
 import 'package:hr_app/UserprofileScreen.dart/Card/ContacInfoCard.dart';
 import 'package:hr_app/UserprofileScreen.dart/Card/DependentCard.dart';
-import 'package:hr_app/UserprofileScreen.dart/Card/KinCard.dart';
 import 'package:hr_app/UserprofileScreen.dart/Card/LicenceCard.dart';
 import 'package:hr_app/UserprofileScreen.dart/Card/MedicalInfoCard.dart';
 import 'package:hr_app/UserprofileScreen.dart/Card/work_info_card.dart';
@@ -22,6 +21,9 @@ import 'package:hr_app/Constants/colors.dart';
 import 'package:hr_app/main.dart';
 import 'package:hr_app/MainApp/Login/auth.dart';
 import 'package:hr_app/Constants/constants.dart';
+import 'package:hr_app/service/pdf_api.dart';
+import 'package:hr_app/service/pdf_invoice_api.dart';
+import 'package:printing/printing.dart';
 import 'Card/AccountInfoCard.dart';
 import 'Card/EducationCard.dart';
 import 'Card/ExperienceCard.dart';
@@ -41,15 +43,16 @@ class _MyProfileEditState extends State<MyProfileEdit> {
   Connectivity? connectivity;
   StreamSubscription<ConnectivityResult>? subscription;
   bool isNetwork = true;
-  int guest = 1;
   String? urlList;
   String? value;
+  int number = 0;
 
   @override
   void initState() {
     super.initState();
     //check internet connection
     connectivity = Connectivity();
+    loadImage();
 
     subscription =
         connectivity!.onConnectivityChanged.listen((ConnectivityResult result) {
@@ -64,6 +67,11 @@ class _MyProfileEditState extends State<MyProfileEdit> {
         });
       }
     });
+  }
+
+  loadImage() async {
+    imageCV = await networkImage(imagePath);
+    print(imageCV);
   }
 
   void showLoadingDialog(BuildContext context, String value) {
@@ -106,37 +114,159 @@ class _MyProfileEditState extends State<MyProfileEdit> {
               return Center(child: CircularProgressIndicator());
             }
 
-            return Column(
-              children: [
-                widget.teamId == ""
-                    ? UpperPortion(
-                        userId: widget.teamId == "" ? uid : widget.teamId,
-                        title: "Profile",
-                        showBack: true)
-                    : TeamUpperPortion(
-                        data: snapshot.data!.data(),
-                        title: "Profile",
-                      ),
-                SizedBox(
-                  width: MediaQuery.of(context).size.width - 40,
-                  height: MediaQuery.of(context).size.height - 200,
-                  child: SingleChildScrollView(
-                    child: Column(
-                      children: [
-                        widget.teamId == ""
-                            ? ProfilePic()
-                            : TeamProfile(data: snapshot.data!.data()),
-                        Container(
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          margin: EdgeInsets.only(top: 10, bottom: 5),
-                          child: Theme(
-                            data: ThemeData(
-                              dividerColor: Colors.transparent,
+            return Scaffold(
+              backgroundColor: Colors.grey.shade100,
+              body: Column(
+                children: [
+                  widget.teamId == ""
+                      ? guest == 0
+                          ? UpperPortion(
+                              userId: widget.teamId == "" ? uid : widget.teamId,
+                              title: "Profile",
+                              showBack: false)
+                          : UpperPortion(
+                              userId: widget.teamId == "" ? uid : widget.teamId,
+                              title: "Profile",
+                              showBack: true)
+                      : TeamUpperPortion(
+                          data: snapshot.data!.data(),
+                          title: "Profile",
+                        ),
+                  SizedBox(
+                    width: MediaQuery.of(context).size.width - 40,
+                    height: MediaQuery.of(context).size.height - 200,
+                    child: SingleChildScrollView(
+                      child: Column(
+                        children: [
+                          widget.teamId == ""
+                              ? ProfilePic()
+                              : TeamProfile(data: snapshot.data!.data()),
+                          Container(
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(10),
                             ),
-                            child: ExpansionTile(
+                            margin: EdgeInsets.only(top: 10, bottom: 5),
+                            child: Theme(
+                              data: ThemeData(
+                                dividerColor: Colors.transparent,
+                              ),
+                              child: ExpansionTile(
+                                  collapsedIconColor: purpleDark,
+                                  iconColor: purpleDark,
+                                  title: Row(
+                                    children: [
+                                      SizedBox(
+                                          height: 20,
+                                          child: Image.asset(
+                                              "assets/profile.png")),
+                                      Text(
+                                        "  Personal Info",
+                                        style: TextStyle(
+                                            fontSize: 16.0,
+                                            color: purpleDark,
+                                            fontWeight: FontWeight.bold),
+                                      )
+                                    ],
+                                  ),
+                                  children: [
+                                    AboutCard(
+                                        data: snapshot.data!.data(),
+                                        teamEdit:
+                                            widget.teamId == "" ? true : false),
+                                    closing(),
+                                    PersonalInfoCard(
+                                        data: snapshot.data!.data(),
+                                        teamEdit:
+                                            widget.teamId == "" ? true : false),
+                                    closing(),
+                                    ContactInfoCard(
+                                        data: snapshot.data!.data(),
+                                        teamEdit:
+                                            widget.teamId == "" ? true : false),
+                                    closing(),
+                                    MedicalInfoCard(
+                                        data: snapshot.data!.data(),
+                                        teamEdit:
+                                            widget.teamId == "" ? true : false),
+                                    // closing(),
+                                    // Padding(
+                                    //   padding: EdgeInsets.symmetric(
+                                    //       horizontal: 25, vertical: 10),
+                                    //   child: Column(
+                                    //     mainAxisSize: MainAxisSize.min,
+                                    //     children: [
+                                    //       Row(
+                                    //         mainAxisAlignment:
+                                    //             MainAxisAlignment.spaceBetween,
+                                    //         children: [
+                                    //           Text(
+                                    //             'Emergency Contact',
+                                    //             style: TextStyle(
+                                    //               color: kPrimaryColor,
+                                    //               fontWeight: FontWeight.bold,
+                                    //               fontSize: 14,
+                                    //             ),
+                                    //           ),
+                                    //           widget.teamId == ""
+                                    //               ? InkWell(
+                                    //                   child: Container(
+                                    //                       width: 50,
+                                    //                       height: 30,
+                                    //                       alignment: Alignment
+                                    //                           .centerRight,
+                                    //                       child: const Text(
+                                    //                           'Edit',
+                                    //                           style: TextStyle(
+                                    //                               color:
+                                    //                                   kPrimaryColor,
+                                    //                               fontSize: 13,
+                                    //                               fontWeight:
+                                    //                                   FontWeight
+                                    //                                       .w400))),
+                                    //                   onTap: () {
+                                    //                     Navigator.of(context).push(
+                                    //                         MaterialPageRoute(
+                                    //                             builder: (context) => Dependent(
+                                    //                                 dependent:
+                                    //                                     snapshot
+                                    //                                         .data!
+                                    //                                         .data())));
+                                    //                   })
+                                    //               : Container(),
+                                    //         ],
+                                    //       ),
+                                    //       //------------Body----------
+                                    //       dependent(snapshot.data!.data())
+                                    //     ],
+                                    //   ),
+                                    // ),
+
+                                    closing(),
+
+                                    DependentsCard(
+                                        data: snapshot.data!.data(),
+                                        teamEdit:
+                                            widget.teamId == "" ? true : false),
+                                    // closing(),
+                                    // KinCard(
+                                    //     data: snapshot.data!.data(),
+                                    //     teamEdit:
+                                    //         widget.teamId == "" ? true : false),
+                                  ]),
+                            ),
+                          ),
+                          Container(
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            margin: EdgeInsets.only(top: 10, bottom: 5),
+                            child: Theme(
+                              data: ThemeData(
+                                dividerColor: Colors.transparent,
+                              ),
+                              child: ExpansionTile(
                                 collapsedIconColor: purpleDark,
                                 iconColor: purpleDark,
                                 title: Row(
@@ -144,333 +274,247 @@ class _MyProfileEditState extends State<MyProfileEdit> {
                                     SizedBox(
                                         height: 20,
                                         child:
-                                            Image.asset("assets/profile.png")),
+                                            Image.asset("assets/personal.png")),
                                     Text(
-                                      "  Personal Info",
+                                      "  Profile Info",
                                       style: TextStyle(
-                                          fontSize: 16.0,
                                           color: purpleDark,
+                                          fontSize: 16.0,
                                           fontWeight: FontWeight.bold),
                                     )
                                   ],
                                 ),
                                 children: [
-                                  AboutCard(
+                                  EducationCard(
                                       data: snapshot.data!.data(),
                                       teamEdit:
                                           widget.teamId == "" ? true : false),
                                   closing(),
-                                  PersonalInfoCard(
+                                  ExperienceCard(
                                       data: snapshot.data!.data(),
                                       teamEdit:
                                           widget.teamId == "" ? true : false),
                                   closing(),
-                                  ContactInfoCard(
+                                  LicencesCard(
                                       data: snapshot.data!.data(),
                                       teamEdit:
                                           widget.teamId == "" ? true : false),
                                   closing(),
-                                  MedicalInfoCard(
+                                  TrainingsCard(
                                       data: snapshot.data!.data(),
                                       teamEdit:
                                           widget.teamId == "" ? true : false),
                                   closing(),
-                                  Padding(
-                                    padding: EdgeInsets.symmetric(
-                                        horizontal: 25, vertical: 10),
-                                    child: Column(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            Text(
-                                              'Emergency Contact',
-                                              style: TextStyle(
-                                                color: kPrimaryColor,
-                                                fontWeight: FontWeight.bold,
-                                                fontSize: 14,
-                                              ),
-                                            ),
-                                            widget.teamId == ""
-                                                ? InkWell(
-                                                    child: Container(
-                                                        width: 50,
-                                                        height: 30,
-                                                        alignment: Alignment
-                                                            .centerRight,
-                                                        child: const Text(
-                                                            'Edit',
-                                                            style: TextStyle(
-                                                                color:
-                                                                    kPrimaryColor,
-                                                                fontSize: 13,
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .w400))),
-                                                    onTap: () {
-                                                      Navigator.of(context).push(
-                                                          MaterialPageRoute(
-                                                              builder: (context) =>
-                                                                  Dependent(
-                                                                      dependent: snapshot
-                                                                          .data!
-                                                                          .data())));
-                                                    })
-                                                : Container(),
-                                          ],
-                                        ),
-                                        //------------Body----------
-                                        dependent(snapshot.data!.data())
-                                      ],
-                                    ),
-                                  ),
-                                  closing(),
-                                  DependentsCard(
+                                  SkillsCard(
                                       data: snapshot.data!.data(),
                                       teamEdit:
                                           widget.teamId == "" ? true : false),
-                                  // closing(),
-                                  // KinCard(
-                                  //     data: snapshot.data!.data(),
-                                  //     teamEdit:
-                                  //         widget.teamId == "" ? true : false),
-                                ]),
-                          ),
-                        ),
-                        Container(
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          margin: EdgeInsets.only(top: 10, bottom: 5),
-                          child: Theme(
-                            data: ThemeData(
-                              dividerColor: Colors.transparent,
-                            ),
-                            child: ExpansionTile(
-                              collapsedIconColor: purpleDark,
-                              iconColor: purpleDark,
-                              title: Row(
-                                children: [
-                                  SizedBox(
-                                      height: 20,
-                                      child:
-                                          Image.asset("assets/personal.png")),
-                                  Text(
-                                    "  Profile Info",
-                                    style: TextStyle(
-                                        color: purpleDark,
-                                        fontSize: 16.0,
-                                        fontWeight: FontWeight.bold),
-                                  )
                                 ],
                               ),
-                              children: [
-                                EducationCard(
-                                    data: snapshot.data!.data(),
-                                    teamEdit:
-                                        widget.teamId == "" ? true : false),
-                                closing(),
-                                ExperienceCard(
-                                    data: snapshot.data!.data(),
-                                    teamEdit:
-                                        widget.teamId == "" ? true : false),
-                                closing(),
-                                LicencesCard(
-                                    data: snapshot.data!.data(),
-                                    teamEdit:
-                                        widget.teamId == "" ? true : false),
-                                closing(),
-                                TrainingsCard(
-                                    data: snapshot.data!.data(),
-                                    teamEdit:
-                                        widget.teamId == "" ? true : false),
-                                closing(),
-                                SkillsCard(
-                                    data: snapshot.data!.data(),
-                                    teamEdit:
-                                        widget.teamId == "" ? true : false),
-                              ],
                             ),
                           ),
-                        ),
-                        guest == 0
-                            ? Container()
-                            : Container(
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                                margin: EdgeInsets.only(top: 10, bottom: 5),
-                                child: Theme(
-                                  data: ThemeData(
-                                    dividerColor: Colors.transparent,
+                          guest == 0
+                              ? Container()
+                              : Container(
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(10),
                                   ),
-                                  child: ExpansionTile(
-                                      collapsedIconColor: purpleDark,
-                                      iconColor: purpleDark,
-                                      title: Row(
-                                        children: [
-                                          SizedBox(
-                                              height: 20,
-                                              child: Image.asset(
-                                                  "assets/employment.png")),
-                                          Text(
-                                            "  Employment Info",
-                                            style: TextStyle(
-                                                color: purpleDark,
-                                                fontSize: 16.0,
-                                                fontWeight: FontWeight.bold),
-                                          )
-                                        ],
-                                      ),
-                                      children: [
-                                        guest == 0
-                                            ? Container()
-                                            : WorkInfoCard(
-                                                data: snapshot.data!.data(),
-                                                teamEdit: widget.teamId == ""
-                                                    ? true
-                                                    : false),
-                                      ]),
-                                ),
-                              ),
-                        guest == 0
-                            ? Container()
-                            : Container(
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                                margin: EdgeInsets.only(top: 10, bottom: 5),
-                                child: Theme(
-                                  data: ThemeData(
-                                    dividerColor: Colors.transparent,
-                                  ),
-                                  child: ExpansionTile(
-                                      collapsedIconColor: purpleDark,
-                                      iconColor: purpleDark,
-                                      title: Row(
-                                        children: const [
-                                          SizedBox(
-                                              height: 20,
-                                              child: Icon(
-                                                Icons.account_box_outlined,
-                                                color: purpleDark,
-                                              )),
-                                          Text(
-                                            "  Account Info",
-                                            style: TextStyle(
-                                                color: purpleDark,
-                                                fontSize: 16.0,
-                                                fontWeight: FontWeight.bold),
-                                          )
-                                        ],
-                                      ),
-                                      children: [
-                                        guest == 0
-                                            ? Container()
-                                            : AccountInfoCard(
-                                                data: snapshot.data!.data(),
-                                                teamEdit: widget.teamId == ""
-                                                    ? true
-                                                    : false),
-                                      ]),
-                                ),
-                              ),
-                        guest == 0
-                            ? Container()
-                            : Container(
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                                margin: EdgeInsets.only(top: 10, bottom: 5),
-                                child: Theme(
-                                  data: ThemeData(
-                                    dividerColor: Colors.transparent,
-                                  ),
-                                  child: ExpansionTile(
-                                      collapsedIconColor: purpleDark,
-                                      iconColor: purpleDark,
-                                      title: Row(
-                                        children: const [
-                                          SizedBox(
-                                              height: 20,
-                                              child: Icon(
-                                                Icons.assignment_sharp,
-                                                color: purpleDark,
-                                              )),
-                                          Text(
-                                            "  Assets Info",
-                                            style: TextStyle(
-                                                color: purpleDark,
-                                                fontSize: 16.0,
-                                                fontWeight: FontWeight.bold),
-                                          )
-                                        ],
-                                      ),
-                                      children: [
-                                        AssetsCard(
-                                            data: snapshot.data!.data(),
-                                            teamEdit: widget.teamId == ""
-                                                ? true
-                                                : false),
-                                      ]),
-                                ),
-                              ),
-                        guest != 0
-                            ? Container()
-                            : Container(
-                                alignment: Alignment.centerLeft,
-                                child: TextButton.icon(
-                                  onPressed: () {
-                                    showDialog(
-                                      context: context,
-                                      barrierDismissible:
-                                          false, // user must tap button for close dialog!
-                                      builder: (BuildContext context) {
-                                        return CupertinoAlertDialog(
-                                          title: Text('Quit'),
-                                          content: const Text(
-                                              'Are you sure you want to LOGOUT?'),
-                                          actions: <Widget>[
-                                            FlatButton(
-                                              child: const Text('No'),
-                                              onPressed: () {
-                                                Navigator.of(context).pop();
-                                              },
-                                            ),
-                                            FlatButton(
-                                              child: const Text('Yes'),
-                                              onPressed: () {
-                                                AuthService().signOut(context);
-                                              },
+                                  margin: EdgeInsets.only(top: 10, bottom: 5),
+                                  child: Theme(
+                                    data: ThemeData(
+                                      dividerColor: Colors.transparent,
+                                    ),
+                                    child: ExpansionTile(
+                                        collapsedIconColor: purpleDark,
+                                        iconColor: purpleDark,
+                                        title: Row(
+                                          children: [
+                                            SizedBox(
+                                                height: 20,
+                                                child: Image.asset(
+                                                    "assets/employment.png")),
+                                            Text(
+                                              "  Employment Info",
+                                              style: TextStyle(
+                                                  color: purpleDark,
+                                                  fontSize: 16.0,
+                                                  fontWeight: FontWeight.bold),
                                             )
                                           ],
-                                        );
-                                      },
-                                    );
-                                  },
-                                  icon: Icon(Icons.logout,
-                                      color: isdarkmode.value == false
-                                          ? const Color(0xff34354A)
-                                          : Colors.grey[500]),
-                                  label: Text('Log Out',
-                                      style: TextStyle(
-                                          color: isdarkmode.value == false
-                                              ? const Color(0xff34354A)
-                                              : Colors.grey[500])),
+                                        ),
+                                        children: [
+                                          guest == 0
+                                              ? Container()
+                                              : WorkInfoCard(
+                                                  data: snapshot.data!.data(),
+                                                  teamEdit: widget.teamId == ""
+                                                      ? true
+                                                      : false),
+                                        ]),
+                                  ),
                                 ),
-                              ),
-                        SizedBox(height: 20)
-                      ],
+                          guest == 0
+                              ? Container()
+                              : Container(
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  margin: EdgeInsets.only(top: 10, bottom: 5),
+                                  child: Theme(
+                                    data: ThemeData(
+                                      dividerColor: Colors.transparent,
+                                    ),
+                                    child: ExpansionTile(
+                                        collapsedIconColor: purpleDark,
+                                        iconColor: purpleDark,
+                                        title: Row(
+                                          children: const [
+                                            SizedBox(
+                                                height: 20,
+                                                child: Icon(
+                                                  Icons.account_box_outlined,
+                                                  color: purpleDark,
+                                                )),
+                                            Text(
+                                              "  Account Info",
+                                              style: TextStyle(
+                                                  color: purpleDark,
+                                                  fontSize: 16.0,
+                                                  fontWeight: FontWeight.bold),
+                                            )
+                                          ],
+                                        ),
+                                        children: [
+                                          guest == 0
+                                              ? Container()
+                                              : AccountInfoCard(
+                                                  data: snapshot.data!.data(),
+                                                  teamEdit: widget.teamId == ""
+                                                      ? true
+                                                      : false),
+                                        ]),
+                                  ),
+                                ),
+                          guest == 0
+                              ? Container()
+                              : Container(
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  margin: EdgeInsets.only(top: 10, bottom: 5),
+                                  child: Theme(
+                                    data: ThemeData(
+                                      dividerColor: Colors.transparent,
+                                    ),
+                                    child: ExpansionTile(
+                                        collapsedIconColor: purpleDark,
+                                        iconColor: purpleDark,
+                                        title: Row(
+                                          children: const [
+                                            SizedBox(
+                                                height: 20,
+                                                child: Icon(
+                                                  Icons.assignment_sharp,
+                                                  color: purpleDark,
+                                                )),
+                                            Text(
+                                              "  Assets Info",
+                                              style: TextStyle(
+                                                  color: purpleDark,
+                                                  fontSize: 16.0,
+                                                  fontWeight: FontWeight.bold),
+                                            )
+                                          ],
+                                        ),
+                                        children: [
+                                          AssetsCard(
+                                              data: snapshot.data!.data(),
+                                              teamEdit: widget.teamId == ""
+                                                  ? true
+                                                  : false),
+                                        ]),
+                                  ),
+                                ),
+                          guest != 0
+                              ? Container()
+                              : Container(
+                                  alignment: Alignment.centerLeft,
+                                  child: TextButton.icon(
+                                    onPressed: () {
+                                      showDialog(
+                                        context: context,
+                                        barrierDismissible:
+                                            false, // user must tap button for close dialog!
+                                        builder: (BuildContext context) {
+                                          return CupertinoAlertDialog(
+                                            title: Text('Quit'),
+                                            content: const Text(
+                                                'Are you sure you want to LOGOUT?'),
+                                            actions: <Widget>[
+                                              FlatButton(
+                                                child: const Text('No'),
+                                                onPressed: () {
+                                                  Navigator.of(context).pop();
+                                                },
+                                              ),
+                                              FlatButton(
+                                                child: const Text('Yes'),
+                                                onPressed: () {
+                                                  AuthService()
+                                                      .signOut(context);
+                                                },
+                                              )
+                                            ],
+                                          );
+                                        },
+                                      );
+                                    },
+                                    icon: Icon(Icons.logout,
+                                        color: const Color(0xff34354A)),
+                                    label: Text('Log Out',
+                                        style: TextStyle(color: Colors.black)),
+                                  ),
+                                ),
+                          SizedBox(height: 20),
+                        ],
+                      ),
                     ),
                   ),
+                ],
+              ),
+              floatingActionButton: FloatingActionButton(
+                onPressed: () async {
+                  showLoadingDialog(context, "Creating PDF...");
+                  print("cvvv===$imageCV");
+                  final pdfFile = await PdfParagraphApi.generate(
+                    imageCV,
+                    snapshot.data!.data(),
+                  );
+                  Future.delayed(
+                    Duration(milliseconds: 1800),
+                  ).then((value) async {
+                    await PdfApi.openFile(pdfFile);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(
+                          "CV pdf has been generated sucessfully",
+                        ),
+                      ),
+                    );
+                    Navigator.pop(context);
+                  });
+
+                  number++;
+                },
+                child: const Icon(
+                  Icons.download,
+                  color: Colors.white,
                 ),
-              ],
+                backgroundColor: purpleDark,
+              ),
             );
           }),
     );
@@ -665,16 +709,17 @@ class UpperPortion extends StatelessWidget {
                           ],
                         ),
                       ),
-                      trailing: InkWell(
-                        onTap: () {
-                          Navigator.of(context, rootNavigator: true).push(
-                              MaterialPageRoute(
-                                  builder: (context) =>
-                                      Notifications(uid: uid, key: null)));
-                        },
-                        child: Icon(Icons.notifications,
-                            color: Colors.white, size: 22),
-                      )),
+                      trailing: guest == 0
+                          ? Text("")
+                          : InkWell(
+                              onTap: () {
+                                Navigator.of(context, rootNavigator: true).push(
+                                    MaterialPageRoute(
+                                        builder: (context) => Notifications()));
+                              },
+                              child: Icon(Icons.notifications,
+                                  color: Colors.white, size: 22),
+                            )),
                   height: 180,
                   decoration: BoxDecoration(
                       gradient: LinearGradient(
@@ -714,8 +759,12 @@ class UpperPortion extends StatelessWidget {
                     child: ClipRRect(
                       clipBehavior: Clip.antiAlias,
                       borderRadius: BorderRadius.circular(100),
-                      child: imagePath != null || imagePath != ""
-                          ? CachedNetworkImage(
+                      child: imagePath == null || imagePath == ""
+                          ? Image.asset(
+                              'assets/placeholder.png',
+                              fit: BoxFit.cover,
+                            )
+                          : CachedNetworkImage(
                               imageUrl: imagePath,
                               fit: BoxFit.cover,
                               height: 94,
@@ -728,10 +777,6 @@ class UpperPortion extends StatelessWidget {
                               ),
                               errorWidget: (context, url, error) =>
                                   const Icon(Icons.error),
-                            )
-                          : Image.asset(
-                              'assets/placeholder.png',
-                              fit: BoxFit.cover,
                             ),
                     ),
                   ),
@@ -882,42 +927,54 @@ class _ProfilePicState extends State<ProfilePic> {
                             fontWeight: FontWeight.bold,
                             color: Colors.black)),
                     SizedBox(height: 5),
-                    Row(
-                      children: [
-                        Text("Employee Id: ",
+                    guest == 0
+                        ? Container()
+                        : Row(
+                            children: [
+                              Text("Employee Id: ",
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                      fontFamily: "Poppins",
+                                      fontWeight: FontWeight.w400,
+                                      color: Colors.grey.shade600,
+                                      fontSize: 14)),
+                              Text(empId == "" ? " Nill" : empId,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.w400,
+                                      fontFamily: "Poppins",
+                                      color: Colors.grey.shade600,
+                                      fontSize: 14)),
+                            ],
+                          ),
+                    guest == 0 ? Container() : SizedBox(height: 5),
+                    guest == 0
+                        ? Container()
+                        : Text(
+                            department == "Department"
+                                ? "Department: Nill"
+                                : department!,
                             overflow: TextOverflow.ellipsis,
                             style: TextStyle(
-                                fontFamily: "Poppins",
-                                fontWeight: FontWeight.w400,
-                                color: Colors.grey.shade600,
-                                fontSize: 14)),
-                        Text(empId == "" ? " Nill" : empId,
+                              color: Colors.grey.shade600,
+                              fontSize: 14,
+                              fontFamily: "Poppins",
+                              fontWeight: FontWeight.w400,
+                            )),
+                    guest == 0 ? Container() : SizedBox(height: 5),
+                    guest == 0
+                        ? Container()
+                        : Text(
+                            designation == "Designation "
+                                ? "Designation: Nill"
+                                : designation!,
                             overflow: TextOverflow.ellipsis,
                             style: TextStyle(
-                                fontWeight: FontWeight.w400,
-                                fontFamily: "Poppins",
-                                color: Colors.grey.shade600,
-                                fontSize: 14)),
-                      ],
-                    ),
-                    SizedBox(height: 5),
-                    Text(department ?? "Department: Nill",
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          color: Colors.grey.shade600,
-                          fontSize: 14,
-                          fontFamily: "Poppins",
-                          fontWeight: FontWeight.w400,
-                        )),
-                    SizedBox(height: 5),
-                    Text(designation ?? "Designation: Nill",
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          color: Colors.grey.shade600,
-                          fontFamily: "Poppins",
-                          fontSize: 14,
-                          fontWeight: FontWeight.w400,
-                        )),
+                              color: Colors.grey.shade600,
+                              fontFamily: "Poppins",
+                              fontSize: 14,
+                              fontWeight: FontWeight.w400,
+                            )),
                   ]),
             ),
           ),

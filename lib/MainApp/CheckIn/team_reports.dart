@@ -419,21 +419,21 @@ class _TeamReportsState extends State<TeamReports> {
                                       flex: 9,
                                       child: Stack(
                                         children: [
-                                          LinearPercentIndicator(
-                                            linearStrokeCap:
-                                                LinearStrokeCap.butt,
+                                          // LinearPercentIndicator(
+                                          //   linearStrokeCap:
+                                          //       LinearStrokeCap.butt,
 
-                                            fillColor: Colors.transparent,
-                                            backgroundColor: Colors.transparent,
-                                            lineHeight: 25,
-                                            restartAnimation: true,
-                                            animationDuration: 1000,
-                                            animateFromLastPercent: false,
-                                            // animation: true,
-                                            percent: 1.0,
-                                            progressColor: Colors.teal,
-                                            // trailing: Text("9:00am"),
-                                          ),
+                                          //   fillColor: Colors.transparent,
+                                          //   backgroundColor: Colors.transparent,
+                                          //   lineHeight: 25,
+                                          //   restartAnimation: true,
+                                          //   animationDuration: 1000,
+                                          //   animateFromLastPercent: false,
+                                          //   // animation: true,
+                                          //   percent: 1.0,
+                                          //   progressColor: Colors.teal,
+                                          //   // trailing: Text("9:00am"),
+                                          // ),
                                           Container(
                                               margin: EdgeInsets.only(
                                                   left: 12, top: 6),

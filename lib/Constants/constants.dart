@@ -47,6 +47,36 @@ InputDecoration TextFieldDecoration(String hint) {
           borderSide: const BorderSide(color: Colors.transparent, width: 0.0)));
 }
 
+InputDecoration TextPhoneDecoration(String defaultCode) {
+  return InputDecoration(
+    prefixIcon: CountryCodePicker(
+        initialSelection: defaultCode,
+        padding: const EdgeInsets.all(0),
+        onChanged: (CountryCode? selectedValue) {
+          defaultCode = selectedValue!.dialCode.toString();
+        },
+        hideSearch: false,
+        showCountryOnly: false,
+        showOnlyCountryWhenClosed: false,
+        alignLeft: false),
+    contentPadding: const EdgeInsets.only(bottom: 15, top: -5, left: 15),
+    focusedBorder: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(10),
+      borderSide: BorderSide(color: Colors.grey.withOpacity(0.4), width: 1),
+    ),
+    border: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(10),
+      borderSide: BorderSide(color: Colors.grey.withOpacity(0.4), width: 1),
+    ),
+    enabledBorder: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(10),
+      borderSide: BorderSide(color: Colors.grey.withOpacity(0.4), width: 1),
+    ),
+    hintText: 'Phone',
+    hintStyle: const TextStyle(color: Colors.grey),
+  );
+}
+
 InputDecoration TextPhoneFieldDecoration(String defaultCode) {
   return InputDecoration(
     isDense: true,

@@ -4,19 +4,16 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
-import 'package:cron/cron.dart';
 import 'package:hr_app/MainApp/CheckIn/team_check_in.dart';
 import 'package:http/http.dart' as http;
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_offline/flutter_offline.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
@@ -31,58 +28,19 @@ import 'package:hr_app/MainApp/LeaveManagement/leave_management.dart';
 import 'package:hr_app/MainApp/main_home_profile/leave_approval.dart';
 import 'package:intl/intl.dart';
 import 'package:location/location.dart';
-import 'package:rxdart/rxdart.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:location/location.dart' as loc;
 import 'package:connectivity/connectivity.dart' as conT;
 
+const AndroidNotificationChannel channel = AndroidNotificationChannel(
+    'high_importance_channel', 'High Importance Notifications',
+    description:
+        'This channel is used for important notifications.', // description,
+    importance: Importance.high,
+    playSound: true);
+
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
     FlutterLocalNotificationsPlugin();
-
-/// Streams are created so that app can respond to notification-related events
-/// since the plugin is initialised in the `main` function
-final BehaviorSubject<ReceivedNotification> didReceiveLocalNotificationSubject =
-    BehaviorSubject<ReceivedNotification>();
-
-class ReceivedNotification {
-  ReceivedNotification({
-    required this.id,
-    required this.title,
-    required this.body,
-    required this.description,
-    required this.payload,
-  });
-
-  final int id;
-  final String? title;
-  final String? body;
-  final String? description;
-  final String? payload;
-}
-
-String? selectedNotificationPayload;
-
-//Global Initialization
-const AndroidNotificationChannel channel = AndroidNotificationChannel(
-  'high_importance_channel', // id
-  'High Importance Notifications', // title
-  importance: Importance.high,
-);
-
-Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  await Firebase.initializeApp();
-  flutterLocalNotificationsPlugin.show(
-      message.data.hashCode,
-      message.data['title'],
-      message.data['body'],
-      NotificationDetails(
-        android: AndroidNotificationDetails(
-          channel.id,
-          channel.name,
-          //  channel.description
-        ),
-      ));
-}
 
 class HrDashboard extends StatefulWidget {
   const HrDashboard({Key? key}) : super(key: key);
@@ -93,26 +51,17 @@ class HrDashboard extends StatefulWidget {
 
 class _HrDashboardState extends State<HrDashboard>
     with TickerProviderStateMixin {
-  var cron = new Cron();
-
-  ///----------------Notfications End---------------//
-  var totalemployee = 13;
-  // String joiningDate = '';
-  var ontime = 10;
-  var lates = 3;
-  var absent = 0;
   late conT.Connectivity connectivity;
   late StreamSubscription<conT.ConnectivityResult> subscription;
   late bool isNetwork = true;
   int team = 0;
   late AnimationController controller;
   late String buttonText = "CLOCK IN";
-  late Position _currentPosition;
   double? currentLat;
   double? currentLng;
   double? officeLat;
   double? officeLng;
-  // String? location;
+  DateTime? time;
   late int hours = 00;
   late int minutes = 00;
   late int seconds = 00;
@@ -123,6 +72,7 @@ class _HrDashboardState extends State<HrDashboard>
   late String shiftName;
   late String token;
   late Timer timer;
+  DateTime dateAuto = DateTime.now();
   int? weekend;
   var utcOffset;
   var weekendDefi;
@@ -135,213 +85,20 @@ class _HrDashboardState extends State<HrDashboard>
   String lateTime = "0 hrs & 0 mins";
   late ScrollController con;
   late Stream? stream;
-  String? name = '';
   String? role;
   File? image;
   DocumentReference? documentReference;
   bool announData = false;
+
   List timeZones = [
     {"country": "PAKISTAN", "region": "Asia/karachi"},
     {"country": "UNITED ARAB EMIRATES", "region": "Asia/dubai"},
     {"country": "American Samoa", "region": "America/Swift_Current"}
   ];
 
-  firebase() async {
-    await Firebase.initializeApp();
-
-    FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
-
-// Firebase local notification plugin
-    await flutterLocalNotificationsPlugin
-        .resolvePlatformSpecificImplementation<
-            AndroidFlutterLocalNotificationsPlugin>()
-        ?.createNotificationChannel(channel);
-
-    await FirebaseMessaging.instance
-        .setForegroundNotificationPresentationOptions(
-      alert: true,
-      badge: true,
-      sound: true,
-    );
-  }
-
-  Future setupmessaging() async {
-    final fbm = FirebaseMessaging.instance;
-    final InitializationSettings initializationSettings =
-        InitializationSettings(
-      android: initializationSettingsAndroid,
-    );
-    await flutterLocalNotificationsPlugin.initialize(initializationSettings,
-        onSelectNotification: (String? payload) async {
-      if (payload != null) {
-        debugPrint('notification payload: $payload');
-      }
-      selectedNotificationPayload = payload;
-    });
-    fbm.requestPermission();
-
-    fbm.subscribeToTopic('all');
-    FirebaseMessaging.onMessage.listen(
-      (RemoteMessage message) {
-// if title is leave request type then screen navigate to Leave approval Screen
-        if (message.notification!.title == "Leave Request") {
-          Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (BuildContext context) => LeaveApprovalScreen(
-                      docId: message.data['docId'],
-                      empId: message.data['employeeId'])));
-        }
-        // if title is Annoucement type then screen navigate to Leave approval Screen
-        else if (message.data["title"] == "Announcement") {
-          Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (BuildContext context) =>
-                      ShowAnnouncementScreen(docId: message.data['docId'])));
-        }
-        showDialog(
-            context: context,
-            builder: (_) {
-              return AlertDialog(
-                title: Text(message.notification!.title!),
-                content: SingleChildScrollView(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [Text(message.notification!.body!)],
-                  ),
-                ),
-              );
-            });
-      },
-    );
-    FirebaseMessaging.onMessageOpenedApp.listen(
-      (event) {},
-    );
-    // FirebaseMessaging.onBackgroundMessage((message) => "");
-    FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
-  }
-
   @override
   void initState() {
     super.initState();
-    var initializationSettingsAndroid =
-        AndroidInitializationSettings('@mipmap/ic_launcher');
-    var initializationSettingsIOS = IOSInitializationSettings();
-    var initializationSettings = InitializationSettings(
-        android: initializationSettingsAndroid, iOS: initializationSettingsIOS);
-    flutterLocalNotificationsPlugin.initialize(
-      initializationSettings,
-    );
-    // foreground message
-    // om message app open
-    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-      RemoteNotification? notification = message.notification;
-      AndroidNotification? android = message.notification?.android;
-      if (notification != null && android != null) {
-        flutterLocalNotificationsPlugin.show(
-            notification.hashCode,
-            notification.title,
-            notification.body,
-            NotificationDetails(
-              android: AndroidNotificationDetails(
-                channel.id,
-                channel.name,
-                color: Colors.red,
-                playSound: true,
-                icon: '@mipmap/ic_launcher',
-              ),
-            ));
-        // ScaffoldMessenger.of(context).showSnackBar(
-        //   SnackBar(
-        //     content: Text('from ${message.notification!.title}'),
-        //   ),
-        // );
-        // showDialog(
-        //     context: context,
-        //     builder: (_) {
-        //       return AlertDialog(
-        //         title: Text(message.notification!.title!),
-        //         content: SingleChildScrollView(
-        //           child: Column(
-        //             crossAxisAlignment: CrossAxisAlignment.start,
-        //             children: [Text(message.notification!.body!)],
-        //           ),
-        //         ),
-        //       );
-        //     });
-
-        // if title is leave request type then screen navigate to Leave approval Screen
-        if (message.data["title"] == "Leave Request") {
-          Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (BuildContext context) => LeaveApprovalScreen(
-                      docId: message.data['docId'],
-                      empId: message.data['employeeId'])));
-        }
-        // if title is Annoucement type then screen navigate to Leave approval Screen
-        else if (message.data["title"] == "Announcement") {
-          Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (BuildContext context) =>
-                      ShowAnnouncementScreen(docId: message.data['docId'])));
-        }
-        showDialog(
-            context: context,
-            builder: (_) {
-              return AlertDialog(
-                title: Text(message.notification!.title!),
-                content: SingleChildScrollView(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [Text(message.notification!.body!)],
-                  ),
-                ),
-              );
-            });
-      }
-    });
-    //Message for Background
-    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
-      RemoteNotification? notification = message.notification;
-      AndroidNotification? android = message.notification?.android;
-      // to Leave approval Screen
-      if (message.data["title"] == "Leave Request") {
-        Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (BuildContext context) => LeaveApprovalScreen(
-                    docId: message.data['docId'],
-                    empId: message.data['employeeId'])));
-      }
-      // if title is Annoucement type then screen navigate to Leave approval Screen
-      else if (message.data["title"] == "Announcement") {
-        Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (BuildContext context) =>
-                    ShowAnnouncementScreen(docId: message.data['docId'])));
-        if (notification != null && android != null) {
-          if (message.notification!.title == "Leave Request") {
-            showDialog(
-                context: context,
-                builder: (_) {
-                  return AlertDialog(
-                    title: Text(notification.title!),
-                    content: SingleChildScrollView(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [Text(notification.body!)],
-                      ),
-                    ),
-                  );
-                });
-          }
-        }
-      }
-    });
 
     Future.delayed(const Duration(milliseconds: 950), () {
       setState(() {});
@@ -365,81 +122,28 @@ class _HrDashboardState extends State<HrDashboard>
       }
     });
     load();
+
     if (shiftId != null) {
       _getShiftSchedule();
+    } else {
+      weekendDefi = ["Sat0", "Sun0"];
     }
     if (locationId != null) {
       _getOfficeLocation();
     }
-    loadFirebaseUser();
-    loadcheckout();
     determinePosition();
     loadTeam();
 
-    timer = Timer.periodic(const Duration(minutes: 1), (Timer t) {
+    timer = Timer.periodic(const Duration(seconds: 1), (Timer t) {
       loadFirebaseUser();
       loadcheckout();
-      currentTime = currentTime!.add(const Duration(minutes: 1));
+      currentTime = currentTime!.add(const Duration(seconds: 1));
     });
     controller = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 32400),
     );
-
-    //check internet connection
-    connectivity = conT.Connectivity();
-    subscription = connectivity.onConnectivityChanged
-        .listen((conT.ConnectivityResult result) {
-      if (result == conT.ConnectivityResult.none) {
-        setState(() {
-          isNetwork = false;
-        });
-      } else if (result == conT.ConnectivityResult.mobile ||
-          result == conT.ConnectivityResult.wifi) {
-        if (mounted) {
-          setState(() {
-            isNetwork = true;
-          });
-        }
-      }
-    });
-
-    void _configureDidReceiveLocalNotificationSubject() {
-      didReceiveLocalNotificationSubject.stream
-          .listen((ReceivedNotification receivedNotification) async {
-        await showDialog(
-          context: context,
-          builder: (BuildContext context) => CupertinoAlertDialog(
-            title: receivedNotification.title != null
-                ? Text(receivedNotification.title!)
-                : null,
-          ),
-        );
-      });
-    }
-
-    void _requestPermissions() {
-      flutterLocalNotificationsPlugin
-          .resolvePlatformSpecificImplementation<
-              IOSFlutterLocalNotificationsPlugin>()
-          ?.requestPermissions(
-            alert: true,
-            badge: true,
-            sound: true,
-          );
-      flutterLocalNotificationsPlugin
-          .resolvePlatformSpecificImplementation<
-              MacOSFlutterLocalNotificationsPlugin>()
-          ?.requestPermissions(
-            alert: true,
-            badge: true,
-            sound: true,
-          );
-    }
-
     super.initState();
-    setupmessaging();
-    _requestPermissions();
 
     con = ScrollController();
     con.addListener(() {
@@ -457,7 +161,6 @@ class _HrDashboardState extends State<HrDashboard>
         }
       }
     });
-    _configureDidReceiveLocalNotificationSubject();
     firebaseMessaging.getToken().then((tempToken) {
       FirebaseFirestore.instance
           .collection('employees')
@@ -467,59 +170,235 @@ class _HrDashboardState extends State<HrDashboard>
         token = tempToken!;
       });
     });
+    notificationsCall();
+    firebaseCloudMessagingListeners();
+  }
 
+  notificationsCall() {
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
+      RemoteNotification? notification = message.notification;
+      AndroidNotification? android = message.notification?.android;
+      var androiInit =
+          const AndroidInitializationSettings("@mipmap/ic_launcher"); //for logo
+      var iosInit = const IOSInitializationSettings();
+      var initSetting =
+          InitializationSettings(android: androiInit, iOS: iosInit);
+
+      Map<String, dynamic> dataVale = message.data;
+      String callBack = dataVale["click"].toString();
+
+      if (notification != null && android != null) {
+        flutterLocalNotificationsPlugin.initialize(initSetting,
+            onSelectNotification: (String? payload) {
+          if (message.notification!.title == "Leave Request") {
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (BuildContext context) => LeaveApprovalScreen(
+                        docId: message.data['docId'],
+                        empId: message.data['employeeId'])));
+          }
+          // if title is Annoucement type then screen navigate to Leave approval Screen
+          else if (message.data["title"] == "Announcement") {
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (BuildContext context) =>
+                        ShowAnnouncementScreen(docId: message.data['docId'])));
+          }
+        });
+        flutterLocalNotificationsPlugin.show(
+          notification.hashCode,
+          notification.title,
+          notification.body,
+          NotificationDetails(
+            android: AndroidNotificationDetails(
+              channel.id,
+              channel.name,
+              channelDescription: "hello",
+              color: Colors.blue,
+              playSound: true,
+              importance: Importance.high,
+              icon: '@mipmap/ic_launcher',
+            ),
+          ),
+          payload: callBack,
+        );
+      }
+    });
+    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
+      RemoteNotification? notification = message.notification;
+      AndroidNotification? android = message.notification?.android;
+      Map<String, dynamic> dataVale = message.data;
+      String callBack = dataVale["click"].toString();
+      var androiInit =
+          const AndroidInitializationSettings("@mipmap/ic_launcher"); //for logo
+      var iosInit = const IOSInitializationSettings();
+      var initSetting =
+          InitializationSettings(android: androiInit, iOS: iosInit);
+
+      if (notification != null && android != null) {
+        flutterLocalNotificationsPlugin.initialize(initSetting,
+            onSelectNotification: (String? payload) {
+          if (message.notification!.title == "Leave Request") {
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (BuildContext context) => LeaveApprovalScreen(
+                        docId: message.data['docId'],
+                        empId: message.data['employeeId'])));
+          }
+          // if title is Annoucement type then screen navigate to Leave approval Screen
+          else if (message.data["title"] == "Announcement") {
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (BuildContext context) =>
+                        ShowAnnouncementScreen(docId: message.data['docId'])));
+          }
+        });
+        flutterLocalNotificationsPlugin.show(
+          notification.hashCode,
+          notification.title,
+          notification.body,
+          NotificationDetails(
+            android: AndroidNotificationDetails(
+              channel.id,
+              channel.name,
+              channelDescription: "hello",
+              color: Colors.blue,
+              playSound: true,
+              importance: Importance.high,
+              icon: '@mipmap/ic_launcher',
+            ),
+          ),
+          payload: callBack,
+        );
+      }
+    });
+    FirebaseMessaging.onBackgroundMessage((RemoteMessage message) async {
+      RemoteNotification? notification = message.notification;
+      AndroidNotification? android = message.notification?.android;
+      Map<String, dynamic> dataVale = message.data;
+      String callBack = dataVale["click"].toString();
+      var androiInit =
+          const AndroidInitializationSettings("@mipmap/ic_launcher");
+      var iosInit = const IOSInitializationSettings();
+      var initSetting =
+          InitializationSettings(android: androiInit, iOS: iosInit);
+
+      if (notification != null && android != null) {
+        flutterLocalNotificationsPlugin.initialize(initSetting,
+            onSelectNotification: (String? payload) {
+          if (message.notification!.title == "Leave Request") {
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (BuildContext context) => LeaveApprovalScreen(
+                        docId: message.data['docId'],
+                        empId: message.data['employeeId'])));
+          }
+          // if title is Annoucement type then screen navigate to Leave approval Screen
+          else if (message.data["title"] == "Announcement") {
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (BuildContext context) =>
+                        ShowAnnouncementScreen(docId: message.data['docId'])));
+          }
+        });
+        flutterLocalNotificationsPlugin.show(
+          notification.hashCode,
+          notification.title,
+          notification.body,
+          NotificationDetails(
+            android: AndroidNotificationDetails(
+              channel.id,
+              channel.name,
+              channelDescription: "hello",
+              color: Colors.blue,
+              playSound: true,
+              importance: Importance.high,
+              icon: '@mipmap/ic_launcher',
+            ),
+          ),
+          payload: callBack,
+        );
+      }
+    });
     firebaseCloudMessagingListeners();
   }
 
   apiCall(area) async {
-    print(timeZones[area]['region']);
     final jsonValue = await http.Client().get(Uri.parse(
         "http://worldtimeapi.org/api/timezone/${timeZones[area]['region']}"));
     var responseBody = (jsonValue.body);
     var parsedJson = json.decode(responseBody);
     utcOffset = parsedJson['utc_offset'];
-    print(int.parse(
-        parsedJson['utc_offset'].split(':')[0].replaceAll("+", '').trim()));
-    currentTime = parsedJson['utc_offset'].contains("+")
-        ? DateTime.parse(parsedJson['datetime']).add(Duration(
-            hours: int.parse(parsedJson['utc_offset']
-                .split(':')[0]
-                .replaceAll("+", '')
-                .trim()),
-            minutes: int.parse(parsedJson['utc_offset'].split(':')[1])))
-        : DateTime.parse(parsedJson['datetime']).subtract(Duration(
-            hours: int.parse(parsedJson['utc_offset']
-                .split(':')[0]
-                .replaceAll("-", '')
-                .trim()),
-            minutes: int.parse(parsedJson['utc_offset'].split(':')[1])));
-    print(currentTime!);
+
+    if (mounted) {
+      setState(() {
+        time = DateTime.parse(parsedJson['datetime']);
+        currentTime = parsedJson['utc_offset'].contains("+")
+            ? DateTime.parse(parsedJson['datetime']).add(Duration(
+                hours: int.parse(parsedJson['utc_offset']
+                    .split(':')[0]
+                    .replaceAll("+", '')
+                    .trim()),
+                minutes: int.parse(parsedJson['utc_offset'].split(':')[1])))
+            : DateTime.parse(parsedJson['datetime']).subtract(Duration(
+                hours: int.parse(parsedJson['utc_offset']
+                    .split(':')[0]
+                    .replaceAll("-", '')
+                    .trim()),
+                minutes: int.parse(parsedJson['utc_offset'].split(':')[1])));
+        if (shiftId != null) {
+          notification8_55();
+          notification9_05();
+          notification5_55();
+          notification6_05();
+        }
+        loadcheckout();
+        loadFirebaseUser();
+      });
+    }
   }
 
-  tz.TZDateTime _nextInstanceOf8_50() {
+  tz.TZDateTime _nextInstanceOf8_55() {
     final tz.TZDateTime now = tz.TZDateTime.now(tz.local);
     tz.TZDateTime scheduledDate = tz.TZDateTime(tz.local, now.year);
-
     if (!weekendDefi.contains(
             "${DateFormat('EEE').format(currentTime!)}${(currentTime!.day / 8).toInt() + 1}") &&
         !weekendDefi.contains("${DateFormat('EEE').format(currentTime!)}0")) {
-      // if (buttonText == "CLOCK IN") {
-      scheduledDate = tz.TZDateTime(tz.local, now.year, now.month, now.day,
-          int.parse(to.split(":")[0]), 55);
-      if (scheduledDate.isBefore(now)) {
-        scheduledDate = scheduledDate.add(const Duration(days: 1));
-        // }
+      var fromTime = from.split(":")[1].contains("PM")
+          ? int.parse(from.split(":")[0]) + 11
+          : int.parse(from.split(":")[0]) - 1;
+
+      if (buttonText == "CLOCK IN") {
+        print(
+            "before 9: ${fromTime - (int.parse(utcOffset.split(':')[0].replaceAll("+", '').trim()))}");
+        scheduledDate = tz.TZDateTime(
+            tz.local,
+            now.year,
+            now.month,
+            now.day,
+            fromTime -
+                (int.parse(utcOffset.split(':')[0].replaceAll("+", '').trim())),
+            55);
+        if (scheduledDate.isBefore(now)) {
+          scheduledDate = scheduledDate.add(const Duration(days: 1));
+        }
       }
     }
     return scheduledDate;
   }
 
-  Future<void> notification8_50() async {
+  Future<void> notification8_55() async {
     await flutterLocalNotificationsPlugin.zonedSchedule(
         0,
         'Check In Reminder!',
-        'Don’t Forget to Check In your attendance at 9:00 AM',
-        _nextInstanceOf8_50(),
+        'Don’t Forget to Check In your attendance at $from',
+        _nextInstanceOf8_55(),
         const NotificationDetails(
           android: AndroidNotificationDetails(
               'daily notification channel id', 'Checkin Reminder',
@@ -531,28 +410,39 @@ class _HrDashboardState extends State<HrDashboard>
         matchDateTimeComponents: DateTimeComponents.dateAndTime);
   }
 
-  tz.TZDateTime _nextInstanceOf9_10() {
+  tz.TZDateTime _nextInstanceOf9_05() {
     final tz.TZDateTime now = tz.TZDateTime.now(tz.local);
     tz.TZDateTime scheduledDate = tz.TZDateTime(tz.local, now.year);
+    if (!weekendDefi.contains(
+            "${DateFormat('EEE').format(currentTime!)}${(currentTime!.day / 8).toInt() + 1}") &&
+        !weekendDefi.contains("${DateFormat('EEE').format(currentTime!)}0")) {
+      var fromTime = from.split(":")[1].contains("PM")
+          ? int.parse(from.split(":")[0]) + 12
+          : int.parse(from.split(":")[0]);
 
-    if (now.weekday != 6 && now.weekday != 7) {
-      // if (buttonText == "CLOCK IN") {
-      scheduledDate = tz.TZDateTime(tz.local, now.year, now.month, now.day,
-          int.parse(to.split(":")[0]) - 5, 05);
-      if (scheduledDate.isBefore(now)) {
-        scheduledDate = scheduledDate.add(const Duration(days: 1));
-        // }
+      if (buttonText == "CLOCK IN") {
+        scheduledDate = tz.TZDateTime(
+            tz.local,
+            now.year,
+            now.month,
+            now.day,
+            fromTime -
+                (int.parse(utcOffset.split(':')[0].replaceAll("+", '').trim())),
+            05);
+        if (scheduledDate.isBefore(now)) {
+          scheduledDate = scheduledDate.add(const Duration(days: 1));
+        }
       }
     }
     return scheduledDate;
   }
 
-  Future<void> notification9_10() async {
+  Future<void> notification9_05() async {
     await flutterLocalNotificationsPlugin.zonedSchedule(
         1,
         'Check In Reminder!',
-        'Don’t Forget to Check In your attendance 9:00 AM',
-        _nextInstanceOf9_10(),
+        'Don’t Forget to Check In your attendance $from',
+        _nextInstanceOf9_05(),
         const NotificationDetails(
           android: AndroidNotificationDetails(
               'daily notification channel id', 'Checkin Reminder',
@@ -564,58 +454,41 @@ class _HrDashboardState extends State<HrDashboard>
         matchDateTimeComponents: DateTimeComponents.dateAndTime);
   }
 
-  tz.TZDateTime _nextInstanceOf5_50() {
-    var zone = tz.getLocation('Asia/Karachi');
+  tz.TZDateTime _nextInstanceOf5_55() {
+    final tz.TZDateTime now = tz.TZDateTime.now(tz.local);
+    tz.TZDateTime scheduledDate = tz.TZDateTime(tz.local, now.year);
+    if (!weekendDefi.contains(
+            "${DateFormat('EEE').format(currentTime!)}${(currentTime!.day / 8).toInt() + 1}") &&
+        !weekendDefi.contains("${DateFormat('EEE').format(currentTime!)}0")) {
+      var toTime = to.split(":")[1].contains("PM")
+          ? int.parse(to.split(":")[0]) + 11
+          : int.parse(to.split(":")[0]) - 1;
+      print(
+          "before 6: ${toTime - (int.parse(utcOffset.split(':')[0].replaceAll("+", '').trim()))}");
 
-    tz.TZDateTime now = tz.TZDateTime.from(
-        currentTime!.subtract(Duration(
-            hours:
-                int.parse(utcOffset.split(':')[0].replaceAll("+", '').trim()),
-            minutes: int.parse(utcOffset.split(':')[1]))),
-        zone);
-
-    // now = utcOffset.contains('+')
-    //     ? now.add(Duration(
-    //         hours:
-    //             int.parse(utcOffset.split(':')[0].replaceAll("+", '').trim()),
-    //         minutes: int.parse(utcOffset.split(':')[1])))
-    //     : now.subtract(Duration(
-    //         hours:
-    //             int.parse(utcOffset.split(':')[0].replaceAll("-", '').trim()),
-    //         minutes: int.parse(utcOffset.split(':')[1])));
-    // final laTime = TZDateTime(la, 2010, 1, 1);
-
-    tz.TZDateTime scheduledDate = tz.TZDateTime(zone, now.year);
-
-    print("Helooooooo" + now.toString());
-
-    // if (!weekendDefi.contains(
-    //         "${DateFormat('EEE').format(currentTime!)}${(currentTime!.day / 8).toInt() + 1}") &&
-    //     !weekendDefi.contains("${DateFormat('EEE').format(currentTime!)}0")) {
-    //   if (buttonText == "CLOCK OUT") {
-    scheduledDate = tz.TZDateTime(
-        zone,
-        now.year,
-        now.month,
-        now.day,
-        // int.parse(from.split(":")[0]) - 5, 05);
-
-        now.hour - 5,
-        49);
-    if (scheduledDate.isBefore(now)) {
-      scheduledDate = scheduledDate.add(const Duration(days: 1));
-      //   }
-      // }
+      if (buttonText == "CLOCK OUT") {
+        scheduledDate = tz.TZDateTime(
+            tz.local,
+            now.year,
+            now.month,
+            now.day,
+            toTime -
+                (int.parse(utcOffset.split(':')[0].replaceAll("+", '').trim())),
+            55);
+        if (scheduledDate.isBefore(now)) {
+          scheduledDate = scheduledDate.add(const Duration(days: 1));
+        }
+      }
     }
     return scheduledDate;
   }
 
-  Future<void> notification5_50() async {
+  Future<void> notification5_55() async {
     await flutterLocalNotificationsPlugin.zonedSchedule(
         2,
         'Check Out Reminder!',
-        'Don’t Forget to Check Out at 6:00 PM',
-        _nextInstanceOf5_50(),
+        'Don’t Forget to Check Out at $to',
+        _nextInstanceOf5_55(),
         const NotificationDetails(
           android: AndroidNotificationDetails(
               'daily notification channel id', 'Checkin Reminder',
@@ -627,34 +500,94 @@ class _HrDashboardState extends State<HrDashboard>
         matchDateTimeComponents: DateTimeComponents.dateAndTime);
   }
 
-  tz.TZDateTime _nextInstanceOf6_10() {
+  tz.TZDateTime _nextInstanceOf6_05() {
     final tz.TZDateTime now = tz.TZDateTime.now(tz.local);
-
     tz.TZDateTime scheduledDate = tz.TZDateTime(tz.local, now.year);
+    if (!weekendDefi.contains(
+            "${DateFormat('EEE').format(currentTime!)}${(currentTime!.day / 8).toInt() + 1}") &&
+        !weekendDefi.contains("${DateFormat('EEE').format(currentTime!)}0")) {
+      var toTime = to.split(":")[1].contains("PM")
+          ? int.parse(to.split(":")[0]) + 12
+          : int.parse(to.split(":")[0]);
+      print(
+          "after 6: ${toTime - (int.parse(utcOffset.split(':')[0].replaceAll("+", '').trim()))}");
 
-    // if (now.weekday != 6 && now.weekday != 7) {
-    // if (buttonText == "CLOCK OUT") {
-    scheduledDate =
-        tz.TZDateTime(tz.local, now.year, now.month, now.day, now.hour - 5, 03);
-    //  scheduledDate = tz.TZDateTime(tz.local, now.year, now.month, now.day,
-    // int.parse(from.split(":")[0]) - 5, 05);
-    if (scheduledDate.isBefore(now)) {
-      scheduledDate = scheduledDate.add(const Duration(days: 1));
-      // }
-      // }
+      if (buttonText == "CLOCK OUT") {
+        scheduledDate = tz.TZDateTime(
+            tz.local,
+            now.year,
+            now.month,
+            now.day,
+            toTime -
+                (int.parse(utcOffset.split(':')[0].replaceAll("+", '').trim())),
+            05);
+        if (scheduledDate.isBefore(now)) {
+          scheduledDate = scheduledDate.add(const Duration(days: 1));
+        }
+      }
     }
     return scheduledDate;
   }
 
-  Future<void> notification6_10() async {
+  Future<void> notification6_05() async {
     await flutterLocalNotificationsPlugin.zonedSchedule(
         3,
         'Check Out Reminder!',
-        'Don’t Forget to Check Out 6:00 PM',
-        _nextInstanceOf6_10(),
+        'Don’t Forget to Check Out $to',
+        _nextInstanceOf6_05(),
         const NotificationDetails(
           android: AndroidNotificationDetails(
               'daily notification channel id', 'Checkin Reminder',
+              channelDescription: 'daily notification description'),
+        ),
+        androidAllowWhileIdle: true,
+        uiLocalNotificationDateInterpretation:
+            UILocalNotificationDateInterpretation.absoluteTime,
+        matchDateTimeComponents: DateTimeComponents.dateAndTime);
+  }
+
+  tz.TZDateTime _autoCheckout3am(id) {
+    final tz.TZDateTime now = tz.TZDateTime.now(tz.local);
+    tz.TZDateTime scheduledDate = tz.TZDateTime(tz.local, now.year);
+    DocumentReference reference =
+        FirebaseFirestore.instance.collection("attendance").doc(id);
+    String date1 = "${DateFormat("yyyy-MM-dd ").format(checkinTime.toDate())}" +
+        "${DateFormat("HH:mm").format(DateFormat.jm().parse(to))}";
+    var xxx = DateFormat("yyyy-MM-dd HH:mm").parse(date1);
+
+    int a = xxx.difference(checkinTime.toDate()).inSeconds;
+
+    double hoursD = a / 3600;
+    double minutesD = (a % 3600) / 60;
+    double secondsD = (a % 60);
+    if (buttonText == "CLOCK OUT") {
+      if (now.hour == 19) {
+        reference.update({
+          "checkout":
+              DateTime(dateAuto.year, dateAuto.month, dateAuto.day, 00, 00),
+          "workHours":
+              "${hoursD.toInt()} : ${minutesD.toInt()} : ${secondsD.toInt()}"
+        });
+
+        scheduledDate =
+            tz.TZDateTime(tz.local, now.year, now.month, now.day, now.hour, 00);
+        if (scheduledDate.isBefore(now)) {
+          scheduledDate = scheduledDate.add(const Duration(days: 1));
+        }
+      }
+    }
+    return scheduledDate;
+  }
+
+  Future<void> autoCheckout(id) async {
+    await flutterLocalNotificationsPlugin.zonedSchedule(
+        4,
+        'Warning',
+        'You forgot to Clock Out today',
+        _autoCheckout3am(id),
+        const NotificationDetails(
+          android: AndroidNotificationDetails(
+              'daily notification channel id', 'clock out',
               channelDescription: 'daily notification description'),
         ),
         androidAllowWhileIdle: true,
@@ -667,8 +600,6 @@ class _HrDashboardState extends State<HrDashboard>
   FlutterLocalNotificationsPlugin localNotificationsPlugin =
       FlutterLocalNotificationsPlugin();
 
-  //-----Firebase Cloud listner start function----------//
-
   void firebaseCloudMessagingListeners() {
     firebaseMessaging.setAutoInitEnabled(true);
 
@@ -677,15 +608,6 @@ class _HrDashboardState extends State<HrDashboard>
         .then((RemoteMessage? message) {});
 
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {});
-  }
-
-  // Show a notification every minute with the first appearance happening a minute after invoking the method
-  // notfication details function
-  Future onSelectNotification(payload) async {
-    List payLoadNew = payload.split(",");
-    String title = payLoadNew[0];
-    String empId = payLoadNew[1];
-    String docId = payLoadNew[2];
   }
 
   void fetchLinkData() async {
@@ -757,7 +679,7 @@ class _HrDashboardState extends State<HrDashboard>
   }
 
   loadcheckout() async {
-    await FirebaseFirestore.instance
+    FirebaseFirestore.instance
         .collection('attendance')
         .where("empId", isEqualTo: uid)
         .where("checkout", isNull: true)
@@ -766,35 +688,34 @@ class _HrDashboardState extends State<HrDashboard>
       if (onValue.docs.isEmpty) {
         setState(() {
           buttonText = "CLOCK IN";
-          // notification8_50();
-          // notification9_10();
-          // notification5_50();
-          // notification6_10();
         });
       } else if (onValue.docs.isNotEmpty) {
-        setState(() {
-          checkinTime = onValue.docs.first.data()["checkin"] as Timestamp;
-          docId = onValue.docs.first.data()["docId"];
-          lateTime = onValue.docs.first.data()["late"];
-          String difference = onValue.docs.first.data()["checkin"] == null
-              ? "0"
-              : "${DateTime.parse(currentTime!.toString().replaceAll('Z', '')).difference(checkinTime.toDate()).inSeconds}";
+        if (mounted) {
+          setState(() {
+            checkinTime = onValue.docs.first.data()["checkin"] as Timestamp;
+            docId = onValue.docs.first.data()["docId"];
+            lateTime = onValue.docs.first.data()["late"];
+            String difference = onValue.docs.first.data()["checkin"] == null
+                ? "0"
+                : "${DateTime.parse(currentTime!.toString().replaceAll('Z', '')).difference(checkinTime.toDate()).inSeconds}";
 
-          int weekendDef = int.parse(difference);
+            int weekendDef = int.parse(difference);
 
-          double hoursD = weekendDef / 3600;
-          double minutesD = (weekendDef % 3600) / 60;
-          double secondsD = (weekendDef % 60);
-          hours = hoursD.toInt();
-          minutes = minutesD.toInt();
-          seconds = secondsD.toInt();
-          buttonText = "CLOCK OUT";
-
-          // notification8_50();
-          // notification9_10();
-          // notification5_50();
-          // notification6_10();
-        });
+            double hoursD = weekendDef / 3600;
+            double minutesD = (weekendDef % 3600) / 60;
+            double secondsD = (weekendDef % 60);
+            hours = hoursD.toInt();
+            minutes = minutesD.toInt();
+            seconds = secondsD.toInt();
+            buttonText = "CLOCK OUT";
+            if (shiftId != null) {
+              if (utcOffset != null) {
+                notification5_55();
+                notification6_05();
+              }
+            }
+          });
+        }
       }
     });
   }
@@ -809,6 +730,17 @@ class _HrDashboardState extends State<HrDashboard>
       setState(() {
         team = onValue.docs.length;
       });
+    });
+    FirebaseFirestore.instance
+        .collection('employees')
+        .doc(uid)
+        .snapshots()
+        .listen((onValue) async {
+      if (mounted) {
+        setState(() {
+          leaveData = onValue.data()!['leaves'] ?? [];
+        });
+      }
     });
   }
 
@@ -825,11 +757,6 @@ class _HrDashboardState extends State<HrDashboard>
         shiftName = onValue.data()!["shiftName"];
         weekendDefi = onValue.data()!["weekendDef"];
       });
-
-      notification8_50();
-      notification9_10();
-      notification5_50();
-      notification6_10();
     });
   }
 
@@ -842,14 +769,6 @@ class _HrDashboardState extends State<HrDashboard>
 
   @override
   Widget build(BuildContext context) {
-    ScreenUtil.init(
-        BoxConstraints(
-            maxWidth: MediaQuery.of(context).size.width,
-            maxHeight: MediaQuery.of(context).size.height),
-        designSize: Size(360, 690),
-        context: context,
-        minTextAdapt: true,
-        orientation: Orientation.portrait);
     return Scaffold(
         backgroundColor: Colors.grey.shade100,
         body: SingleChildScrollView(
@@ -869,10 +788,6 @@ class _HrDashboardState extends State<HrDashboard>
                 ? Container()
                 : Center(
                     child: InkWell(
-                      onTap: () {
-                        print("pressed");
-                        notification6_10();
-                      },
                       child: Container(
                         margin: const EdgeInsets.only(top: 5, bottom: 5),
                         child: Text(
@@ -887,142 +802,6 @@ class _HrDashboardState extends State<HrDashboard>
                     ),
                   ),
             const SizedBox(height: 18),
-            // OfflineBuilder(connectivityBuilder: (
-            //   BuildContext context,
-            //   ConnectivityResult connectivity2,
-            //   Widget child,
-            // ) {
-            //   if (connectivity2 == conT.ConnectivityResult.none) {
-            //     return Container(
-            //       height: 150,
-            //       width: 150,
-            //       decoration: const BoxDecoration(
-            //           gradient: LinearGradient(
-            //               tileMode: TileMode.clamp,
-            //               begin: Alignment.topCenter,
-            //               end: Alignment.bottomCenter,
-            //               colors: [purpleLight, purpleDark]),
-            //           shape: BoxShape.circle),
-            //       child: InkWell(
-            //         onTap: () {
-            //           ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-            // backgroundColor: Colors.white,
-            //               content: Text("No Internet Connection")));
-            //         },
-            //         child: Column(
-            //           mainAxisAlignment: MainAxisAlignment.center,
-            //           crossAxisAlignment: CrossAxisAlignment.center,
-            //           children: [
-            //             Image.asset(
-            //               'assets/Group.png',
-            //               height: 50,
-            //               width: 50,
-            //             ),
-            //             const SizedBox(height: 15),
-            //             Text(buttonText,
-            //                 style: const TextStyle(
-            //                     color: Colors.white, fontSize: 15)),
-            //           ],
-            //         ),
-            //       ),
-            //     );
-            //   } else {
-            //     return child;
-            //   }
-            // }, builder: (BuildContext context) {
-            //   return Container(
-            //       height: 150,
-            //       width: 150,
-            //       decoration: const BoxDecoration(
-            //           gradient: LinearGradient(
-            //               tileMode: TileMode.clamp,
-            //               begin: Alignment.topCenter,
-            //               end: Alignment.bottomCenter,
-            //               colors: [purpleLight, purpleDark]),
-            //           shape: BoxShape.circle),
-            //       child: InkWell(
-            //           onTap: () {
-            //             if (buttonText == "CLOCK OUT") {
-            //               if (locationId != null) {
-            //                 _getOfficeLocation();
-            //                 determinePosition();
-            //                 setState(() {
-            //                   Future.delayed(const Duration(milliseconds: 150),
-            //                       () {
-            //                     location == "ON"
-            //                         ? _calculations()
-            //                         : noLocationCheckin();
-            //                   });
-            //                 });
-            //               } else {
-            //                 noLocationCheckin();
-            //               }
-            //             } else if (shiftId != null) {
-            //               // if (weekend == 1) {
-            //               if (weekendDefi.contains(
-            //                       "${DateFormat('EEE').format(DateTime.now())}${DateFormat("M").format(DateTime.now())}") ||
-            //                   weekendDefi.contains(
-            //                       "${DateFormat('EEE').format(DateTime.now())}0")) {
-            //                 Fluttertoast.showToast(
-            //                     msg: "Today is not a working day");
-            //               } else {
-            //                 if (locationId != null) {
-            //                   _getOfficeLocation();
-            //                   determinePosition();
-            //                   setState(() {
-            //                     Future.delayed(
-            //                         const Duration(milliseconds: 150), () {
-            //                       location == "ON"
-            //                           ? _calculations()
-            //                           : noLocationCheckin();
-            //                     });
-            //                   });
-            //                 } else {
-            //                   noLocationCheckin();
-            //                 }
-            //               }
-            //             } else {
-            //               if (DateFormat('EEEE').format(DateTime.now()) !=
-            //                       "Saturday" ||
-            //                   DateFormat('EEEE').format(DateTime.now()) !=
-            //                       "Sunday") {
-            //                 if (locationId != null) {
-            //                   _getOfficeLocation();
-            //                   determinePosition();
-            //                   setState(() {
-            //                     Future.delayed(
-            //                         const Duration(milliseconds: 150), () {
-            //                       location == "ON"
-            //                           ? _calculations()
-            //                           : noLocationCheckin();
-            //                     });
-            //                   });
-            //                 } else {
-            //                   noLocationCheckin();
-            //                 }
-            //               } else {
-            //                 Fluttertoast.showToast(
-            //                     msg: "Today is not a working day");
-            //               }
-            //             }
-            //           },
-            //           child: Column(
-            //             mainAxisAlignment: MainAxisAlignment.center,
-            //             crossAxisAlignment: CrossAxisAlignment.center,
-            //             children: [
-            //               Image.asset(
-            //                 'assets/Group.png',
-            //                 height: 50,
-            //                 width: 50,
-            //               ),
-            //               const SizedBox(height: 15),
-            //               Text(buttonText,
-            //                   style: const TextStyle(
-            //                       color: Colors.white, fontSize: 15)),
-            //             ],
-            //           )));
-            // }),
-
             OfflineBuilder(connectivityBuilder: (
               BuildContext context,
               ConnectivityResult connectivity2,
@@ -1148,7 +927,6 @@ class _HrDashboardState extends State<HrDashboard>
                         ],
                       )));
             }),
-
             const SizedBox(height: 25),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -1200,9 +978,13 @@ class _HrDashboardState extends State<HrDashboard>
                                       : DateFormat('K:mm a')
                                           .format(checkinTime.toDate())
                                           .toString()
-                                  : DateFormat('K:mm a')
-                                      .format(checkinTime.toDate())
-                                      .toString(),
+                                  : checkinTime != null
+                                      ? DateFormat('K:mm a')
+                                          .format(checkinTime.toDate())
+                                          .toString()
+                                      : DateFormat('K:mm a')
+                                          .format(DateTime.now())
+                                          .toString(),
                           style: const TextStyle(
                               fontFamily: "Poppins",
                               color: Colors.black,
@@ -1271,10 +1053,10 @@ class _HrDashboardState extends State<HrDashboard>
                         margin: const EdgeInsets.only(top: 5),
                         child: Text(
                           buttonText == "CLOCK OUT"
-                              ? "$hours : $minutes "
+                              ? "$hours : $minutes : $seconds"
                               : todaysAttendance == "yes"
                                   ? todayhrs == null
-                                      ? "$hours : $minutes"
+                                      ? "$hours : $minutes : $seconds"
                                       : todayhrs!
                                   : "-- : --",
                           style: const TextStyle(
@@ -1345,29 +1127,27 @@ class _HrDashboardState extends State<HrDashboard>
     return 12742 * asin(sqrt(a));
   }
 
-  loc.Location? location;
-
   determinePosition() async {
-    location = loc.Location();
+    loc.Location location = loc.Location();
     bool serviceEnabled;
     PermissionStatus _permissionGranted;
-    serviceEnabled = await location!.serviceEnabled();
+    serviceEnabled = await location.serviceEnabled();
     if (!serviceEnabled) {
-      serviceEnabled = await location!.requestService();
+      serviceEnabled = await location.requestService();
       if (!serviceEnabled) {
         return Future.error('Location services are disabled.');
       }
     }
-    _permissionGranted = await location!.hasPermission();
+    _permissionGranted = await location.hasPermission();
     if (_permissionGranted == PermissionStatus.denied) {
-      _permissionGranted = await location!.requestPermission();
+      _permissionGranted = await location.requestPermission();
       if (_permissionGranted != PermissionStatus.granted) {
         return Future.error(
             'Location permissions are permanently denied, we cannot request permissions.');
       }
     }
 
-    LocationData position = await location!.getLocation();
+    LocationData position = await location.getLocation();
     currentLat = position.latitude;
     currentLng = position.longitude;
     Map<String, String> markPlace = Map();
@@ -1380,8 +1160,9 @@ class _HrDashboardState extends State<HrDashboard>
         placemarks.first.locality!;
     apiCall(timeZones.indexWhere(
         (i) => placemarks.first.country!.toUpperCase() == i['country']));
-
-    setState(() {});
+    if (mounted) {
+      setState(() {});
+    }
   }
 
 //geting office location
@@ -1427,9 +1208,9 @@ class _HrDashboardState extends State<HrDashboard>
       double totalDistance = 0;
       totalDistance = calculateDistance(
           data[0]["lat"], data[0]["lng"], data[1]["lat"], data[1]["lng"]);
-      double disMeters = totalDistance * 1000;
+      double disMeters = totalDistance * 300;
 
-      if (disMeters < 1000) {
+      if (disMeters < 300) {
         if (buttonText == "CLOCK IN") {
           checkin();
         } else if (buttonText == "CLOCK OUT") {
@@ -1455,10 +1236,6 @@ class _HrDashboardState extends State<HrDashboard>
   checkin() async {
     setState(() {
       buttonText = "CLOCK OUT";
-      // notification8_50();
-      // notification9_10();
-      // notification5_50();
-      // notification6_10();
     });
     var a;
     var b;
@@ -1492,13 +1269,13 @@ class _HrDashboardState extends State<HrDashboard>
         : _timeDiff.truncateToDouble();
     await FirebaseFirestore.instance
         .collection('attendance')
-        .where("empId", isEqualTo: "$uid")
+        .where("empId", isEqualTo: uid)
         .where("date",
             isEqualTo: DateFormat('MMMM dd yyyy').format(currentTime!))
         .get()
         .then((onValue) async {
-      if (onValue.docs.length != 0) {
-        await FirebaseFirestore.instance
+      if (onValue.docs.isNotEmpty) {
+        FirebaseFirestore.instance
             .collection('attendance')
             .doc(onValue.docs[0].id)
             .snapshots()
@@ -1520,25 +1297,29 @@ class _HrDashboardState extends State<HrDashboard>
       } else {
         FirebaseFirestore.instance
             .runTransaction((Transaction transaction) async {
-              DocumentReference reference =
-                  FirebaseFirestore.instance.collection("attendance").doc();
-              await reference.set({
-                "date": DateFormat('MMMM dd yyyy').format(currentTime!),
-                "reportingToId": reportingTo,
-                "checkin": FieldValue.serverTimestamp(),
-                "empId": uid,
-                "late":
-                    "${_hr.toStringAsFixed(0)} hrs & ${_minute.toStringAsFixed(0)} mins",
-                "companyId": "$companyId",
-                "docId": reference.id,
-                "checkout": null,
-                "month": DateFormat('MMMM yyyy').format(currentTime!),
+          DocumentReference reference =
+              FirebaseFirestore.instance.collection("attendance").doc();
+
+          await reference.set({
+            "date": DateFormat('MMMM dd yyyy').format(currentTime!),
+            "reportingToId": reportingTo,
+            "checkin": FieldValue.serverTimestamp(),
+            "empId": uid,
+            "name": empName,
+            "late":
+                "${_hr.toStringAsFixed(0)} hrs & ${_minute.toStringAsFixed(0)} mins",
+            "companyId": "$companyId",
+            "docId": reference.id,
+            "checkout": null,
+            "month": DateFormat('MMMM yyyy').format(currentTime!),
+          }).whenComplete(() {
+            if (shiftId != null) {
+              Future.delayed(const Duration(milliseconds: 950), () {
+                autoCheckout(reference.id);
               });
-            })
-            .then(
-              (onValue) {},
-            )
-            .catchError((e) {});
+            }
+          });
+        }).catchError((e) {});
       }
     });
   }
@@ -1580,26 +1361,75 @@ class _HrDashboardState extends State<HrDashboard>
               return TextButton(
                 child: const Text('Yes'),
                 onPressed: () {
-                  setState(() {
-                    buttonText = "CLOCK IN";
-                    // notification8_50();
-                    // notification9_10();
-                    // notification5_50();
-                    // notification6_10();
-                  });
+                  if (shiftId != null) {
+                    String date1 =
+                        "${DateFormat("yyyy-MM-dd ").format(checkinTime.toDate())}" +
+                            "${DateFormat("HH:mm").format(DateFormat.jm().parse(to))}";
+                    var xxx = DateFormat("yyyy-MM-dd HH:mm").parse(date1);
 
-                  FirebaseFirestore.instance
-                      .runTransaction((Transaction transaction) async {
-                    DocumentReference reference = FirebaseFirestore.instance
-                        .collection("attendance")
-                        .doc(docId);
-                    await reference.update({
-                      "checkout": FieldValue.serverTimestamp(),
-                      "workHours": "$hours : $minutes : $seconds"
+                    int a = xxx.difference(checkinTime.toDate()).inSeconds;
+                    int b = DateTime.parse(
+                            currentTime!.toString().replaceAll('Z', ''))
+                        .difference(checkinTime.toDate())
+                        .inSeconds;
+
+                    setState(() {
+                      buttonText = "CLOCK IN";
+                      hours = 0;
+                      minutes = 0;
+                      seconds = 0;
                     });
-                  }).catchError((e) {});
-                  setState(() {});
-                  Navigator.pop(context);
+                    if (a < b) {
+                      double hoursD = a / 3600;
+                      double minutesD = (a % 3600) / 60;
+                      double secondsD = (a % 60);
+                      FirebaseFirestore.instance
+                          .runTransaction((Transaction transaction) async {
+                        DocumentReference reference = FirebaseFirestore.instance
+                            .collection("attendance")
+                            .doc(docId);
+                        await reference.update({
+                          "checkout": FieldValue.serverTimestamp(),
+                          "workHours":
+                              "${hoursD.toInt()} : ${minutesD.toInt()} : ${secondsD.toInt()}"
+                        });
+                      }).catchError((e) {});
+                      setState(() {});
+                      Navigator.pop(context);
+                    } else {
+                      FirebaseFirestore.instance
+                          .runTransaction((Transaction transaction) async {
+                        DocumentReference reference = FirebaseFirestore.instance
+                            .collection("attendance")
+                            .doc(docId);
+                        await reference.update({
+                          "checkout": FieldValue.serverTimestamp(),
+                          "workHours": "$hours : $minutes : $seconds"
+                        });
+                      }).catchError((e) {});
+                      setState(() {});
+                      Navigator.pop(context);
+                    }
+                  } else {
+                    FirebaseFirestore.instance
+                        .runTransaction((Transaction transaction) async {
+                      DocumentReference reference = FirebaseFirestore.instance
+                          .collection("attendance")
+                          .doc(docId);
+                      await reference.update({
+                        "checkout": FieldValue.serverTimestamp(),
+                        "workHours": "$hours : $minutes : $seconds"
+                      }).whenComplete(() {
+                        setState(() {
+                          buttonText = "CLOCK IN";
+                          hours = 0;
+                          minutes = 0;
+                          seconds = 0;
+                          Navigator.pop(context);
+                        });
+                      });
+                    }).catchError((e) {});
+                  }
                 },
               );
             })
@@ -1621,6 +1451,18 @@ class _HrDashboardState extends State<HrDashboard>
                 MaterialPageRoute(
                     builder: (context) => const MainCheckInTeam()));
           }
+          // FirebaseFirestore.instance
+          //     .collection("employees")
+          //     .where("companyId", isEqualTo: "uDL9lWvnUqVedAegjdpB")
+          //     .get()
+          //     .then((value) {
+          //   for (int i = 0; i < value.docs.length; i++) {
+          //     FirebaseFirestore.instance
+          //         .collection("employees")
+          //         .doc(value.docs[i].id)
+          //         .update({"leaves": FieldValue.delete()});
+          //   }
+          // });
         } else if (title == "Announcements") {
           Navigator.push(context,
               MaterialPageRoute(builder: (context) => const Announcements()));
@@ -1714,8 +1556,8 @@ class UpperPortion extends StatelessWidget {
                               onTap: () {
                                 Navigator.of(context, rootNavigator: true).push(
                                     MaterialPageRoute(
-                                        builder: (context) => Notifications(
-                                            uid: uid, key: null)));
+                                        builder: (context) =>
+                                            const Notifications()));
                               },
                               child: Container(
                                 padding: const EdgeInsets.only(top: 73.0),

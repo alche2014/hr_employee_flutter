@@ -56,9 +56,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
         backgroundColor: Colors.grey.shade100,
         body: Column(crossAxisAlignment: CrossAxisAlignment.center, children: [
           UpperPortion(userId: uid, title: "Settings", showBack: false),
-          SizedBox(
+          Container(
             width: MediaQuery.of(context).size.width - 40,
-            height: MediaQuery.of(context).size.height - 270,
+            height: MediaQuery.of(context).size.height - 260,
             child: SingleChildScrollView(
               child: Column(
                 children: [
@@ -122,8 +122,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     onTap: () {
                       Navigator.of(context, rootNavigator: true).push(
                           MaterialPageRoute(
-                              builder: (context) =>
-                                  Notifications(uid: uid, key: null)));
+                              builder: (context) => const Notifications()));
                     },
                     child: Container(
                       padding: const EdgeInsets.symmetric(

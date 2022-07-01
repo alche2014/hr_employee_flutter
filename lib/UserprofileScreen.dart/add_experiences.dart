@@ -11,6 +11,7 @@ import 'package:hr_app/Constants/loadingDailog.dart';
 import 'package:hr_app/Constants/colors.dart';
 import 'package:hr_app/Constants/constants.dart';
 import 'package:hr_app/UserprofileScreen.dart/appbar.dart';
+import 'package:hr_app/main.dart';
 import 'dart:io';
 import 'package:intl/intl.dart';
 import 'package:month_picker_dialog/month_picker_dialog.dart';
@@ -36,7 +37,6 @@ class _AddExperienceState extends State<AddExperience> {
   var todateFormat;
   var fileName;
 
-  late String userId;
   var industryValue;
   bool checkedValue = false;
   String? empStatus;
@@ -48,9 +48,9 @@ class _AddExperienceState extends State<AddExperience> {
   TextEditingController headlineController = TextEditingController();
   TextEditingController descriptionController = TextEditingController();
   static var downloadUrl2;
-  static Future<String> uploadExperienceImage(image, userID) async {
+  static Future<String> uploadExperienceImage(image, uid) async {
     Reference storageRef =
-        FirebaseStorage.instance.ref().child("Experience/$userID.png");
+        FirebaseStorage.instance.ref().child("Experience/$uid.png");
     // UploadTask uploadTask = upload.putFile(image);
     final UploadTask uploadTask = storageRef.putFile(image);
     await (await uploadTask.whenComplete(() {})).ref.getDownloadURL();
@@ -60,7 +60,6 @@ class _AddExperienceState extends State<AddExperience> {
   @override
   void initState() {
     super.initState();
-    userId = widget.uid;
 
     //check internet connection
     connectivity = Connectivity();
@@ -452,20 +451,10 @@ class _AddExperienceState extends State<AddExperience> {
             content: Text("Kindly select start date",
                 style: TextStyle(color: Colors.black))));
       } else {
-        int guest = 0;
-        final user = FirebaseAuth.instance.currentUser!;
-
-        await FirebaseFirestore.instance
-            .collection("employees")
-            .where('uid', isEqualTo: user.uid)
-            .get()
-            .then((value) {
-          guest = value.docs.length;
-        });
         showLoadingDialog(context);
         DocumentReference chatroomRef = guest == 0
-            ? FirebaseFirestore.instance.collection("guests").doc(userId)
-            : FirebaseFirestore.instance.collection("employees").doc(userId);
+            ? FirebaseFirestore.instance.collection("guests").doc(uid)
+            : FirebaseFirestore.instance.collection("employees").doc(uid);
         Map<String, dynamic> serializedMessage = {
           "title": titlesController.text.isEmpty
               ? ""
@@ -538,20 +527,10 @@ class _AddExperienceState extends State<AddExperience> {
             content: Text("Kindly select start date",
                 style: TextStyle(color: Colors.black))));
       } else {
-        int guest = 0;
-        final user = FirebaseAuth.instance.currentUser!;
-
-        await FirebaseFirestore.instance
-            .collection("employees")
-            .where('uid', isEqualTo: user.uid)
-            .get()
-            .then((value) {
-          guest = value.docs.length;
-        });
         showLoadingDialog(context);
         DocumentReference qualifications = guest == 0
-            ? FirebaseFirestore.instance.collection("guests").doc(userId)
-            : FirebaseFirestore.instance.collection("employees").doc(userId);
+            ? FirebaseFirestore.instance.collection("guests").doc(uid)
+            : FirebaseFirestore.instance.collection("employees").doc(uid);
 
         qualifications.update({
           "workExperience": FieldValue.arrayRemove([widget.data])

@@ -30,7 +30,6 @@ class _AddDependentsInfoState extends State<AddDependentsInfo> {
   late StreamSubscription<ConnectivityResult> subscription;
   bool isNetwork = true;
   var dobFormat;
-  late String userId;
   var relation;
   DateTime? dob;
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
@@ -40,7 +39,6 @@ class _AddDependentsInfoState extends State<AddDependentsInfo> {
   @override
   void initState() {
     super.initState();
-    userId = widget.uid;
 
     //check internet connection
     connectivity = Connectivity();
@@ -177,7 +175,9 @@ class _AddDependentsInfoState extends State<AddDependentsInfo> {
                                 'Father',
                                 'Sister',
                                 'Brother',
-                                'Spouse'
+                                'Spouse',
+                                'Son',
+                                'Daughter'
                               ].map<DropdownMenuItem<String>>(
                                 (String value) {
                                   return DropdownMenuItem<String>(
@@ -213,25 +213,12 @@ class _AddDependentsInfoState extends State<AddDependentsInfo> {
   validateAndSave() async {
     final form = _formKey.currentState;
     if (form!.validate()) {
-      int guest = 0;
-      final user = FirebaseAuth.instance.currentUser!;
-
-      await FirebaseFirestore.instance
-          .collection("employees")
-          .where('uid', isEqualTo: user.uid)
-          .get()
-          .then((value) {
-        guest = value.docs.length;
-      });
       showLoadingDialog(context);
       DocumentReference dependents = guest == 0
-          ? FirebaseFirestore.instance.collection("guests").doc(userId)
-          : FirebaseFirestore.instance.collection("employees").doc(userId);
+          ? FirebaseFirestore.instance.collection("guests").doc(uid)
+          : FirebaseFirestore.instance.collection("employees").doc(uid);
       Map<String, dynamic> serializedMessage = {
-        "dob": ageController.text.isEmpty
-            ? ""
-            : ageController.text[0].toUpperCase() +
-                ageController.text.substring(1).toString(),
+        "dob": dobFormat,
         "name": nameController.text.isEmpty
             ? ""
             : nameController.text[0].toUpperCase() +
@@ -274,20 +261,10 @@ class _AddDependentsInfoState extends State<AddDependentsInfo> {
   validateAndUpdate() async {
     final form = _formKey.currentState;
     if (form!.validate()) {
-      int guest = 0;
-      final user = FirebaseAuth.instance.currentUser!;
-
-      await FirebaseFirestore.instance
-          .collection("employees")
-          .where('uid', isEqualTo: user.uid)
-          .get()
-          .then((value) {
-        guest = value.docs.length;
-      });
       showLoadingDialog(context);
       DocumentReference dependents = guest == 0
-          ? FirebaseFirestore.instance.collection("guests").doc(userId)
-          : FirebaseFirestore.instance.collection("employees").doc(userId);
+          ? FirebaseFirestore.instance.collection("guests").doc(uid)
+          : FirebaseFirestore.instance.collection("employees").doc(uid);
       dependents.update({
         "dependentsInfo": FieldValue.arrayRemove([widget.data])
       });

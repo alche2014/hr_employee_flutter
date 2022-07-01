@@ -2,9 +2,11 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_offline/flutter_offline.dart';
 import 'package:flutter_signin_button/flutter_signin_button.dart';
 import 'package:hr_app/Constants/loadingDailog.dart';
 import 'package:connectivity/connectivity.dart' as conT;
+import 'package:hr_app/MainApp/Login/email_login.dart';
 import 'package:hr_app/main.dart';
 
 import 'auth.dart';
@@ -74,23 +76,26 @@ class _GoogleLoginState extends State<GoogleLogin> {
             mainAxisSize: MainAxisSize.max,
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
-              // Container(
-              //   margin: const EdgeInsets.only(bottom: 60),
-              //   child: const Text("",
-              //       style: TextStyle(
-              //           color: Color(0xFF882020),
-              //           fontFamily: "Overlock",
-              //           fontStyle: FontStyle.normal,
-              //           fontWeight: FontWeight.normal,
-              //           fontSize: 30)),
-              // ),
               const SizedBox(height: 300),
+              SignInButton(Buttons.Email, onPressed: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const EmailLoginScreen()));
+              }),
+              const SizedBox(height: 10),
+              const Text("OR",
+                  style: TextStyle(
+                      color: Colors.white,
+                      fontFamily: "Overlock",
+                      fontSize: 30)),
+              const SizedBox(height: 10),
               _signInButton(),
               Center(
                 child: Container(
                   margin: const EdgeInsets.only(left: 70, right: 70),
                   child: const Text(
-                      "By clicking Sign in button , you agree to our Terms & Privacy policy.",
+                      "By clicking Sign in button, you agree to our Terms & Privacy policy.",
                       textAlign: TextAlign.center,
                       style: TextStyle(
                           color: Colors.white,
@@ -106,167 +111,161 @@ class _GoogleLoginState extends State<GoogleLogin> {
       ),
     );
   }
-  /* This button handles and check all existing domain and existing users in of company
- and  route or (Navigate) to screen according to the result */
 
   Widget _signInButton() {
-    return
-        //OfflineBuilder(connectivityBuilder: (
-        // BuildContext context,
-        // ConnectivityResult connectivity2,
-        // Widget child,
-        // )
-        // {
-        // if (connectivity2 == conT.ConnectivityResult.none) {
-        // return
-        //  SignInButton(
-        //   Buttons.Google,
-        //   onPressed: () {
-        //     ScaffoldMessenger.of(context).showSnackBar(
-        //         const SnackBar(
-        // backgroundColor: Colors.white,content: Text("No Internet Connection")));
-        //   },
-        // );
-        // } else {
-        //   return child;
-        //  }
-        // }, builder: (BuildContext context) {
-        //return
-        SignInButton(
-      Buttons.Google,
-      onPressed: () {
-        authService.googleSignIn().whenComplete(() async {
-          final User? user = FirebaseAuth.instance.currentUser;
+    return OfflineBuilder(connectivityBuilder: (
+      BuildContext context,
+      ConnectivityResult connectivity2,
+      Widget child,
+    ) {
+      if (connectivity2 == conT.ConnectivityResult.none) {
+        return SignInButton(
+          Buttons.Google,
+          onPressed: () {
+            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                backgroundColor: Colors.white,
+                content: Text("No Internet Connection")));
+          },
+        );
+      } else {
+        return child;
+      }
+    }, builder: (BuildContext context) {
+      return SignInButton(
+        Buttons.Google,
+        onPressed: () {
+          authService.googleSignIn().whenComplete(() async {
+            final User? user = FirebaseAuth.instance.currentUser;
 
-          bool _result = await AuthService().userExist(user);
+            bool _result = await AuthService().userExist(user);
 
-          if (_result) {
-            showLoadingDialog(context);
+            if (_result) {
+              showLoadingDialog(context);
 
-            bool _result2 = await AuthService().guestExist(user);
+              bool _result2 = await AuthService().guestExist(user);
 
-            if (_result2) {
-              bool domainExist = await AuthService().domainExist(user!);
-              String? genderEmpstatus;
+              if (_result2) {
+                bool domainExist = await AuthService().domainExist(user!);
 
-              if (domainExist) {
-                List domainList = [];
-                String? userEmail = user.email;
-                var domainPart = userEmail!.split('@');
-                await FirebaseFirestore.instance
-                    .collection("company")
-                    .get()
-                    .then((onValue) {
-                  final List<DocumentSnapshot> documents = onValue.docs;
+                if (domainExist) {
+                  List domainList = [];
+                  String? userEmail = user.email;
+                  var domainPart = userEmail!.split('@');
+                  await FirebaseFirestore.instance
+                      .collection("company")
+                      .get()
+                      .then((onValue) {
+                    final List<DocumentSnapshot> documents = onValue.docs;
 
-                  for (int i = 0; i < documents.length; i++) {
-                    domainList = documents[i]["domain"];
-                    if (domainList.contains(domainPart[1])) {
-                      FirebaseFirestore.instance
-                          .collection("employees")
-                          .doc(user.uid)
-                          .set({
-                        'uid': user.uid,
-                        'email': "${user.email}",
-                        'imagePath': "${user.photoURL}",
-                        'displayName': "${user.displayName}",
-                        "companyId": documents[i].id,
-                        'timeStamp': DateTime.now(),
-                        'empId': null,
-                        "active": true,
-                        "containsId": false
-                      });
-                      break;
+                    for (int i = 0; i < documents.length; i++) {
+                      domainList = documents[i]["domain"];
+                      if (domainList.contains(domainPart[1])) {
+                        FirebaseFirestore.instance
+                            .collection("employees")
+                            .doc(user.uid)
+                            .set({
+                          'uid': user.uid,
+                          'email': "${user.email}",
+                          'imagePath': "${user.photoURL}",
+                          'displayName': "${user.displayName}",
+                          "companyId": documents[i].id,
+                          'timeStamp': DateTime.now(),
+                          'empId': null,
+                          "active": true,
+                          "containsId": false
+                        });
+                        break;
+                      }
                     }
+                  });
+                  bool firstTimeProfile =
+                      await AuthService().firstTimeEmpLogin(user);
+                  if (firstTimeProfile) {
+                    Navigator.of(context).pushNamedAndRemoveUntil(
+                        '/firstTimeForm', (Route<dynamic> route) => false);
+                  } else {
+                    FirebaseFirestore.instance
+                        .collection('employees')
+                        .doc(user.uid)
+                        .snapshots()
+                        .listen((onValue) {
+                      setState(() {
+                        uid = user.uid;
+                        designation =
+                            onValue.data()!["designation"] ?? "Designation";
+                        department =
+                            onValue.data()!["department"] ?? "Department";
+                        locationId = onValue.data()!["locationId"];
+                        shiftId = onValue.data()!["shiftId"];
+                        companyId = onValue.data()!["companyId"];
+                        reportingTo = onValue.data()!['reportingToId'];
+                        imagePath = onValue.data()!['imagePath'];
+                        empName = onValue.data()!['displayName'];
+                        empEmail = onValue.data()!['email'];
+                        leaveData = onValue.data()!['leaves'] ?? [];
+                        joiningDate = onValue.data()!['joiningDate'] ?? "";
+                      });
+                    });
+                    Navigator.of(context).pushNamedAndRemoveUntil(
+                        '/app', (Route<dynamic> route) => false);
                   }
-                });
-                bool firstTimeProfile =
-                    await AuthService().firstTimeEmpLogin(user);
-                if (firstTimeProfile) {
-                  Navigator.of(context).pushNamedAndRemoveUntil(
-                      '/firstTimeForm', (Route<dynamic> route) => false);
                 } else {
                   FirebaseFirestore.instance
-                      .collection('employees')
+                      .collection("guests")
                       .doc(user.uid)
-                      .snapshots()
-                      .listen((onValue) {
-                    setState(() {
-                      uid = user.uid;
-                      designation =
-                          onValue.data()!["designation"] ?? "Designation";
-                      department =
-                          onValue.data()!["department"] ?? "Department";
-                      locationId = onValue.data()!["locationId"];
-                      shiftId = onValue.data()!["shiftId"];
-                      companyId = onValue.data()!["companyId"];
-                      reportingTo = onValue.data()!['reportingToId'];
-                      imagePath = onValue.data()!['imagePath'];
-                      empName = onValue.data()!['displayName'];
-                      empEmail = onValue.data()!['email'];
-                      leaveData = onValue.data()!['leaves'] ?? [];
-                      joiningDate = onValue.data()!['joiningDate'] ?? "";
-                    });
+                      .set({
+                    'uid': user.uid,
+                    'email': "${user.email}",
+                    'imagePath': "${user.photoURL}",
+                    'displayName': "${user.displayName}",
+                    'timeStamp': DateTime.now(),
+                    'empId': null,
+                    "containsId": false
                   });
-                  Navigator.of(context).pushNamedAndRemoveUntil(
-                      '/app', (Route<dynamic> route) => false);
+                  bool firstTimeProfile =
+                      await AuthService().firstTimeLogin(user);
+                  if (firstTimeProfile) {
+                    Navigator.of(context).pushNamedAndRemoveUntil(
+                        '/firstTimeForm', (Route<dynamic> route) => false);
+                  } else {
+                    Navigator.of(context).pushNamedAndRemoveUntil(
+                        '/invalidUser', (Route<dynamic> route) => false);
+                  }
                 }
               } else {
-                FirebaseFirestore.instance
-                    .collection("guests")
-                    .doc(user.uid)
-                    .set({
-                  'uid': user.uid,
-                  'email': "${user.email}",
-                  'imagePath': "${user.photoURL}",
-                  'displayName': "${user.displayName}",
-                  'timeStamp': DateTime.now(),
-                  'empId': null,
-                  "containsId": false
-                });
-                bool firstTimeProfile =
-                    await AuthService().firstTimeLogin(user);
-                if (firstTimeProfile) {
-                  Navigator.of(context).pushNamedAndRemoveUntil(
-                      '/firstTimeForm', (Route<dynamic> route) => false);
-                } else {
-                  Navigator.of(context).pushNamedAndRemoveUntil(
-                      '/invalidUser', (Route<dynamic> route) => false);
-                }
+                Navigator.of(context).pushNamedAndRemoveUntil(
+                    '/invalidUser', (Route<dynamic> route) => false);
               }
             } else {
-              Navigator.of(context).pushNamedAndRemoveUntil(
-                  '/invalidUser', (Route<dynamic> route) => false);
-            }
-          } else {
-            FirebaseFirestore.instance
-                .collection('employees')
-                .doc(user!.uid)
-                .snapshots()
-                .listen((onValue) {
-              setState(() {
-                print(
-                    "logggggggggggggggggggggggggggggggggggggggggggggeeeesinnnn");
-                uid = user.uid;
-                designation = onValue.data()!["designation"] ?? "Designation";
-                department = onValue.data()!["department"] ?? "Department";
-                locationId = onValue.data()!["locationId"];
-                shiftId = onValue.data()!["shiftId"];
-                companyId = onValue.data()!["companyId"];
-                reportingTo = onValue.data()!['reportingToId'];
-                imagePath = onValue.data()!['imagePath'];
-                empName = onValue.data()!['displayName'];
-                empEmail = onValue.data()!['email'];
-                leaveData = onValue.data()!['leaves'] ?? [];
-                joiningDate = onValue.data()!['joiningDate'] ?? "";
+              FirebaseFirestore.instance
+                  .collection('employees')
+                  .doc(user!.uid)
+                  .snapshots()
+                  .listen((onValue) {
+                if (mounted) {
+                  setState(() {
+                    uid = user.uid;
+                    designation =
+                        onValue.data()!["designation"] ?? "Designation";
+                    department = onValue.data()!["department"] ?? "Department";
+                    locationId = onValue.data()!["locationId"];
+                    shiftId = onValue.data()!["shiftId"];
+                    companyId = onValue.data()!["companyId"];
+                    reportingTo = onValue.data()!['reportingToId'];
+                    imagePath = onValue.data()!['imagePath'];
+                    empName = onValue.data()!['displayName'];
+                    empEmail = onValue.data()!['email'];
+                    leaveData = onValue.data()!['leaves'] ?? [];
+                    joiningDate = onValue.data()!['joiningDate'] ?? "";
+                  });
+                }
+                Navigator.of(context).pushNamedAndRemoveUntil(
+                    '/app', (Route<dynamic> route) => false);
               });
-              Navigator.of(context).pushNamedAndRemoveUntil(
-                  '/app', (Route<dynamic> route) => false);
-            });
-          }
-        });
-      },
-    );
-    //  });
+            }
+          });
+        },
+      );
+    });
   }
 }

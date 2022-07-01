@@ -40,10 +40,11 @@ class _FirstTimeFormState extends State<FirstTimeForm> {
   var gender;
   var dateOfBirth;
   var dropdownValue;
-  String? userId;
   late String _extension;
   late FileType _pickType;
   late DateTime dob;
+  int agex = 0;
+
   late String email;
   late String fatherName;
   late String phone;
@@ -72,15 +73,33 @@ class _FirstTimeFormState extends State<FirstTimeForm> {
     });
   }
 
-  loadFirebaseUser() async {
-    auth.User? firebaseUser = auth.FirebaseAuth.instance.currentUser;
-    userId = firebaseUser!.uid;
-  }
-
   @override
   void initState() {
     super.initState();
-    loadFirebaseUser();
+  }
+
+  calcuAge(DateTime dob) {
+    DateTime currentDate = DateTime.now();
+    var year = DateFormat('yyyy').format(dob);
+    var month = DateFormat('MM').format(dob);
+    var day = DateFormat('dd').format(dob);
+    var syear = int.parse(year);
+    var smonth = int.parse(month);
+    var sday = int.parse(day);
+    agex = currentDate.year - syear;
+
+    int month1 = currentDate.month;
+    int month2 = smonth;
+    if (month2 > month1) {
+      agex--;
+    } else if (month1 == month2) {
+      int day1 = currentDate.day;
+      int day2 = sday;
+      if (day2 > day1) {
+        agex--;
+      }
+    }
+    return agex;
   }
 
   static Reference storage = FirebaseStorage.instance.ref();
@@ -98,7 +117,7 @@ class _FirstTimeFormState extends State<FirstTimeForm> {
   Future pickImage() async {
     try {
       final image = await ImagePicker().pickImage(source: ImageSource.gallery);
-      profilePicUrl = await uploadUserImageToFireStorage(fileName, userId!);
+      profilePicUrl = await uploadUserImageToFireStorage(fileName, uid);
       if (image == null) return;
       setState(() {
         imagePath = image.path;
@@ -181,6 +200,7 @@ class _FirstTimeFormState extends State<FirstTimeForm> {
           setState(() {
             dob = (picker.adapter as DateTimePickerAdapter).value!;
             dobFormat = DateFormat('dd-MMM-yyyy').format(dob);
+            calcuAge(dob);
           });
         }).showDialog(context);
   }
@@ -196,7 +216,7 @@ class _FirstTimeFormState extends State<FirstTimeForm> {
               key: _formKey,
               child: Column(
                 children: [
-                  //----User Profile Image Uploading-----//
+                  //----User Profile Image  ng-----//
                   Center(
                     child: Padding(
                       padding: const EdgeInsets.only(
@@ -268,7 +288,7 @@ class _FirstTimeFormState extends State<FirstTimeForm> {
                   //-------------------------------------------------//
                   TextFormField(
                     textCapitalization: TextCapitalization.sentences,
-                    decoration: MyInputStyle('Father Name'),
+                    decoration: MyInputStyle("Father's Name"),
                     autovalidateMode: AutovalidateMode.onUserInteraction,
                     controller: fatherNameController,
                     focusNode: fatherNameFocus,
@@ -327,7 +347,7 @@ class _FirstTimeFormState extends State<FirstTimeForm> {
                       textInputAction: TextInputAction.next,
                       controller: phoneController,
                       style: TextFieldTextStyle(),
-                      decoration: TextPhoneFieldDecoration(defaultCode)),
+                      decoration: TextPhoneDecoration(defaultCode)),
                   const SizedBox(height: 10),
                   //-------------------------------------------------//
                   Container(
@@ -488,43 +508,44 @@ class _FirstTimeFormState extends State<FirstTimeForm> {
     Navigator.of(context).push(PageRouteBuilder(
         opaque: false,
         pageBuilder: (BuildContext context, _, __) =>
-            LoadingDialog(value: "Loading")));
+            const LoadingDialog(value: "Loading")));
   }
   //---Save data to firebase---//
 
   validateAndSave() async {
-    int guest = 0;
-    final user = FirebaseAuth.instance.currentUser!;
-
-    await FirebaseFirestore.instance
-        .collection("employees")
-        .where('uid', isEqualTo: user.uid)
-        .get()
-        .then((value) {
-      guest = value.docs.length;
-    });
     showLoadingDialog(context);
     FirebaseFirestore.instance.runTransaction((Transaction transaction) async {
       DocumentReference reference = guest == 0
-          ? FirebaseFirestore.instance.collection("guests").doc(userId)
-          : FirebaseFirestore.instance.collection("employees").doc(userId);
+          ? FirebaseFirestore.instance.collection("guests").doc(uid)
+          : FirebaseFirestore.instance.collection("employees").doc(uid);
+      setState(() {
+        imagePath = downloadUrl == null ? null : downloadUrl;
+        empName = nameController.text + " " + fatherNameController.text;
+      });
       await reference.update({
         "phone": defaultCode + " " + phoneController.text,
-        "email": emailController.text,
+        "otherEmail": emailController.text,
         "maritalStatus": dropdownValue,
         "name": nameController.text,
         "fatherName": fatherNameController.text,
         "dob": '$dobFormat',
+        "age": agex.toString(),
+        "displayName": nameController.text + " " + fatherNameController.text,
         "imagePath": downloadUrl == null ? null : downloadUrl,
         "gender": gender.toString() == "Gender.female" ? "Female" : "Male",
       });
     }).whenComplete(() {
-      Fluttertoast.showToast(msg: "Your  info is added successfully");
+      Fluttertoast.showToast(msg: "Your info is added successfully");
     }).catchError((e) {});
 
     Future.delayed(const Duration(milliseconds: 1150), () {
-      Navigator.of(context).pushReplacement(MaterialPageRoute(
-          builder: (context) => const MyProfileEdit(teamId: "")));
+      guest == 0
+          ? Navigator.of(context).pushAndRemoveUntil(
+              MaterialPageRoute(
+                  builder: (context) => const MyProfileEdit(teamId: "")),
+              (Route<dynamic> route) => false)
+          : Navigator.of(context)
+              .pushNamedAndRemoveUntil('/app', (Route<dynamic> route) => false);
     });
   }
 }

@@ -12,6 +12,7 @@ import 'package:hr_app/UserprofileScreen.dart/appbar.dart';
 import 'package:hr_app/Constants/colors.dart';
 import 'dart:io';
 import 'package:hr_app/Constants/constants.dart';
+import 'package:hr_app/main.dart';
 import 'package:month_picker_dialog/month_picker_dialog.dart';
 import 'package:intl/intl.dart';
 
@@ -30,7 +31,6 @@ class _EducationState extends State<Education> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   late String school;
   late String degree;
-  late String userId;
   late String field;
   late String notes;
   late String interest;
@@ -67,7 +67,6 @@ class _EducationState extends State<Education> {
         });
       }
     });
-    userId = widget.uid;
 
     if (widget.editable == true) {
       schoolController = TextEditingController(text: widget.data["school"]);
@@ -419,20 +418,10 @@ class _EducationState extends State<Education> {
             content: Text("Kindly select date",
                 style: TextStyle(color: Colors.black))));
       } else {
-        int guest = 0;
-        final user = FirebaseAuth.instance.currentUser!;
-
-        await FirebaseFirestore.instance
-            .collection("employees")
-            .where('uid', isEqualTo: user.uid)
-            .get()
-            .then((value) {
-          guest = value.docs.length;
-        });
         showLoadingDialog(context);
         DocumentReference qualifications = guest == 0
-            ? FirebaseFirestore.instance.collection("guests").doc(userId)
-            : FirebaseFirestore.instance.collection("employees").doc(userId);
+            ? FirebaseFirestore.instance.collection("guests").doc(uid)
+            : FirebaseFirestore.instance.collection("employees").doc(uid);
         qualifications.update({
           "education": FieldValue.arrayRemove([widget.data])
         });
@@ -491,21 +480,10 @@ class _EducationState extends State<Education> {
             content: Text("Kindly select date",
                 style: TextStyle(color: Colors.black))));
       } else {
-        int guest = 0;
-        final user = FirebaseAuth.instance.currentUser!;
-
-        await FirebaseFirestore.instance
-            .collection("employees") //your collectionref
-            .where('uid', isEqualTo: user.uid)
-            .get()
-            .then((value) {
-          // var count = 0;
-          guest = value.docs.length;
-        });
         showLoadingDialog(context);
         DocumentReference chatroomRef = guest == 0
-            ? FirebaseFirestore.instance.collection("guests").doc(userId)
-            : FirebaseFirestore.instance.collection("employees").doc(userId);
+            ? FirebaseFirestore.instance.collection("guests").doc(uid)
+            : FirebaseFirestore.instance.collection("employees").doc(uid);
         Map<String, dynamic> serializedMessage = {
           "school": schoolController.text.isEmpty
               ? ""

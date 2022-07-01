@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:hr_app/Constants/colors.dart';
 import 'package:hr_app/Constants/loadingDailog.dart';
 import 'package:hr_app/UserprofileScreen.dart/appbar.dart';
+import 'package:hr_app/main.dart';
 import 'package:intl/intl.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:hr_app/Constants/constants.dart';
@@ -28,7 +29,6 @@ class _AddTrainingsState extends State<AddTrainings> {
   late Connectivity connectivity;
   late StreamSubscription<ConnectivityResult> subscription;
   bool isNetwork = true;
-  late String userId;
   var fileName;
 
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
@@ -43,8 +43,8 @@ class _AddTrainingsState extends State<AddTrainings> {
   static var downloadUrl2;
   static Reference storage = FirebaseStorage.instance.ref();
 
-  static Future<String> uploadTrainingsImage(image, userID) async {
-    Reference upload = storage.child("Trainings/$userID.png");
+  static Future<String> uploadTrainingsImage(image, uid) async {
+    Reference upload = storage.child("Trainings/$uid.png");
     UploadTask uploadTask = upload.putFile(image);
     downloadUrl2 =
         await (await uploadTask.whenComplete(() {})).ref.getDownloadURL();
@@ -54,7 +54,6 @@ class _AddTrainingsState extends State<AddTrainings> {
   @override
   void initState() {
     super.initState();
-    userId = widget.uid;
 
     //check internet connection
     connectivity = Connectivity();
@@ -354,20 +353,10 @@ class _AddTrainingsState extends State<AddTrainings> {
   validateAndSave() async {
     final form = _formKey.currentState;
     if (form!.validate()) {
-      int guest = 0;
-      final user = FirebaseAuth.instance.currentUser!;
-
-      await FirebaseFirestore.instance
-          .collection("employees")
-          .where('uid', isEqualTo: user.uid)
-          .get()
-          .then((value) {
-        guest = value.docs.length;
-      });
       showLoadingDialog(context);
       DocumentReference trainings = guest == 0
-          ? FirebaseFirestore.instance.collection("guests").doc(userId)
-          : FirebaseFirestore.instance.collection("employees").doc(userId);
+          ? FirebaseFirestore.instance.collection("guests").doc(uid)
+          : FirebaseFirestore.instance.collection("employees").doc(uid);
       Map<String, dynamic> serializedMessage = {
         "name": nameController.text.isEmpty
             ? ""
@@ -404,20 +393,10 @@ class _AddTrainingsState extends State<AddTrainings> {
   validateAndUpdate() async {
     final form = _formKey.currentState;
     if (form!.validate()) {
-      int guest = 0;
-      final user = FirebaseAuth.instance.currentUser!;
-
-      await FirebaseFirestore.instance
-          .collection("employees")
-          .where('uid', isEqualTo: user.uid)
-          .get()
-          .then((value) {
-        guest = value.docs.length;
-      });
       showLoadingDialog(context);
       DocumentReference trainings = guest == 0
-          ? FirebaseFirestore.instance.collection("guests").doc(userId)
-          : FirebaseFirestore.instance.collection("employees").doc(userId);
+          ? FirebaseFirestore.instance.collection("guests").doc(uid)
+          : FirebaseFirestore.instance.collection("employees").doc(uid);
       trainings.update({
         "trainings": FieldValue.arrayRemove([widget.data])
       });

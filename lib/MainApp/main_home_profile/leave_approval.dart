@@ -49,6 +49,8 @@ class _LeaveApprovalScreenState extends State<LeaveApprovalScreen> {
   String? reporting;
   var leaves;
   var dayNo;
+  List hrToken = [];
+  List hrId = [];
 
   @override
   void initState() {
@@ -71,6 +73,7 @@ class _LeaveApprovalScreenState extends State<LeaveApprovalScreen> {
 
     loadLeaveInfo();
     loadEmployeeInfo();
+    loadAdminToken();
   }
 
   @override
@@ -146,7 +149,7 @@ class _LeaveApprovalScreenState extends State<LeaveApprovalScreen> {
                             alignment: Alignment.centerLeft,
                             child: CircleAvatar(
                               backgroundColor: Colors.transparent,
-                              radius: 50,
+                              radius: 45,
                               child: ClipRRect(
                                 clipBehavior: Clip.antiAlias,
                                 borderRadius: BorderRadius.circular(100),
@@ -200,7 +203,7 @@ class _LeaveApprovalScreenState extends State<LeaveApprovalScreen> {
                   ),
                   Container(
                     alignment: Alignment.center,
-                    height: 92,
+                    height: 96,
                     width: MediaQuery.of(context).size.width,
                     child: ListView.builder(
                         padding: const EdgeInsets.all(0),
@@ -225,38 +228,40 @@ class _LeaveApprovalScreenState extends State<LeaveApprovalScreen> {
                                         CrossAxisAlignment.center,
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
-                                      CircularPercentIndicator(
-                                        animationDuration: 1000,
-                                        animateFromLastPercent: true,
-                                        animation: true,
-                                        radius: 50.0,
-                                        lineWidth: 3.0,
-                                        percent: (leaves[index]!['taken'])
-                                                .toDouble() /
-                                            leaves[index]!['leaveQuota']
-                                                .toDouble(),
-                                        center: RichText(
-                                          text: TextSpan(
-                                            text:
-                                                '${leaves[index]!['leaveQuota']}/',
-                                            style: const TextStyle(
-                                                color: Color(0XFF5B5B5B),
-                                                fontSize: 11),
-                                            children: <TextSpan>[
-                                              TextSpan(
-                                                  text:
-                                                      "${(leaves[index]!['leaveQuota'] - leaves[index]!['taken']).toInt()}",
-                                                  style: const TextStyle(
-                                                      fontSize: 14,
-                                                      color: purpleDark,
-                                                      fontWeight:
-                                                          FontWeight.bold)),
-                                            ],
+                                      Container(
+                                        child: CircularPercentIndicator(
+                                          animationDuration: 1000,
+                                          animateFromLastPercent: true,
+                                          animation: true,
+                                          radius: 30.0,
+                                          lineWidth: 5.0,
+                                          percent: (leaves[index]!['taken'])
+                                                  .toDouble() /
+                                              leaves[index]!['leaveQuota']
+                                                  .toDouble(),
+                                          center: RichText(
+                                            text: TextSpan(
+                                              text:
+                                                  '${leaves[index]!['leaveQuota']}/',
+                                              style: const TextStyle(
+                                                  color: Color(0XFF5B5B5B),
+                                                  fontSize: 11),
+                                              children: <TextSpan>[
+                                                TextSpan(
+                                                    text:
+                                                        "${(leaves[index]!['leaveQuota'] - leaves[index]!['taken']).toInt()}",
+                                                    style: const TextStyle(
+                                                        fontSize: 14,
+                                                        color: purpleDark,
+                                                        fontWeight:
+                                                            FontWeight.bold)),
+                                              ],
+                                            ),
                                           ),
+                                          progressColor: purpleDark,
                                         ),
-                                        progressColor: purpleDark,
                                       ),
-                                      const SizedBox(height: 6),
+                                      const SizedBox(height: 8),
                                       Text(leaves[index]!["name"].toString(),
                                           style: const TextStyle(fontSize: 13)),
                                     ],
@@ -266,7 +271,7 @@ class _LeaveApprovalScreenState extends State<LeaveApprovalScreen> {
                         }),
                   ),
                   Container(
-                    height: MediaQuery.of(context).size.height / 1.6,
+                    height: MediaQuery.of(context).size.height / 1.8,
                     width: MediaQuery.of(context).size.width,
                     padding: const EdgeInsets.only(top: 10),
                     margin: const EdgeInsets.only(top: 10),
@@ -486,15 +491,13 @@ class _LeaveApprovalScreenState extends State<LeaveApprovalScreen> {
                                                         i++) {
                                                       if (leaveType ==
                                                           leaves[i]["name"]) {
-                                                        reference
-                                                            .update({
-                                                              "leaves": FieldValue
-                                                                  .arrayRemove([
-                                                                leaves[i]
-                                                              ])
-                                                            })
-                                                            .whenComplete(() {})
-                                                            .catchError((e) {});
+                                                        reference.update({
+                                                          "leaves": FieldValue
+                                                              .arrayRemove(
+                                                                  [leaves[i]])
+                                                        }).whenComplete(() {
+                                                          print("deleted");
+                                                        }).catchError((e) {});
                                                         Map<String?, dynamic>
                                                             serializedMessage =
                                                             {
@@ -519,15 +522,14 @@ class _LeaveApprovalScreenState extends State<LeaveApprovalScreen> {
                                                               dayNo.toDouble()
                                                         };
 
-                                                        reference
-                                                            .update({
-                                                              "leaves": FieldValue
-                                                                  .arrayUnion([
-                                                                serializedMessage
-                                                              ])
-                                                            })
-                                                            .whenComplete(() {})
-                                                            .catchError((e) {});
+                                                        reference.update({
+                                                          "leaves": FieldValue
+                                                              .arrayUnion([
+                                                            serializedMessage
+                                                          ])
+                                                        }).whenComplete(() {
+                                                          print("added");
+                                                        }).catchError((e) {});
                                                       }
                                                     }
                                                     for (int i = 0;
@@ -551,6 +553,7 @@ class _LeaveApprovalScreenState extends State<LeaveApprovalScreen> {
                                                         "checkin":
                                                             DateTime.now(),
                                                         "empId": widget.empId,
+                                                        "name": employeeName,
                                                         "late": "-",
                                                         "companyId":
                                                             "$companyId",
@@ -576,6 +579,53 @@ class _LeaveApprovalScreenState extends State<LeaveApprovalScreen> {
                                                       "approvalTime":
                                                           "${DateTime.now()}",
                                                     }).whenComplete(() {
+                                                      for (int j = 0;
+                                                          j < hrId.length;
+                                                          j++) {
+                                                        var note = FirebaseFunctions
+                                                            .instance
+                                                            .httpsCallable(
+                                                                'sendSpecificFcm');
+                                                        note.call({
+                                                          "fcmToken":
+                                                              "${hrToken[j]}",
+                                                          "employeeId":
+                                                              "${widget.empId}",
+                                                          "managerId":
+                                                              "$managerId",
+                                                          "receiverId":
+                                                              "${hrId[j]}",
+                                                          "timeStamp":
+                                                              "${DateTime.now()}",
+                                                          "docId": reference.id,
+                                                          "employeeName": "",
+                                                          "days": days,
+                                                          "payload": {
+                                                            "notification": {
+                                                              "title":
+                                                                  "Leave Approved",
+                                                              "body":
+                                                                  "$empName has approved $employeeName's $fromTo $leaveType",
+                                                              "sound":
+                                                                  "default",
+                                                              "badge": "1",
+                                                              "click_action":
+                                                                  "FLUTTER_NOTIFICATION_CLICK"
+                                                            },
+                                                            "data": {
+                                                              "employeeName":
+                                                                  "$employeeName",
+                                                              "employeeId":
+                                                                  "${widget.empId}",
+                                                              "managerId":
+                                                                  "$managerId",
+                                                              "leaveStatus":
+                                                                  "approved"
+                                                            }
+                                                          }
+                                                        });
+                                                      }
+
                                                       var note = FirebaseFunctions
                                                           .instance
                                                           .httpsCallable(
@@ -882,6 +932,23 @@ class _LeaveApprovalScreenState extends State<LeaveApprovalScreen> {
               ),
             ),
     );
+  }
+
+  loadAdminToken() {
+    hrToken.clear();
+    FirebaseFirestore.instance
+        .collection('employees')
+        .where("companyId", isEqualTo: companyId)
+        .where("roleName", isEqualTo: "HR Roles")
+        .get()
+        .then((value) {
+      setState(() {
+        for (int i = 0; i < value.docs.length; i++) {
+          hrToken.add(value.docs[i]['deviceToken']);
+          hrId.add(value.docs[i].id);
+        }
+      });
+    });
   }
 
 //for full day  leave

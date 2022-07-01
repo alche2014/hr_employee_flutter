@@ -102,8 +102,9 @@ class _TeamMemberInfoState extends State<TeamMemberInfo> {
                                         builder: (BuildContext context) =>
                                             Center(
                                                 child: LeaveHistory(
-                                                    value: "Leave History",
-                                                    memId: widget.teamId))));
+                                                    value: "Requests",
+                                                    memId: widget.teamId,
+                                                    team: false))));
                               },
                               iconColor: purpleDark,
                               title: Row(children: [

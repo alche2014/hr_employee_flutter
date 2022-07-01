@@ -39,8 +39,7 @@ class _PeroanlDetailState extends State<PeroanlDetail> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   bool checkedValue = false;
-  var gender;
-  String? imagePath;
+  var gender = null;
 
   String? path;
   var fileName;
@@ -52,7 +51,6 @@ class _PeroanlDetailState extends State<PeroanlDetail> {
   var image;
   bool? assetImage;
   bool? netImage;
-  String? userId;
 
   var cnicNum;
 
@@ -86,7 +84,7 @@ class _PeroanlDetailState extends State<PeroanlDetail> {
             Navigator.pop(context);
             PickedFile? image =
                 await _imagePicker.getImage(source: ImageSource.gallery);
-            imagePath = null;
+            imagePath = '';
             if (image != null) {
               setState(() {
                 _image = File(image.path);
@@ -101,7 +99,7 @@ class _PeroanlDetailState extends State<PeroanlDetail> {
             Navigator.pop(context);
             PickedFile? image =
                 await _imagePicker.getImage(source: ImageSource.camera);
-            imagePath = null;
+            imagePath = '';
             if (image != null) {
               setState(() {
                 _image = File(image.path);
@@ -125,7 +123,7 @@ class _PeroanlDetailState extends State<PeroanlDetail> {
       final image = await ImagePicker().pickImage(source: ImageSource.gallery);
       // if (image != null) {
       // await updateProgress('Uploading image, Please wait...');
-      profilePicUrl = await uploadUserImageToFireStorage(fileName, userId!);
+      profilePicUrl = await uploadUserImageToFireStorage(fileName, uid);
       if (image == null) return;
       setState(() {
         imagePath = image.path;
@@ -197,18 +195,18 @@ class _PeroanlDetailState extends State<PeroanlDetail> {
 
   static Reference storage = FirebaseStorage.instance.ref();
 
-  static Future<String> uploadUserImageToFireStorage(
-      image, String userID) async {
-    Reference upload = storage.child("images/$userID.png");
+  static Future<String> uploadUserImageToFireStorage(image, String uid) async {
+    Reference upload = storage.child("images/$uid.png");
     UploadTask uploadTask = upload.putFile(image);
     downloadUrl =
         await (await uploadTask.whenComplete(() {})).ref.getDownloadURL();
+    print("================================$downloadUrl");
     return downloadUrl.toString();
   }
 
   static var downloadUrl2;
-  static Future<String> uploadVaccinationImage(image, userID) async {
-    Reference upload = storage.child("Vacination/$userID.png");
+  static Future<String> uploadVaccinationImage(image, uid) async {
+    Reference upload = storage.child("Vacination/$uid.png");
     UploadTask uploadTask = upload.putFile(image);
     downloadUrl2 =
         await (await uploadTask.whenComplete(() {})).ref.getDownloadURL();
@@ -232,7 +230,6 @@ class _PeroanlDetailState extends State<PeroanlDetail> {
       }
     });
 
-    userId = widget.data["uid"];
     defaultCode = widget.data["phone"] == null || widget.data["phone"] == ""
         ? "+92"
         : widget.data["phone"].split(" ")[0];
@@ -329,13 +326,13 @@ class _PeroanlDetailState extends State<PeroanlDetail> {
                                     width: 140,
                                     height: 140,
                                     child: profilePicUrl == ''
-                                        ? imagePath == null
+                                        ? imagePath == '' || imagePath == null
                                             ? _image == null
                                                 ? Image.network(
                                                     'https://via.placeholder.com/150')
                                                 : Image.file(_image!,
                                                     fit: BoxFit.cover)
-                                            : Image.network(imagePath!,
+                                            : Image.network(imagePath,
                                                 fit: BoxFit.cover)
                                         : Image.file(_image!,
                                             fit: BoxFit.cover))),
@@ -665,28 +662,17 @@ class _PeroanlDetailState extends State<PeroanlDetail> {
   }
 
   validateAndSave() async {
-    int guest = 0;
-    final user = FirebaseAuth.instance.currentUser!;
-
-    await FirebaseFirestore.instance
-        .collection("employees") //your collectionref
-        .where('uid', isEqualTo: user.uid)
-        .get()
-        .then((value) {
-      // var count = 0;
-      guest = value.docs.length;
-    });
     final form = _formKey.currentState;
     if (form!.validate()) {
       showLoadingDialog(context);
-      imagePath == null
-          ? profilePicUrl = await uploadUserImageToFireStorage(_image, user.uid)
-          : imagePath;
+      if (_image != null) {
+        profilePicUrl = await uploadUserImageToFireStorage(_image, uid);
+      }
       FirebaseFirestore.instance
           .runTransaction((Transaction transaction) async {
         DocumentReference reference = guest == 0
-            ? FirebaseFirestore.instance.collection("guests").doc(userId)
-            : FirebaseFirestore.instance.collection("employees").doc(userId);
+            ? FirebaseFirestore.instance.collection("guests").doc(uid)
+            : FirebaseFirestore.instance.collection("employees").doc(uid);
         await reference.update({
           "displayName": nameController.text,
           "fatherName": fatherNameController.text == ""
@@ -705,10 +691,19 @@ class _PeroanlDetailState extends State<PeroanlDetail> {
           "fileName":
               fileName == "" || fileName == null ? fileName : downloadUrl2,
           "covidCheck": checkedValue,
-          "gender": gender.toString() == "Gender.female" ? "Female" : "Male",
+          "gender": gender == null
+              ? null
+              : gender.toString() == "Gender.female"
+                  ? "Female"
+                  : "Male",
         });
       }).whenComplete(() {
         Navigator.pop(context);
+        setState(() {
+          imagePath = profilePicUrl == "" || profilePicUrl == null
+              ? imagePath
+              : downloadUrl;
+        });
 
         Fluttertoast.showToast(msg: "Personal Detail is added successfully");
         Navigator.pop(context);

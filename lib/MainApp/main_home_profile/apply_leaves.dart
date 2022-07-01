@@ -120,6 +120,8 @@ class _AddLeaveState extends State<AddLeave>
     });
     if (shiftId != null) {
       _getShiftSchedule();
+    } else {
+      weekendDefi = [];
     }
     loadMPendingRequests();
     reportingTo == null ? print("not assigned") : loadManagerToken();
@@ -148,12 +150,15 @@ class _AddLeaveState extends State<AddLeave>
   loadMPendingRequests() {
     FirebaseFirestore.instance
         .collection('requests')
+        .where("empId", isEqualTo: uid)
         .where("leaveStatus", isEqualTo: "pending")
         .snapshots()
         .listen((onValue) {
-      setState(() {
-        pending = onValue.docs.length;
-      });
+      if (mounted) {
+        setState(() {
+          pending = onValue.docs.length;
+        });
+      }
     });
   }
 
@@ -315,6 +320,12 @@ class _AddLeaveState extends State<AddLeave>
                             shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(10))),
                         onPressed: () {
+                          fromDate = DateTime(fromDate.year, fromDate.month,
+                              fromDate.day, 00, 00);
+                          toDate = DateTime(toDate.year, toDate.month,
+                              toDate.day + 1, 00, 00);
+                          print("dayssssss" +
+                              toDate.difference(fromDate).inDays.toString());
                           if (selectleave == "Select Leave") {
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
@@ -327,7 +338,7 @@ class _AddLeaveState extends State<AddLeave>
                               const SnackBar(
                                   backgroundColor: Colors.white,
                                   content: Text(
-                                    "You cannot apply for leave because previous your leave request is already pending",
+                                    "You cannot apply for leave because your previous leave request is pending",
                                     style: TextStyle(color: Colors.black),
                                   )),
                             );
@@ -345,6 +356,7 @@ class _AddLeaveState extends State<AddLeave>
 
   validateAndSave() {
     final form = _formKey.currentState;
+
     if (form!.validate()) {
       if (reportingTo == null) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -359,7 +371,7 @@ class _AddLeaveState extends State<AddLeave>
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
               backgroundColor: Colors.white,
-              content: Text("Kindly Select To Date properly",
+              content: Text("Kindly Select End Date properly",
                   style: TextStyle(color: Colors.black))),
         );
       } else {
@@ -372,11 +384,13 @@ class _AddLeaveState extends State<AddLeave>
                 ),
               ),
             );
-          } else if (availableDays! <= toDate.difference(fromDate).inDays) {
-            Fluttertoast.showToast(
-                msg: "you have only $availableDays available Leaves");
+          } else if (availableDays! < toDate.difference(fromDate).inDays) {
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                content: Text("You available Leaves: $availableDays ")));
           } else {
-            for (int i = 0; i <= toDate.difference(fromDate).inDays; i++) {
+            print(toDate.difference(fromDate).inDays.toString() +
+                "lllllllllllllllllll");
+            for (int i = 0; i < toDate.difference(fromDate).inDays; i++) {
               days.add({
                 "days": DateFormat('dd MMM yyyy')
                     .format(fromDate.add(Duration(days: i)))
@@ -420,7 +434,7 @@ class _AddLeaveState extends State<AddLeave>
                             "managerId": reportingTo,
                             "empId": uid,
                             "from-to-date":
-                                "${DateFormat('dd MMM yyyy').format(fromDate)} - ${DateFormat('dd MMM yyyy').format(toDate)}",
+                                "${DateFormat('dd MMM yyyy').format(fromDate)} - ${DateFormat('dd MMM yyyy').format(toDate.subtract(Duration(days: 1)))}",
                             "timeStamp": DateTime.now(),
                             "reason": leaveReasonController.text,
                             "compId": companyId,
@@ -537,7 +551,10 @@ class _AddLeaveState extends State<AddLeave>
           }
         } else {
           days.clear();
-          for (int i = 0; i <= toDate.difference(fromDate).inDays; i++) {
+          print(toDate.difference(fromDate).inDays.toString() +
+              "kkkkkkkkkkkkkkkkk");
+
+          for (int i = 0; i < toDate.difference(fromDate).inDays; i++) {
             if (!weekendDefi.contains(
                     "${DateFormat('EEE').format(fromDate.add(Duration(days: i)))}${(fromDate.add(Duration(days: i)).day / 8).toInt() + 1}") &&
                 !weekendDefi.contains(
@@ -559,8 +576,11 @@ class _AddLeaveState extends State<AddLeave>
               ),
             );
           } else if (availableDays! < days.length) {
-            Fluttertoast.showToast(
-                msg: "you have only $availableDays available Leaves");
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                content: Text("Your available Leaves: $availableDays")));
+          } else if (days.length == 0) {
+            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                content: Text("you can't apply Leave for Weekends")));
           } else {
             return showDialog(
               context: context,
@@ -597,7 +617,7 @@ class _AddLeaveState extends State<AddLeave>
                             "managerId": reportingTo,
                             "empId": uid,
                             "from-to-date":
-                                "${DateFormat('dd MMM yyyy').format(fromDate)} - ${DateFormat('dd MMM yyyy').format(toDate)}",
+                                "${DateFormat('dd MMM yyyy').format(fromDate)} - ${DateFormat('dd MMM yyyy').format(toDate.subtract(Duration(days: 1)))}",
                             "timeStamp": DateTime.now(),
                             "reason": leaveReasonController.text,
                             "compId": companyId,

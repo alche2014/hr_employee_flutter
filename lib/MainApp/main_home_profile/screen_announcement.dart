@@ -88,123 +88,142 @@ class _AnnouncementsState extends State<Announcements> {
                     child: Text("ERROR"),
                   );
                 } else if (snapshot.hasData) {
-                  return SingleChildScrollView(
-                    child: ListView.builder(
-                      shrinkWrap: true,
-                      padding: const EdgeInsets.all(0),
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemCount: snapshot.data!.docs.length,
-                      itemBuilder: (_, i) {
-                        return Container(
-                          // width: MediaQuery.of(context).size.width * 0.9,
-                          padding: const EdgeInsets.all(10),
-                          margin: const EdgeInsets.only(bottom: 10),
-
-                          decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(10),
-                              border:
-                                  Border.all(width: 0, color: Colors.white)),
-                          //-----------------text in card-----------------
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: <Widget>[
-                              Text(
-                                snapshot.data!.docs[i]['announcementTitle']!,
-                                style: const TextStyle(
-                                  color: purpleDark,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 17,
-                                ),
+                  return snapshot.data!.docs.isEmpty
+                      ? Container(
+                          height: MediaQuery.of(context).size.height / 1.2,
+                          child: Center(
+                            child: Text(
+                              "No Announcements found",
+                              style: const TextStyle(
+                                fontSize: 17,
                               ),
-                              Padding(
-                                padding: const EdgeInsets.all(8.0),
+                            ),
+                          ))
+                      : SingleChildScrollView(
+                          child: ListView.builder(
+                            shrinkWrap: true,
+                            padding: const EdgeInsets.all(0),
+                            physics: const NeverScrollableScrollPhysics(),
+                            itemCount: snapshot.data!.docs.length,
+                            itemBuilder: (_, i) {
+                              return Container(
+                                // width: MediaQuery.of(context).size.width * 0.9,
+                                padding: const EdgeInsets.all(10),
+                                margin: const EdgeInsets.only(bottom: 10),
+
+                                decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(10),
+                                    border: Border.all(
+                                        width: 0, color: Colors.white)),
+                                //-----------------text in card-----------------
                                 child: Column(
-                                  children: [
+                                  mainAxisSize: MainAxisSize.min,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: <Widget>[
                                     Text(
                                       snapshot.data!.docs[i]
-                                          ["announcementDes"]!,
-                                      maxLines: null,
-                                      style: const TextStyle(fontSize: 14),
+                                          ['announcementTitle']!,
+                                      style: const TextStyle(
+                                        color: purpleDark,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 17,
+                                      ),
+                                    ),
+                                    Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: Column(
+                                        children: [
+                                          Text(
+                                            snapshot.data!.docs[i]
+                                                ["announcementDes"]!,
+                                            maxLines: null,
+                                            style:
+                                                const TextStyle(fontSize: 14),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    const SizedBox(height: 5),
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.start,
+                                      children: [
+                                        CircleAvatar(
+                                          backgroundColor: Colors.transparent,
+                                          radius: 20,
+                                          child: ClipRRect(
+                                            clipBehavior: Clip.antiAlias,
+                                            borderRadius:
+                                                BorderRadius.circular(100),
+                                            child: snapshot.data!.docs[i]
+                                                            ["imageUrl"] ==
+                                                        null ||
+                                                    snapshot.data!.docs[i]
+                                                            ["imageUrl"] ==
+                                                        ''
+                                                ? Image.asset(
+                                                    'assets/placeholder.png',
+                                                    fit: BoxFit.cover,
+                                                  )
+                                                : CachedNetworkImage(
+                                                    imageUrl: snapshot.data!
+                                                        .docs[i]["imageUrl"]!,
+                                                    fit: BoxFit.cover,
+                                                    height: 40,
+                                                    width: 40,
+                                                    progressIndicatorBuilder: (context,
+                                                            url,
+                                                            downloadProgress) =>
+                                                        CircularProgressIndicator(
+                                                      value: downloadProgress
+                                                          .progress,
+                                                      color: Colors.white,
+                                                    ),
+                                                    errorWidget: (context, url,
+                                                            error) =>
+                                                        const Icon(Icons.error),
+                                                  ),
+                                          ),
+                                        ),
+                                        const SizedBox(width: 15),
+                                        Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              snapshot.data!.docs[i]["name"]! ??
+                                                  "N/A",
+                                              style: const TextStyle(
+                                                fontSize: 15,
+                                                color: purpleDark,
+                                              ),
+                                            ),
+                                            const SizedBox(height: 5),
+                                            Text(
+                                              DateFormat.jm()
+                                                  .add_yMd()
+                                                  .format(DateTime.parse(
+                                                      snapshot.data!
+                                                          .docs[i]["timeStamp"]!
+                                                          .toDate()
+                                                          .toString()))
+                                                  .toString(),
+                                              style: const TextStyle(
+                                                fontSize: 10,
+                                                color: Colors.grey,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ],
                                     ),
                                   ],
                                 ),
-                              ),
-                              const SizedBox(height: 5),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                children: [
-                                  CircleAvatar(
-                                    backgroundColor: Colors.transparent,
-                                    radius: 20,
-                                    child: ClipRRect(
-                                      clipBehavior: Clip.antiAlias,
-                                      borderRadius: BorderRadius.circular(100),
-                                      child:
-                                          // imagePath != null ||
-                                          //         imagePath != ""
-                                          //     ? CachedNetworkImage(
-                                          //         imageUrl: imagePath,
-                                          //         fit: BoxFit.cover,
-                                          //         height: 40,
-                                          //         width: 40,
-                                          //         progressIndicatorBuilder:
-                                          //             (context, url,
-                                          //                     downloadProgress) =>
-                                          //                 CircularProgressIndicator(
-                                          //           value:
-                                          //               downloadProgress.progress,
-                                          //           color: Colors.white,
-                                          //         ),
-                                          //         errorWidget:
-                                          //             (context, url, error) =>
-                                          //                 const Icon(Icons.error),
-                                          //       )
-                                          //     :
-                                          Image.asset(
-                                        'assets/placeholder.png',
-                                        fit: BoxFit.cover,
-                                      ),
-                                    ),
-                                  ),
-                                  const SizedBox(width: 15),
-                                  Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      const Text(
-                                        // snapshot.data!.docs[i]["name"]! ??
-                                        "N/A",
-                                        style: TextStyle(
-                                          fontSize: 15,
-                                          color: purpleDark,
-                                        ),
-                                      ),
-                                      const SizedBox(height: 5),
-                                      Text(
-                                        DateFormat.jm()
-                                            .add_yMd()
-                                            .format(DateTime.parse(snapshot
-                                                .data!.docs[i]["timeStamp"]!
-                                                .toDate()
-                                                .toString()))
-                                            .toString(),
-                                        style: const TextStyle(
-                                          fontSize: 10,
-                                          color: Colors.grey,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            ],
+                              );
+                            },
                           ),
                         );
-                      },
-                    ),
-                  );
                 } else {
                   return const Center();
                 }

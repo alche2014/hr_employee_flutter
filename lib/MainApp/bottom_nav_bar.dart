@@ -16,16 +16,20 @@ class NavBar extends StatefulWidget {
   _NavBarState createState() => _NavBarState();
 }
 
-class _NavBarState extends State<NavBar> {
+class _NavBarState extends State<NavBar> with AutomaticKeepAliveClientMixin {
+  bool keepAlive = false;
   int _currentindex = count!;
 
   final tabs = [
     // Assigning Tabs for bottom bar position Icon
     const Center(child: HrDashboard()),
-    Center(child: LeaveHistory(value: "Leave Management", memId: uid)),
+    Center(
+        child:
+            LeaveHistory(value: "Leave Management", memId: uid, team: false)),
     const Center(child: MainCheckIn()),
     const Center(child: SettingsScreen()),
   ];
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -62,4 +66,7 @@ class _NavBarState extends State<NavBar> {
               });
             }));
   }
+
+  @override
+  bool get wantKeepAlive => keepAlive;
 }

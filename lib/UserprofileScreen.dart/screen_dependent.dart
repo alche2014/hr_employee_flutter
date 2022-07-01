@@ -27,7 +27,6 @@ class _DependentState extends State<Dependent> {
   TextEditingController phoneController = TextEditingController();
   var defaultCode = "+92";
 
-  late String userId;
   late String phone;
   late Connectivity connectivity;
   late StreamSubscription<ConnectivityResult> subscription;
@@ -52,7 +51,6 @@ class _DependentState extends State<Dependent> {
         });
       }
     });
-    userId = widget.dependent["uid"];
     _controller1 = TextEditingController(text: widget.dependent["depName"]);
     _controller2 = TextEditingController(text: widget.dependent["depAddress"]);
 
@@ -194,22 +192,11 @@ class _DependentState extends State<Dependent> {
                     color: Colors.black,
                     fontWeight: FontWeight.w500)));
       } else {
-        int guest = 0;
-        final user = FirebaseAuth.instance.currentUser!;
-
-        await FirebaseFirestore.instance
-            .collection("employees")
-            .where('uid', isEqualTo: user.uid)
-            .get()
-            .then((value) {
-          // var count = 0;
-          guest = value.docs.length;
-        });
         showLoadingDialog(context);
 
         DocumentReference addEmpDep = guest == 0
-            ? FirebaseFirestore.instance.collection("guests").doc(userId)
-            : FirebaseFirestore.instance.collection("employees").doc(userId);
+            ? FirebaseFirestore.instance.collection("guests").doc(uid)
+            : FirebaseFirestore.instance.collection("employees").doc(uid);
         addEmpDep.update({
           "depName": _controller1.text.isEmpty
               ? ''

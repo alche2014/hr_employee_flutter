@@ -1,14 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:hr_app/Constants/loadingDailog.dart';
-
 import 'package:hr_app/UserprofileScreen.dart/appbar.dart';
-
-import 'package:hr_app/Constants/colors.dart';
 import 'package:hr_app/Constants/constants.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
+import 'package:hr_app/main.dart';
 
 class MainSkills extends StatefulWidget {
   // ignore: prefer_typing_uninitialized_variables
@@ -20,7 +17,6 @@ class MainSkills extends StatefulWidget {
 }
 
 class _MainSkillsState extends State<MainSkills> {
-  late String userId;
   late String compId;
   List<String> skillsList = [];
   List<String> userSkillList = [];
@@ -34,15 +30,6 @@ class _MainSkillsState extends State<MainSkills> {
   }
 
   loadData() async {
-    userId = widget.data["uid"];
-
-    await FirebaseFirestore.instance
-        .collection("employees")
-        .where('uid', isEqualTo: userId)
-        .get()
-        .then((value) {
-      guest = value.docs.length;
-    });
     if (guest != 0) {
       compId = widget.data["companyId"];
       FirebaseFirestore.instance
@@ -189,16 +176,14 @@ class _MainSkillsState extends State<MainSkills> {
     showLoadingDialog(context);
     FirebaseFirestore.instance.runTransaction((Transaction transaction) async {
       DocumentReference reference = guest == 0
-          ? FirebaseFirestore.instance.collection("guests").doc(userId)
-          : FirebaseFirestore.instance.collection("employees").doc(userId);
+          ? FirebaseFirestore.instance.collection("guests").doc(uid)
+          : FirebaseFirestore.instance.collection("employees").doc(uid);
 
       await reference.update({"skills": userSkillList});
     }).whenComplete(() {
       Navigator.pop(context);
-      Future.delayed(const Duration(milliseconds: 1150), () {
-        Navigator.pop(context);
-      });
-      Fluttertoast.showToast(msg: "Skills is updated successfully");
+      Future.delayed(const Duration(milliseconds: 1150), () {});
+      Fluttertoast.showToast(msg: "Skills are added successfully");
     }).catchError((e) {});
   }
 
@@ -207,6 +192,6 @@ class _MainSkillsState extends State<MainSkills> {
     Navigator.of(context).push(PageRouteBuilder(
         opaque: false,
         pageBuilder: (BuildContext context, _, __) =>
-            LoadingDialog(value: "Loading")));
+            const LoadingDialog(value: "Loading")));
   }
 }

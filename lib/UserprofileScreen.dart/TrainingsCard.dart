@@ -127,33 +127,31 @@ class TrainingsCard extends StatelessWidget {
                                       child: Row(
                                         children: [
                                           Text(
-                                              trainings[index]['startDate'] ==
+                                            trainings[index]['expstartDate'] ??
+                                                "Date",
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.w400,
+                                              fontSize: 15,
+                                              color: trainings[index]
+                                                          ['expstartDate'] ==
                                                       null
-                                                  ? "Date"
-                                                  : trainings[index][index]
-                                                      ['startDate'],
-                                              style: TextStyle(
-                                                  color: trainings[index]
-                                                              ['date'] ==
-                                                          null
-                                                      ? Colors.grey[500]
-                                                      : Colors.grey[700],
-                                                  fontWeight: FontWeight.w400,
-                                                  fontSize: 15)),
+                                                  ? Colors.grey[500]
+                                                  : Colors.grey[700],
+                                            ),
+                                          ),
                                           const Text(' - '),
                                           Text(
-                                              trainings[index]['endDate'] ==
-                                                      null
-                                                  ? "Date"
-                                                  : trainings[index]['endDate'],
+                                              trainings[index]['expLastDate'] ??
+                                                  "Date",
                                               style: TextStyle(
-                                                  color: trainings[index]
-                                                              ['date'] ==
-                                                          null
-                                                      ? Colors.grey[500]
-                                                      : Colors.grey[700],
-                                                  fontWeight: FontWeight.w400,
-                                                  fontSize: 15))
+                                                fontWeight: FontWeight.w400,
+                                                fontSize: 15,
+                                                color: trainings[index]
+                                                            ['expLastDate'] ==
+                                                        null
+                                                    ? Colors.grey[500]
+                                                    : Colors.grey[700],
+                                              )),
                                         ],
                                       ))
                                 ]));

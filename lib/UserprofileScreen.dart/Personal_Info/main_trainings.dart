@@ -140,14 +140,14 @@ class _CardOneState extends State<CardOne> {
                                             children: <Widget>[
                                               Text(
                                                 widget.trainings[index]
-                                                        ['startDate'] ??
+                                                        ['expstartDate'] ??
                                                     "Date",
                                                 style: TextStyle(
                                                     fontWeight: FontWeight.w400,
                                                     fontSize: 15,
                                                     color: widget.trainings[
-                                                                    index]
-                                                                ['startDate'] ==
+                                                                    index][
+                                                                'expstartDate'] ==
                                                             null
                                                         ? Colors.grey[700]
                                                         : Colors.black),
@@ -155,14 +155,14 @@ class _CardOneState extends State<CardOne> {
                                               const Text(' - '),
                                               Text(
                                                 widget.trainings[index]
-                                                        ['endDate'] ??
+                                                        ['expLastDate'] ??
                                                     "Date",
                                                 style: TextStyle(
                                                     fontWeight: FontWeight.w400,
                                                     fontSize: 15,
                                                     color: widget.trainings[
-                                                                    index]
-                                                                ['endDate'] ==
+                                                                    index][
+                                                                'expLastDate'] ==
                                                             null
                                                         ? Colors.grey[700]
                                                         : Colors.black),

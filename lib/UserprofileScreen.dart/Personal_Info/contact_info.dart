@@ -7,6 +7,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:hr_app/Constants/loadingDailog.dart';
 import 'package:hr_app/UserprofileScreen.dart/appbar.dart';
 import 'package:hr_app/Constants/constants.dart';
+import 'package:hr_app/main.dart';
 
 // employee add his/her personal information in this screen
 enum Gender { male, female }
@@ -24,7 +25,6 @@ class _ContactInfoState extends State<ContactInfo> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   late String? cityName;
   var defaultCode = "+92";
-  String? userId;
   final FocusNode cityFocus = FocusNode();
   TextEditingController addressController = TextEditingController();
   TextEditingController phoneController = TextEditingController();
@@ -47,7 +47,6 @@ class _ContactInfoState extends State<ContactInfo> {
       }
     });
 
-    userId = widget.data["uid"];
     defaultCode = widget.data["phone"] == null || widget.data["phone"] == ""
         ? "+92"
         : widget.data["phone"].split(" ")[0];
@@ -190,17 +189,6 @@ class _ContactInfoState extends State<ContactInfo> {
   }
 
   validateAndSave() async {
-    int guest = 0;
-    final user = FirebaseAuth.instance.currentUser!;
-
-    await FirebaseFirestore.instance
-        .collection("employees") //your collectionref
-        .where('uid', isEqualTo: user.uid)
-        .get()
-        .then((value) {
-      // var count = 0;
-      guest = value.docs.length;
-    });
     final form = _formKey.currentState;
     if (form!.validate()) {
       showLoadingDialog(context);
@@ -208,8 +196,8 @@ class _ContactInfoState extends State<ContactInfo> {
       FirebaseFirestore.instance
           .runTransaction((Transaction transaction) async {
         DocumentReference reference = guest == 0
-            ? FirebaseFirestore.instance.collection("guests").doc(userId)
-            : FirebaseFirestore.instance.collection("employees").doc(userId);
+            ? FirebaseFirestore.instance.collection("guests").doc(uid)
+            : FirebaseFirestore.instance.collection("employees").doc(uid);
         await reference.update({
           "phone": phoneController.text.isEmpty
               ? null
@@ -217,6 +205,7 @@ class _ContactInfoState extends State<ContactInfo> {
           "cityName": cityController.text == "" ? null : cityController.text,
           "address":
               addressController.text == "" ? null : addressController.text,
+          "otherEmail": emailController.text == "" ? null : emailController.text
         });
       }).whenComplete(() {
         Navigator.pop(context);

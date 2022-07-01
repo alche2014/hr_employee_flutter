@@ -5,6 +5,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:hr_app/Constants/loadingDailog.dart';
 import 'package:hr_app/UserprofileScreen.dart/appbar.dart';
 import 'package:hr_app/Constants/constants.dart';
+import 'package:hr_app/main.dart';
 
 class AddAboutScreen extends StatefulWidget {
   const AddAboutScreen({Key? key, this.title}) : super(key: key);
@@ -16,14 +17,12 @@ class AddAboutScreen extends StatefulWidget {
 
 class _AddAboutScreenState extends State<AddAboutScreen> {
   TextEditingController descriptionController = TextEditingController();
-  String? userId;
   String? description;
   GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
   @override
   void initState() {
     super.initState();
-    userId = widget.title["uid"];
 
     descriptionController =
         TextEditingController(text: widget.title["aboutYou"] ?? null);
@@ -82,21 +81,12 @@ class _AddAboutScreenState extends State<AddAboutScreen> {
     setState(() {});
     final form = formKey.currentState;
     if (form!.validate()) {
-      int guest = 0;
-      final user = FirebaseAuth.instance.currentUser!;
-      await FirebaseFirestore.instance
-          .collection("employees")
-          .where('uid', isEqualTo: user.uid)
-          .get()
-          .then((value) {
-        guest = value.docs.length;
-      });
       showLoadingDialog(context);
       FirebaseFirestore.instance
           .runTransaction((Transaction transaction) async {
         DocumentReference reference = guest == 0
-            ? FirebaseFirestore.instance.collection("guests").doc(userId)
-            : FirebaseFirestore.instance.collection("employees").doc(userId);
+            ? FirebaseFirestore.instance.collection("guests").doc(uid)
+            : FirebaseFirestore.instance.collection("employees").doc(uid);
         await reference.update({
           "aboutYou": descriptionController.text,
         });

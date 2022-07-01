@@ -42,8 +42,8 @@ SliverAppBar buildMyNewAppBar(BuildContext context, String name, bool turn) {
             color: isdarkmode.value ? Colors.white : Colors.black,
           ),
           onPressed: () {
-            Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(
-                builder: (context) => Notifications(uid: userId)));
+            Navigator.of(context, rootNavigator: true).push(
+                MaterialPageRoute(builder: (context) => const Notifications()));
           },
         )
     ],
@@ -81,8 +81,8 @@ AppBar buildMyAppBar(BuildContext context, String name, bool turn) {
             color: isdarkmode.value ? Colors.white : Colors.grey.shade800,
           ),
           onPressed: () {
-            Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(
-                builder: (context) => Notifications(uid: userId)));
+            Navigator.of(context, rootNavigator: true).push(
+                MaterialPageRoute(builder: (context) => const Notifications()));
           },
         )
     ],

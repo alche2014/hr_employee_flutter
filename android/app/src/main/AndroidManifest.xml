@@ -16,7 +16,7 @@ xmlns:tools="http://schemas.android.com/tools"
         android:label="Smart HR"
         android:icon="@mipmap/ic_launcher">
         <receiver android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationReceiver" />
-    <receiver android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationBootReceiver">
+        <receiver android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationBootReceiver">
         <intent-filter>
             <action android:name="android.intent.action.BOOT_COMPLETED"></action>
         </intent-filter>

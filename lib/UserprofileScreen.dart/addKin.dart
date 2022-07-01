@@ -12,6 +12,7 @@ import 'package:hr_app/Constants/loadingDailog.dart';
 import 'package:hr_app/UserprofileScreen.dart/appbar.dart';
 
 import 'package:hr_app/Constants/constants.dart';
+import 'package:hr_app/main.dart';
 
 class AddKinInfo extends StatefulWidget {
   final data, editable, uid;
@@ -30,7 +31,6 @@ class _AddKinInfoState extends State<AddKinInfo> {
   var dateFormat;
   DateTime? toselectedDate;
   var todateFormat;
-  late String userId;
   var relation;
 
   bool checkedValue = false;
@@ -45,7 +45,6 @@ class _AddKinInfoState extends State<AddKinInfo> {
   @override
   void initState() {
     super.initState();
-    userId = widget.uid;
 
     //check internet connection
     connectivity = Connectivity();
@@ -152,7 +151,7 @@ class _AddKinInfoState extends State<AddKinInfo> {
                               'Father',
                               'Sister',
                               'Brother',
-                              'Spouse'
+                              'Spouse',
                             ].map<DropdownMenuItem<String>>(
                               (String value) {
                                 return DropdownMenuItem<String>(
@@ -189,20 +188,10 @@ class _AddKinInfoState extends State<AddKinInfo> {
   validateAndSave() async {
     final form = _formKey.currentState;
     if (form!.validate()) {
-      int guest = 0;
-      final user = FirebaseAuth.instance.currentUser!;
-
-      await FirebaseFirestore.instance
-          .collection("employees")
-          .where('uid', isEqualTo: user.uid)
-          .get()
-          .then((value) {
-        guest = value.docs.length;
-      });
       showLoadingDialog(context);
       DocumentReference chatroomRef = guest == 0
-          ? FirebaseFirestore.instance.collection("guests").doc(userId)
-          : FirebaseFirestore.instance.collection("employees").doc(userId);
+          ? FirebaseFirestore.instance.collection("guests").doc(uid)
+          : FirebaseFirestore.instance.collection("employees").doc(uid);
       Map<String, dynamic> serializedMessage = {
         "age": ageController.text.isEmpty
             ? ""
@@ -244,20 +233,10 @@ class _AddKinInfoState extends State<AddKinInfo> {
   validateAndUpdate() async {
     final form = _formKey.currentState;
     if (form!.validate()) {
-      int guest = 0;
-      final user = FirebaseAuth.instance.currentUser!;
-
-      await FirebaseFirestore.instance
-          .collection("employees")
-          .where('uid', isEqualTo: user.uid)
-          .get()
-          .then((value) {
-        guest = value.docs.length;
-      });
       showLoadingDialog(context);
       DocumentReference kins = guest == 0
-          ? FirebaseFirestore.instance.collection("guests").doc(userId)
-          : FirebaseFirestore.instance.collection("employees").doc(userId);
+          ? FirebaseFirestore.instance.collection("guests").doc(uid)
+          : FirebaseFirestore.instance.collection("employees").doc(uid);
       kins.update({
         "kinInfo": FieldValue.arrayRemove([widget.data])
       });

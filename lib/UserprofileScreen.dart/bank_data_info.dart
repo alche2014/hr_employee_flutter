@@ -7,6 +7,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:hr_app/Constants/loadingDailog.dart';
 import 'package:hr_app/UserprofileScreen.dart/appbar.dart';
 import 'package:hr_app/Constants/constants.dart';
+import 'package:hr_app/main.dart';
 
 // employee add his/her bank information in this screen
 class BankdataInfo extends StatefulWidget {
@@ -23,7 +24,6 @@ class _BankdataInfoState extends State<BankdataInfo> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   late String bankName;
   late String bankNumber;
-  late String userId;
   TextEditingController bankNameController = TextEditingController();
   TextEditingController ibanController = TextEditingController();
   TextEditingController bankNumberController = TextEditingController();
@@ -34,7 +34,6 @@ class _BankdataInfoState extends State<BankdataInfo> {
   @override
   void initState() {
     super.initState();
-    userId = widget.data["uid"];
     bankNumberController = TextEditingController(text: widget.data["bankNo"]);
     bankNameController = TextEditingController(text: widget.data["bnkName"]);
     ibanController = TextEditingController(text: widget.data["iban"]);
@@ -183,23 +182,13 @@ class _BankdataInfoState extends State<BankdataInfo> {
   validateAndSave() async {
     final form = _formKey.currentState;
     if (form!.validate()) {
-      int guest = 0;
-      final user = FirebaseAuth.instance.currentUser!;
-
-      await FirebaseFirestore.instance
-          .collection("employees")
-          .where('uid', isEqualTo: user.uid)
-          .get()
-          .then((value) {
-        guest = value.docs.length;
-      });
       showLoadingDialog(context);
 
       FirebaseFirestore.instance
           .runTransaction((Transaction transaction) async {
         DocumentReference reference = guest == 0
-            ? FirebaseFirestore.instance.collection("guests").doc(userId)
-            : FirebaseFirestore.instance.collection("employees").doc(userId);
+            ? FirebaseFirestore.instance.collection("guests").doc(uid)
+            : FirebaseFirestore.instance.collection("employees").doc(uid);
         await reference.update({
           "bnkName":
               bankNameController.text == "" ? null : bankNameController.text,
@@ -218,10 +207,11 @@ class _BankdataInfoState extends State<BankdataInfo> {
               : accountTitleController.text,
         });
       }).whenComplete(() {
-        // Navigator.pop(context);
+        Navigator.pop(context);
 
         Fluttertoast.showToast(msg: "Account info is updated successfully");
       }).catchError((e) {});
+
       Future.delayed(const Duration(milliseconds: 1150), () {
         Navigator.of(context).pop();
       });

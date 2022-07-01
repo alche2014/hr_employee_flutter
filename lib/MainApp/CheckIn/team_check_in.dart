@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:hr_app/Constants/colors.dart';
 import 'package:hr_app/Constants/constants.dart';
+import 'package:hr_app/MainApp/LeaveManagement/leave_history.dart';
 import 'package:hr_app/MainApp/main_home_profile/teamInfo.dart';
 import 'package:hr_app/UserprofileScreen.dart/appbar.dart';
 import 'package:hr_app/main.dart';
@@ -35,7 +36,11 @@ class _MainCheckInTeamState extends State<MainCheckInTeam> {
   void initState() {
     super.initState();
     loadTeam();
-    _getShiftSchedule();
+    if (shiftId != null) {
+      _getShiftSchedule();
+    } else {
+      weekendDefi = ["Sat0", "Sun0"];
+    }
   }
 
   _getShiftSchedule() {
@@ -793,20 +798,27 @@ class _MainCheckInTeamState extends State<MainCheckInTeam> {
   Widget miniCards(image, title) {
     return InkWell(
       onTap: () {
-        Fluttertoast.showToast(msg: "In Progress");
+        // Fluttertoast.showToast(msg: "In Progress");
 
         // if (title == "Team Reports") {
         // Fluttertoast.showToast(msg: "You are not the team lead");
 
         // Navigator.push(
         //     context, MaterialPageRoute(builder: (context) => TeamReports()));
-        // } else if (title == "Announcements") {
+        // }
+        // else if (title == "Announcements") {
         //   // Navigator.push(context,
         //   //     MaterialPageRoute(builder: (context) => const Announcements()));
-        // } else if (title == "Leaves") {
-        //   // Navigator.push(context,
-        //   //     MaterialPageRoute(builder: (context) => const LeaveManagement()));
-        // }
+        // } else
+        if (title == "Requests") {
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) =>
+                      LeaveHistory(value: "Requests", memId: uid, team: true)));
+        } else {
+          Fluttertoast.showToast(msg: "In Process");
+        }
       },
       child: Column(
         children: [

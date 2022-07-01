@@ -6,6 +6,7 @@ import 'package:hr_app/MainApp/main_home_profile/apply_leaves.dart';
 import 'package:hr_app/UserprofileScreen.dart/appbar.dart';
 import 'package:hr_app/main.dart';
 import 'package:intl/intl.dart';
+// import 'package:percent_indicator/percent_indicator.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 
 class LeaveManagement extends StatefulWidget {
@@ -85,7 +86,7 @@ class _LeaveManagementState extends State<LeaveManagement> {
                       animationDuration: 1000,
                       animateFromLastPercent: false,
                       animation: true,
-                      radius: 175.0,
+                      radius: 90.0,
                       lineWidth: 10.0,
                       percent: used / total.toDouble(),
                       center: Column(
@@ -169,7 +170,7 @@ class _LeaveManagementState extends State<LeaveManagement> {
                           ]),
                     ),
                     SizedBox(
-                      height: 95,
+                      height: 100,
                       width: MediaQuery.of(context).size.width,
                       child: ListView.builder(
                           padding: const EdgeInsets.all(0),
@@ -199,7 +200,7 @@ class _LeaveManagementState extends State<LeaveManagement> {
                                           animationDuration: 1000,
                                           animateFromLastPercent: true,
                                           animation: true,
-                                          radius: 50.0,
+                                          radius: 25.0,
                                           lineWidth: 3.0,
                                           percent: (leaveData[index]!['taken'])
                                                   .toDouble() /
@@ -343,7 +344,8 @@ class _LeaveManagementState extends State<LeaveManagement> {
                                                 const NeverScrollableScrollPhysics(),
                                             itemBuilder: (context, index) {
                                               return LeaveHistoryCard(
-                                                  snapshot.data!.docs[index]);
+                                                  snapshot.data!.docs[index],
+                                                  false);
                                             });
                                   } else if (!snapshot.hasData) {
                                     return notFound();
@@ -377,7 +379,8 @@ class _LeaveManagementState extends State<LeaveManagement> {
                                                 const NeverScrollableScrollPhysics(),
                                             itemBuilder: (context, index) {
                                               return LeaveHistoryCard(
-                                                  snapshot.data!.docs[index]);
+                                                  snapshot.data!.docs[index],
+                                                  false);
                                             });
                                   } else if (!snapshot.hasData) {
                                     return notFound();
@@ -391,17 +394,23 @@ class _LeaveManagementState extends State<LeaveManagement> {
                           ),
                   ],
                 )),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.push(context,
-              MaterialPageRoute(builder: (context) => const AddLeave()));
-        },
-        child: const Icon(
-          Icons.add,
-          color: Colors.white,
-        ),
-        backgroundColor: purpleDark,
-      ),
+      floatingActionButton: joiningDate == ''
+          ? Container()
+          : leaveData.isEmpty
+              ? Container()
+              : FloatingActionButton(
+                  onPressed: () {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => const AddLeave()));
+                  },
+                  child: const Icon(
+                    Icons.add,
+                    color: Colors.white,
+                  ),
+                  backgroundColor: purpleDark,
+                ),
     );
   }
 

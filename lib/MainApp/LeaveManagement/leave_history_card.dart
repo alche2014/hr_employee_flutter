@@ -1,12 +1,21 @@
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:hr_app/Constants/colors.dart';
 import 'package:intl/intl.dart';
 
 // ignore: must_be_immutable
-class LeaveHistoryCard extends StatelessWidget {
-  final bodyContent;
+class LeaveHistoryCard extends StatefulWidget {
+  final bodyContent, team;
 
-  const LeaveHistoryCard(this.bodyContent, {Key? key}) : super(key: key);
+  const LeaveHistoryCard(this.bodyContent, this.team, {Key? key})
+      : super(key: key);
 
+  @override
+  State<LeaveHistoryCard> createState() => _LeaveHistoryCardState();
+}
+
+class _LeaveHistoryCardState extends State<LeaveHistoryCard> {
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -23,12 +32,80 @@ class LeaveHistoryCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    widget.team
+                        ? StreamBuilder<DocumentSnapshot>(
+                            stream: FirebaseFirestore.instance
+                                .collection('employees')
+                                .doc(widget.bodyContent['empId'])
+                                .snapshots(),
+                            builder: (context,
+                                AsyncSnapshot<DocumentSnapshot> snapshot) {
+                              return Row(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                children: [
+                                  snapshot.hasData
+                                      ? CircleAvatar(
+                                          backgroundColor: Colors.transparent,
+                                          radius: 20,
+                                          child: ClipRRect(
+                                            clipBehavior: Clip.antiAlias,
+                                            borderRadius:
+                                                BorderRadius.circular(100),
+                                            child: snapshot.data![
+                                                            "imagePath"] ==
+                                                        null ||
+                                                    snapshot.data![
+                                                            "imagePath"] ==
+                                                        ''
+                                                ? Image.asset(
+                                                    'assets/placeholder.png',
+                                                    fit: BoxFit.cover,
+                                                  )
+                                                : CachedNetworkImage(
+                                                    imageUrl: snapshot
+                                                        .data!["imagePath"]!,
+                                                    fit: BoxFit.cover,
+                                                    height: 40,
+                                                    width: 40,
+                                                    progressIndicatorBuilder: (context,
+                                                            url,
+                                                            downloadProgress) =>
+                                                        CircularProgressIndicator(
+                                                      value: downloadProgress
+                                                          .progress,
+                                                      color: Colors.white,
+                                                    ),
+                                                    errorWidget: (context, url,
+                                                            error) =>
+                                                        const Icon(Icons.error),
+                                                  ),
+                                          ),
+                                        )
+                                      : const Icon(
+                                          Icons.person,
+                                          color: Colors.grey,
+                                        ),
+                                  const SizedBox(width: 15),
+                                  Text(
+                                    snapshot.hasData
+                                        ? snapshot.data!["displayName"]!
+                                        : "",
+                                    style: const TextStyle(
+                                      fontSize: 15,
+                                      color: purpleDark,
+                                    ),
+                                  ),
+                                ],
+                              );
+                            })
+                        : Container(),
+                    SizedBox(height: widget.team ? 5 : 0),
                     Container(
                       margin: const EdgeInsets.only(left: 10, right: 10),
                       height: 30,
                       child: RichText(
                         text: TextSpan(
-                          text: bodyContent["leaveType"],
+                          text: widget.bodyContent["leaveType"],
                           style: const TextStyle(
                               color: Colors.black,
                               fontWeight: FontWeight.bold,
@@ -36,7 +113,7 @@ class LeaveHistoryCard extends StatelessWidget {
                           children: <TextSpan>[
                             TextSpan(
                                 text: " Applied from " +
-                                    bodyContent["from-to-date"]
+                                    widget.bodyContent["from-to-date"]
                                         .replaceAll("-", "to"),
                                 style: const TextStyle(
                                   fontSize: 12,
@@ -52,8 +129,10 @@ class LeaveHistoryCard extends StatelessWidget {
                       child: Text(
                         DateFormat.jm()
                             .add_yMd()
-                            .format(DateTime.parse(
-                                bodyContent["timeStamp"].toDate().toString()))
+                            .format(DateTime.parse(widget
+                                .bodyContent["timeStamp"]
+                                .toDate()
+                                .toString()))
                             .toString(),
                         style: TextStyle(
                             fontSize: 12, color: Colors.grey.shade700),
@@ -66,35 +145,39 @@ class LeaveHistoryCard extends StatelessWidget {
                 flex: 3,
                 child: Container(
                     decoration: BoxDecoration(
-                        color: bodyContent['leaveStatus'] == 'approved'
+                        color: widget.bodyContent['leaveStatus'] == 'approved'
                             ? Colors.green
-                            : bodyContent['leaveStatus'] == 'rejected'
+                            : widget.bodyContent['leaveStatus'] == 'rejected'
                                 ? Colors.red
-                                : bodyContent['leaveStatus'] == 'pending'
+                                : widget.bodyContent['leaveStatus'] == 'pending'
                                     ? Colors.yellow.shade700
                                     : Colors.transparent,
                         borderRadius: BorderRadius.circular(20),
                         border: Border.all(
                           width: 1.0,
-                          color: bodyContent['leaveStatus'] == 'approved'
+                          color: widget.bodyContent['leaveStatus'] == 'approved'
                               ? Colors.green
-                              : bodyContent['leaveStatus'] == 'rejected'
+                              : widget.bodyContent['leaveStatus'] == 'rejected'
                                   ? Colors.red
-                                  : bodyContent['leaveStatus'] == 'pending'
+                                  : widget.bodyContent['leaveStatus'] ==
+                                          'pending'
                                       ? Colors.yellow.shade700
                                       : Colors.grey.shade300,
                         )),
                     child: Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: Text(
-                          bodyContent['leaveStatus'].toUpperCase(),
+                          widget.bodyContent['leaveStatus'].toUpperCase(),
                           textAlign: TextAlign.center,
                           style: TextStyle(
-                              color: bodyContent['leaveStatus'] == 'approved'
+                              color: widget.bodyContent['leaveStatus'] ==
+                                      'approved'
                                   ? Colors.white
-                                  : bodyContent['leaveStatus'] == 'rejected'
+                                  : widget.bodyContent['leaveStatus'] ==
+                                          'rejected'
                                       ? Colors.white
-                                      : bodyContent['leaveStatus'] == 'pending'
+                                      : widget.bodyContent['leaveStatus'] ==
+                                              'pending'
                                           ? Colors.white
                                           : Colors.grey,
                               fontSize: 12),
@@ -102,11 +185,11 @@ class LeaveHistoryCard extends StatelessWidget {
               ),
             ],
           ),
-          SizedBox(height: bodyContent['reason'] == "" ? 1 : 15.0),
+          SizedBox(height: widget.bodyContent['reason'] == "" ? 1 : 15.0),
           Container(
             margin: const EdgeInsets.only(left: 10, right: 10),
             child: Text(
-              bodyContent['reason'],
+              widget.bodyContent['reason'],
               style: const TextStyle(
                 fontSize: 15,
               ),

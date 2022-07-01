@@ -112,7 +112,7 @@ class _PersonalInfoCardState extends State<PersonalInfoCard> {
                   child: Text(
                     snapshot["fatherName"] ?? "Father's Name",
                     style: TextStyle(
-                        color: snapshot["bloodGroup"] == null
+                        color: snapshot["fatherName"] == null
                             ? Colors.grey[500]
                             : Colors.grey[700],
                         fontWeight: FontWeight.w400,
@@ -200,7 +200,7 @@ class _PersonalInfoCardState extends State<PersonalInfoCard> {
                   child: Container(
                     padding: const EdgeInsets.only(right: 5),
                     child: const Text(
-                      "Emergency Contact: ",
+                      "Address: ",
                       style: TextStyle(
                           color: Color(0XFF535353),
                           fontFamily: "Sofia Pro",
@@ -212,9 +212,9 @@ class _PersonalInfoCardState extends State<PersonalInfoCard> {
                 Expanded(
                   flex: 7,
                   child: Text(
-                    snapshot["emergencyPhone"] ?? "Emergency Contact",
+                    snapshot["cnicAddress"] ?? "Address",
                     style: TextStyle(
-                        color: snapshot["emergencyPhone"] == null
+                        color: snapshot["cnicAddress"] == null
                             ? Colors.grey[500]
                             : Colors.grey[700],
                         fontWeight: FontWeight.w400,

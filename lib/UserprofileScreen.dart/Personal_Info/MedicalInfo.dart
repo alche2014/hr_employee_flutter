@@ -8,6 +8,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:hr_app/Constants/loadingDailog.dart';
 import 'package:hr_app/UserprofileScreen.dart/appbar.dart';
 import 'package:hr_app/Constants/constants.dart';
+import 'package:hr_app/main.dart';
 
 // employee add his/her personal information in this screen
 
@@ -22,7 +23,6 @@ class _MedicalInfoState extends State<MedicalInfo> {
   Connectivity? connectivity;
   StreamSubscription<ConnectivityResult>? subscription;
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  String? userId;
   final FocusNode cityFocus = FocusNode();
   TextEditingController healthController = TextEditingController();
   TextEditingController medicalidController = TextEditingController();
@@ -46,8 +46,6 @@ class _MedicalInfoState extends State<MedicalInfo> {
         setState(() {});
       }
     });
-
-    userId = widget.data["uid"];
 
     bloodgroupController = TextEditingController(
         text:
@@ -196,17 +194,6 @@ class _MedicalInfoState extends State<MedicalInfo> {
   }
 
   validateAndSave() async {
-    int guest = 0;
-    final user = FirebaseAuth.instance.currentUser!;
-
-    await FirebaseFirestore.instance
-        .collection("employees") //your collectionref
-        .where('uid', isEqualTo: user.uid)
-        .get()
-        .then((value) {
-      // var count = 0;
-      guest = value.docs.length;
-    });
     final form = _formKey.currentState;
     if (form!.validate()) {
       showLoadingDialog(context);
@@ -214,8 +201,8 @@ class _MedicalInfoState extends State<MedicalInfo> {
       FirebaseFirestore.instance
           .runTransaction((Transaction transaction) async {
         DocumentReference reference = guest == 0
-            ? FirebaseFirestore.instance.collection("guests").doc(userId)
-            : FirebaseFirestore.instance.collection("employees").doc(userId);
+            ? FirebaseFirestore.instance.collection("guests").doc(uid)
+            : FirebaseFirestore.instance.collection("employees").doc(uid);
         await reference.update({
           "medicalId": medicalidController.text.isEmpty
               ? "null"

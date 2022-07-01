@@ -63,7 +63,18 @@ class AuthService {
 
 //check user exist in db or not
   Future<bool> userExist(User? user) async {
-    DocumentReference ref = _db.collection('employees').doc(user!.uid);
+    DocumentReference ref = _db.collection('employees').doc(user?.uid);
+    DocumentSnapshot snapshot = await ref.get();
+
+    if (snapshot.data() == null) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  Future<bool> guestExist(User? user) async {
+    DocumentReference ref = _db.collection('guests').doc(user!.uid);
     DocumentSnapshot snapshot = await ref.get();
 
     if (snapshot.data() == null) {
@@ -75,7 +86,6 @@ class AuthService {
 
   firstTimeEmpLogin(User? user) async {
     dynamic gender;
-    // var genderBool = true;
     await FirebaseFirestore.instance
         .collection("employees")
         .doc(user!.uid)
@@ -94,7 +104,6 @@ class AuthService {
 //check user exist in db or not
   firstTimeLogin(User? user) async {
     dynamic gender;
-    // var genderBool = true;
     await FirebaseFirestore.instance
         .collection("guests")
         .doc(user!.uid)
@@ -111,16 +120,6 @@ class AuthService {
   }
 
 // checking for guest profie
-  Future<bool> guestExist(User? user) async {
-    DocumentReference ref = _db.collection('guests').doc(user!.uid);
-    DocumentSnapshot snapshot = await ref.get();
-
-    if (snapshot.data() == null) {
-      return true;
-    } else {
-      return false;
-    }
-  }
 
 //check user is loggedin or not
   Future<bool> isLogin() async {
@@ -151,10 +150,55 @@ class AuthService {
     }
   }
 
+  Future<User?> handleSignInEmail(String email, String password) async {
+    final result = await _auth.signInWithEmailAndPassword(
+        email: email, password: password);
+
+    return result.user;
+  }
+
+  //signup
+  Future<User?> handleSignUp(String email, String password) async {
+    final result = await _auth.createUserWithEmailAndPassword(
+        email: email, password: password);
+    return result.user;
+  }
+
+  Future<String> signup(String email, String passsword) async {
+    String exceptiion = "";
+    try {
+      await FirebaseAuth.instance
+          .createUserWithEmailAndPassword(email: email, password: passsword);
+      User? user = _auth.currentUser;
+      user!.sendEmailVerification();
+      // user!.reload();
+
+      print(user.email);
+    } on FirebaseException catch (e) {
+      if (e.code == "email-already-in-use") {
+        print('Email alredy in use');
+        exceptiion = "Email is already is use";
+      } else {
+        print(e.code + "..........");
+        exceptiion = e.code;
+      }
+    }
+    return exceptiion;
+  }
+
+  Future<String> forgetPassword(email) async {
+    try {
+      await _auth.sendPasswordResetEmail(email: email);
+      return "no exception";
+    } on FirebaseException catch (e) {
+      return e.code;
+    }
+  }
+
 //logout
   void signOut(BuildContext context) async {
     await _auth.signOut();
-    await _googleSignIn.signOut();
+    // await _googleSignIn.signOut();
     Navigator.of(context)
         .pushNamedAndRemoveUntil('/login', (Route<dynamic> route) => false);
   }
